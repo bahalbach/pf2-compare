@@ -1,188 +1,7 @@
 import copy
-mProf = dict(zip(list(range(1,21)),list(range(1,21))))
-for i in range(1,21):
-    mProf[i] += 2
-    if i >=5: 
-        mProf[i] += 2
-    if i >= 13: 
-        mProf[i] += 2
-        
-cProf = dict(zip(list(range(1,21)),list(range(1,21))))
-for i in range(1,21):
-    cProf[i] += 2
-    if i >=11: 
-        cProf[i] += 2
+from pf2calcMonsterStats import creatureData
+from pf2calcAttacks import AtkSelection, CombinedAttack, attackSwitcher
 
-wProf = dict(zip(list(range(1,21)),list(range(1,21))))
-for i in range(1,21):
-    wProf[i] += 2
-    if i >=7: 
-        wProf[i] += 2
-
-fProf = mProf
-for i in fProf:
-    fProf[i] += 2
-    
-mStr = {i: 4 for i in range(1,21)}
-for i in mStr:
-    if i >= 10:
-        mStr[i] += 1
-    if i >= 17:
-        mStr[i] += 1
-    if i >=20:
-        mStr[i] +=1
-        
-cStr = {i: 3 for i in range(1,21)}
-for i in cStr:
-    if i >= 5:
-        cStr[i] += 1
-    if i >= 15:
-        cStr[i] += 1
-
-wStr = {i: 3 for i in range(1,21)}
-for i in wStr:
-    if i >= 5:
-        wStr[i] += 1
-    if i >= 15:
-        wStr[i] += 1
-    if i >= 17:
-        wStr[i] += 1
-        
-wiBonus = {i: 0 for i in range(1,21)}
-for i in wiBonus:
-    if i >= 2:
-        wiBonus[i] += 1
-    if i >= 10:
-        wiBonus[i] += 1
-    if i >= 16:
-        wiBonus[i] += 1
-        
-wDice = {i: 1 for i in range(1,21)}
-for i in wDice:
-    if i >= 4:
-        wDice[i] += 1
-    if i >= 12:
-        wDice[i] += 1
-    if i >= 19:
-        wDice[i] += 1
-        
-sDice = {i: int((i+1)/2) for i in range(1,21)}
-
-martialAttackBonus = {i: mProf[i] + mStr[i] + wiBonus[i] for i in range(1,21)}
-
-casterAttackBonus = {i: cProf[i] + cStr[i] + wiBonus[i] for i in range(1,21)}
-
-warpriestAttackBonus = {i: wProf[i] + wStr[i] + wiBonus[i] for i in range(1,21)}
-
-fighterAttackBonus = {i: fProf[i] + mStr[i] + wiBonus[i] for i in range(1,21)}
-
-
-
-
-
-mwSpec = {i: 0 for i in range(1,21)}
-for i in mwSpec:
-    if i >= 7:
-        mwSpec[i] = int((mProf[i]-i)/2)
-    if i >= 15:
-        mwSpec[i] = int((mProf[i]-i))
-        
-fwSpec = {i: 0 for i in range(1,21)}
-for i in fwSpec:
-    if i >= 7:
-        fwSpec[i] = int((fProf[i]-i)/2)
-    if i >= 15:
-        fwSpec[i] = int((fProf[i]-i))
-        
-cwSpec = {i: 0 for i in range(1,21)}
-for i in cwSpec:
-    if i >= 13:
-        cwSpec[i] = int((cProf[i]-i)/2)
-        
-eRune = {i: 0 for i in range(1,21)}
-for i in eRune:
-    if i >= 8:
-        eRune[i] += 3.5
-    if i>=15:
-        eRune[i] += 3.5
-        
-d6Damage = [3.5 * wDice[i] for i in wDice]
-d8Damage = [4.5 * wDice[i] for i in wDice]
-d10Damage = [5.5 * wDice[i] for i in wDice]
-d12Damage = [6.5 * wDice[i] for i in wDice]
-
-damageDiceConverter = {"1d4": 2.5,
-                       "1d6": 3.5,
-                       "1d8/1d6+1": 4.5,
-                       "1d10/1d8+1/1d6+2": 5.5,
-                       "1d12/1d10+1/1d8+2": 6.5,
-                       "1d12+1/1d10+2": 7.5}
-
-noneDamage = {i: 0 for i in range(1,21)}
-deadlyd6Damage = {i: max(3.5,(wDice[i]-1)*3.5) for i in range(1,21)}
-deadlyd8Damage = {i: max(4.5,(wDice[i]-1)*4.5) for i in range(1,21)}
-deadlyd10Damage = {i: max(5.5,(wDice[i]-1)*5.5) for i in range(1,21)}
-deadlyd12Damage = {i: max(6.5,(wDice[i]-1)*6.5) for i in range(1,21)}
-fatald8Damage = {i: 4.5 + wDice[i]*4 for i in range(1,21)}
-fatald10Damage = {i: 5.5 + wDice[i]*4 for i in range(1,21)}
-fatald12Damage = {i: 6.5 + wDice[i]*2 for i in range(1,21)}
-
-criticalDiceConverter = {"none": noneDamage,
-                 "deadly d6": deadlyd6Damage,
-                 "deadly d8": deadlyd8Damage,
-                 "deadly d10": deadlyd10Damage,
-                 "deadly d12": deadlyd12Damage,
-                 "fatal d8": fatald8Damage,
-                 "fatal d10": fatald10Damage,
-                 "fatal d12": fatald12Damage
-        }
-
-d12pad = {i: 6.5 for i in range(1,21)}
-for i in d12pad:
-    if i>=10:
-        d12pad[i]+=6.5
-    if i>=18:
-        d12pad[i]+=6.5
-
-d10pad = {i: 5.5 for i in range(1,21)}
-for i in d10pad:
-    if i>=10:
-        d10pad[i]+=5.5
-    if i>=18:
-        d10pad[i]+=5.5
-        
-d12bfd = {i: 0 for i in range(1,21)}
-for i in d12bfd:
-    if i>=10:
-        d12bfd[i]+=6.5
-    if i>=18:
-        d12bfd[i]+=6.5
-        
-d10bfd = {i: 0 for i in range(1,21)}
-for i in d10bfd:
-    if i>=10:
-        d10bfd[i]+=5.5
-    if i>=18:
-        d10bfd[i]+=5.5
-
-fighterDamage = {i: mStr[i]+fwSpec[i] for i in range(1,21)}
-fighterd10paDamage = {i: mStr[i]+fwSpec[i]+d10pad[i] for i in range(1,21)}
-fighterd12paDamage = {i: mStr[i]+fwSpec[i]+d12pad[i] for i in range(1,21)}
-fighterd10bfDamage = {i: mStr[i]+fwSpec[i]+d10bfd[i] for i in range(1,21)}
-fighterd12bfDamage = {i: mStr[i]+fwSpec[i]+d12bfd[i] for i in range(1,21)}
-
-d12pad = {i: 6.5 for i in range(1,21)}
-for i in d12pad:
-    if i>=10:
-        d12pad[i]+=6.5
-    if i>=18:
-        d12pad[i]+=6.5
-
-def ffd(level):
-    if level < 10:
-        return 0
-    return mStr[level] + fwSpec[level]
-fighterFailDamage = {i: mStr[i] + fwSpec[i] for i in range(1,21) }
 
 
 
@@ -219,6 +38,8 @@ averageAcByLevel = {-1: 15,
  18: 42,
  19: 44,
  20: 46}
+
+
  
 averageTarget = Target(averageAcByLevel,None,None,None)
 
@@ -284,224 +105,32 @@ def critSuccessChance(attackMinusAc, keen=False):
     
     return chance
     
-def calculateED(accuracy, defense, damage, dm=0, cd=0, fd=0, keen=False):
+def calculateED(accuracy, defense, damage, dm=0, cd=0, fd=0, sd=0, keen=False):
     # fd = failure damage, cd = crit added damage, dm is damage that applies on all hits, like weakness/resistance
     exD = 0
-    if fd != 0:
-        exD += failChance(accuracy-defense) * (fd + dm)
-    exD += successChance(accuracy-defense, keen) * (damage + dm)
-    exD += critSuccessChance(accuracy-defense, keen) * (damage + damage + dm)
+    if fd != 0 or sd != 0:
+        exD += failChance(accuracy-defense) * (fd + sd + dm)
+    exD += successChance(accuracy-defense, keen) * (damage + sd + dm)
+    exD += critSuccessChance(accuracy-defense, keen) * (damage + damage + sd + dm)
     if cd != 0:
         exD += critSuccessChance(accuracy-defense, keen) * cd
     return exD / 100
 
 
-class AtkSelection:
-#         attack
-#         damage
-#         target
-        def __init__(self, attack, damage, csLevel=21, fd=None):
-            self.attack = attack
-            self.damage = damage
-            self.persDamage = copy.copy(noneDamage)
-            
-            self.critSpecLevel = csLevel
-            self.wDice = copy.copy(wDice) # number of dice
-            self.damageDice = 0 # 3.5
-            self.weaponDamage = None
-            self.runeDamage = None
-            
-            if fd:
-                self.fd = copy.copy(fd)
-            else:
-                self.fd = copy.copy(noneDamage)
-            self.cd = copy.copy(noneDamage)
-            self.critPersDamage = copy.copy(noneDamage)
-            
-            self.ab = 0
-            self.db = 0
-            
-            self.keenLevel = 21
-            self.ffonCritLevel = 21
-            self.ffonSuccessLevel = 21
-            self.ffonFailLevel = 21
-            
-            self.minL = 1
-            self.maxL = 20
-            
-        def setWeaponDamage(self, weaponDamageDiceName):
-            self.damageDice = damageDiceConverter[weaponDamageDiceName]
-            self.weaponDamage = {i: self.wDice[i]*self.damageDice for i in range(1,21)}
-            
-        def setCriticalEffects(self, weaponCriticalName):
-            cd = criticalDiceConverter[weaponCriticalName]
-            for i in range(1,21):
-                self.cd[i] += cd[i]
-            
-        def setCriticalSpecialization(self, csName):
-            if csName == "other/none":
-                return
-            elif csName == "dart/knife":
-                for i in range(self.critSpecLevel,21):
-                    self.critPersDamage[i] += 3.5 + wiBonus[i]
-            elif csName == "flail/hammer/sword":
-                self.ffonCritLevel = min(self.ffonCritLevel,self.critSpecLevel)
-            elif csName == "pick":
-                for i in range(self.critSpecLevel,21):
-                    self.cd[i] += self.wDice[i] * 2
-        
-        def setRuneDamage(self, r1, r2, r3, r4):
-            self.runeDamage = {i: 0 for i in range(1,21)}
-            for i in range(1,21):
-                if i >= r1:
-                    self.runeDamage[i]+=3.5
-                if i >= r2:
-                    self.runeDamage[i]+=3.5
-                if i >= r3:
-                    self.runeDamage[i]+=3.5
-                if i >= r4:
-                    self.runeDamage[i]+=3.5
-            
-        def getAttack(self, level):
-            if level>=self.minL and level<=self.maxL:
-                return self.attack[level] + self.ab
-            return None
-        
-        def getDamage(self, level):
-            if level>=self.minL and level<=self.maxL:
-                return self.damage[level] + self.weaponDamage[level] + self.runeDamage[level] + self.db
-            return None
-        
-        def getFD(self, level):
-            if self.fd:
-                return self.fd[level] + self.db
-            return 0
-        
-        def getCD(self, level):
-            if self.cd:
-                return self.cd[level]
-            return 0
-        
-        def getKeen(self, level):
-            if level >= self.keenLevel:
-                return True
-            return False
-        def ffonCrit(self, level):
-            if level >= self.ffonCritLevel:
-                return True
-            return False
-        def ffonSuccess(self, level):
-            if level >= self.ffonSuccessLevel:
-                return True
-            return False
-        def ffonFail(self, level):
-            if level >= self.ffonFailLevel:
-                return True
-            return False
-        
-        def modifyAB(self, ab):
-            self.ab = ab
-        def modifyDB(self, db):
-            self.db = db
-        def setKeen(self, level):
-            self.keenLevel = level
-        def setFFonCrit(self, level):
-            self.ffonCritLevel = min(level,self.ffonCritLevel)
-        def setFFonSuccess(self, level):
-            self.ffonSuccessLevel = min(level,self.ffonSuccessLevel)
-        def setFFonFail(self, level):
-            self.ffonFailLevel = min(level,self.ffonFailLevel)
-        def setLevels(self, minl, maxl):
-            self.minL, self.maxL = minl, maxl
-            
-class CombinedAttack:
-    def __init__(self, attackList, function=min):
-        self.function=function
-        self.attackList=attackList
-        # what if attackList has a combined attack?
-        #also update create Traces
-        
-    def contains(self, level):
-        for sr in self.attackList:
-            if type(sr) is CombinedAttack:
-                srhas = sr.contains(level)
-            else:
-                srhas = True
-                for st in sr:
-                    if not st.getAttack(level):
-                        srhas = False
-            if srhas: return True
-        return False
-    
-    def validFor(self, level):
-        #returns attack lists that work on specified level
-        validAttackList = []
-        for sr in self.attackList:
-            if type(sr) is CombinedAttack:
-                if sr.contains(level):
-                    validAttackList.append(sr)
-            else:
-                srhas = True
-                for st in sr:
-                    if not st.getAttack(level):
-                        srhas = False
-                if srhas: validAttackList.append(sr)
-        return validAttackList
-        
-# fighter, double slice, exacting strike, power attack, snagging strike
-# combat grab
-        
-fighterstrike = AtkSelection(fighterAttackBonus,fighterDamage, csLevel=5)
-
-fightersnaggingstrike = AtkSelection(fighterAttackBonus,fighterDamage, csLevel=5)
-fightersnaggingstrike.setFFonCrit(1)
-fightersnaggingstrike.setFFonSuccess(1)
-
-fightercertainstrike = AtkSelection(fighterAttackBonus,fighterDamage, csLevel=5, fd=fighterFailDamage)
-
-fighterd10powerattack = AtkSelection(fighterAttackBonus,fighterd10paDamage, csLevel=5)
-fighterd12powerattack = AtkSelection(fighterAttackBonus,fighterd12paDamage, csLevel=5)
-
-fighterbrutishshove = AtkSelection(fighterAttackBonus,fighterDamage, csLevel=5)
-fighterbrutishshove.setFFonCrit(1)
-fighterbrutishshove.setFFonSuccess(1)
-fighterbrutishshove.setFFonFail(1)
-
-fighterknockdown = AtkSelection(fighterAttackBonus,fighterDamage, csLevel=5)
-fighterknockdown.setFFonCrit(1)
-fighterknockdown.setFFonSuccess(1)
-
-fighterd10brutalfinish = AtkSelection(fighterAttackBonus,fighterd10bfDamage, csLevel=5, fd=fighterd10bfDamage)
-fighterd12brutalfinish = AtkSelection(fighterAttackBonus,fighterd12bfDamage, csLevel=5, fd=fighterd12bfDamage)
-
-
-attackSwitcher = {'Fighter Strike': 
-                  [fighterstrike], 
-                  'Fighter Snagging Strike': 
-                  [fightersnaggingstrike], 
-                  'Fighter Certain Strike': 
-                  [fightercertainstrike],
-                  'Fighter d10 Power Attack': 
-                  [fighterd10powerattack], 
-                  'Fighter d12 Power Attack': 
-                  [fighterd12powerattack], 
-                  'Fighter Brutish Shove': 
-                  [fighterbrutishshove], 
-                  'Fighter Knockdown': 
-                  [fighterknockdown], 
-                  'Fighter d10 Brutal Finish': 
-                  [fighterd10brutalfinish], 
-                  'Fighter d12 Brutal Finish': 
-                  [fighterd12brutalfinish]
-                  }
-
 
             
 class Selector:
     
-    selectedTarget = averageAcByLevel # use averageTarget later
+    selectedTarget = creatureData['AC']['High'] # use averageTarget later
     selections = dict()
     keyList = list()
+    
+    def changeTarget(name):
+        if name == 'average bestiary AC':
+            Selector.selectedTarget = averageAcByLevel
+        else:
+            Selector.selectedTarget = creatureData['AC'][name]
+        
     
     def addSelection(key, value, wdd, wc, cs, r1, r2, r3, r4, ab, db, minl, maxl):
         attack = attackSwitcher[value][0]
@@ -510,6 +139,8 @@ class Selector:
         newAttack.setWeaponDamage(wdd)
         newAttack.setCriticalEffects(wc)
         newAttack.setCriticalSpecialization(cs)
+        
+        
         newAttack.setRuneDamage(r1,r2,r3,r4)
         
         newAttack.modifyAB(ab)
@@ -578,6 +209,7 @@ class Selector:
 
 def graphTrace(strikeRoutine, target, level, attackBonus, damageBonus, weakness, flatfootedStatus):
     y = 0
+    py = 0
     flatfootedChance = flatfootedStatus
     
     if type(strikeRoutine) is CombinedAttack:
@@ -588,42 +220,55 @@ def graphTrace(strikeRoutine, target, level, attackBonus, damageBonus, weakness,
                 y = newy
             else:
                 y = strikeRoutine.function(y, newy)
-        return y
+        return y, py
         
     for st in strikeRoutine: #for each strike in that routine
         a = st.getAttack(level)+attackBonus
         d = st.getDamage(level)+damageBonus
+        ffd = st.getFFDamage(level)
         fd = st.getFD(level)
         cd = st.getCD(level)
+        sd = st.getSplashDamage(level)
         keen = st.getKeen(level)
+        
+        pd = st.getPersistentDamage(level)
+        cpd = st.getCriticalPersistentDamage(level)
         
         ac = target
                     
-        ffed = calculateED(a,ac-2,d,dm=weakness,fd=fd,cd=cd,keen=keen)
-        ed = calculateED(a,ac,d,dm=weakness,fd=fd,cd=cd,keen=keen)
-                    
+        ffed = calculateED(a,ac-2,d+ffd,dm=weakness,fd=fd,cd=cd,sd=sd,keen=keen)
+        ed = calculateED(a,ac,d,dm=weakness,fd=fd,cd=cd,sd=sd,keen=keen)
+        
+        #persistent damage
+        ffepd = calculateED(a,ac-2,pd,dm=weakness,cd=cpd,keen=keen)
+        epd = calculateED(a,ac,pd,dm=weakness,cd=cpd,keen=keen)
+        
         y += (flatfootedChance*ffed + (100-flatfootedChance)*ed) / 100
+        py += (flatfootedChance*ffepd + (100-flatfootedChance)*epd) / 100
+        
                     # check for effects on crit/failure
         ffonCritChance, ffonSuccessChance, ffonFailChance = 0, 0, 0
-        if st.ffonCrit(i):
+        if st.ffonCrit(level):
             ffonCritChance = (100-flatfootedChance) * critSuccessChance(a-ac, keen) / 100
-        if st.ffonSuccess(i):
+        if st.ffonSuccess(level):
             ffonSuccessChance = (100-flatfootedChance) * successChance(a-ac, keen) / 100
-        if st.ffonFail(i):
+        if st.ffonFail(level):
             ffonFailChance = (100-flatfootedChance) * failChance(a-ac)
         flatfootedChance += (ffonCritChance + ffonSuccessChance + ffonFailChance)
-    return y
+    return y, py
                     
 	
 def createTraces(levelDiff, flatfootedStatus, attackBonus, damageBonus, weakness):
 #     print("c t")
     xLists = []
     yLists = []
+    pyLists = []
     target = Selector.selectedTarget
     for k in Selector.keyList: #for each attack routine selection
         s = Selector.selections[k]
         xList = []
         yList = []
+        pyList = []
         for i in range(1,21):
             toAdd = True
             if(type(s) is CombinedAttack):
@@ -640,25 +285,29 @@ def createTraces(levelDiff, flatfootedStatus, attackBonus, damageBonus, weakness
                 # reset damage and things like flat footed status
                 
                 t = target[i+levelDiff]
-                y = graphTrace(s, t, i, attackBonus, damageBonus, weakness, flatfootedStatus)
+                y, py = graphTrace(s, t, i, attackBonus, damageBonus, weakness, flatfootedStatus)
                 yList.append(y)
+                pyList.append(py)
         xLists.append(xList)
         yLists.append(yList)
+        pyLists.append(pyList)
     
-    return xLists, yLists, Selector.keyList
+    return xLists, yLists, pyLists, Selector.keyList
 
 def createLevelTraces(levelDiff, flatfootedStatus, attackBonus, damageBonus, weakness, level):
     xLists = []
     yLists = []
+    pyLists = []
     target = Selector.selectedTarget
     
     if not (level+levelDiff in target):
-        return xLists, yLists, Selector.keyList
+        return xLists, yLists, pyLists, Selector.keyList
     
     for k in Selector.keyList: #for each attack routine selection
         s = Selector.selections[k]
         xList = []
         yList = []
+        pyList = []
         
         # is this strike routine valid for this level?
         toAdd = True
@@ -672,11 +321,13 @@ def createLevelTraces(levelDiff, flatfootedStatus, attackBonus, damageBonus, wea
         
         if toAdd:
             for i in range(-8,9):
-                xList.append(i)
-                y = graphTrace(s, target[level], level, attackBonus+i, damageBonus, weakness, flatfootedStatus)
+                xList.append(target[level]-i)
+                y, py = graphTrace(s, target[level], level, attackBonus+i, damageBonus, weakness, flatfootedStatus)
                 yList.append(y)
+                pyList.append(py)
         xLists.append(xList)
         yLists.append(yList)
+        pyLists.append(pyList)
     
-    return xLists, yLists, Selector.keyList
+    return xLists, yLists, pyLists, Selector.keyList
         

@@ -1,5 +1,5 @@
 import copy
-from pf2calc import Selector, createTraces, createLevelTraces
+from pf2calc import Selector, createTraces, createLevelTraces, creatureData
 import plotly.graph_objects as go
 from ipywidgets import widgets
 
@@ -37,10 +37,19 @@ weakness = widgets.BoundedIntText(
 )
 
 targetSelector = widgets.Dropdown(
-    options=['average bestiary AC'],
-    value='average bestiary AC',
+    options=['average bestiary AC',
+             'Extreme',
+             'High',
+             'Moderate',
+             'Low'],
+    value='High',
     description='Target:'
 )
+
+def targetChangedResponse(change):
+    Selector.changeTarget(targetSelector.value)
+    updateEDBLGraph()  
+
 
 flatfootedBox = widgets.BoundedIntText(
     value=0,
@@ -58,9 +67,13 @@ persistentDamageWeightBox = widgets.BoundedFloatText(
     disabled=False
 )
 
-percentageView = widgets.Checkbox(
-        value=False,
-        description="Percentage View"
+percentageView = widgets.Dropdown(
+        options = ['Expected Damage',
+                   'Percent of First Selection',
+                   'Percent of High HP',
+                   'Percent of Moderate HP',
+                   'Percent of Low HP'],
+        value='Expected Damage'
 )
 
 byLevelView = widgets.Checkbox(
@@ -82,7 +95,8 @@ weaponDamageDie = widgets.Dropdown(
                  "1d10/1d8+1/1d6+2",
                  "1d12/1d10+1/1d8+2",
                  "1d12+1/1d10+2"],
-        value="1d4"
+        value="1d4",
+        layout=widgets.Layout(width='auto')
 )
 
 weaponCritical = widgets.Dropdown(
@@ -94,7 +108,8 @@ weaponCritical = widgets.Dropdown(
                  "fatal d8",
                  "fatal d10",
                  "fatal d12"],
-        value="none"
+        value="none",
+        layout=widgets.Layout(width='auto')
 )
 
 criticalSpecialization = widgets.Dropdown(
@@ -102,7 +117,8 @@ criticalSpecialization = widgets.Dropdown(
                  "dart/knife",
                  "flail/hammer/sword",
                  "pick"],
-        value="other/none"
+        value="other/none",
+        layout=widgets.Layout(width='auto')
 )
 
 elementalRunesLabel = widgets.Label(
@@ -111,24 +127,93 @@ elementalRunesLabel = widgets.Label(
 
 elementalRune1 = widgets.IntText(
     value=8.0,
-    step=1.0
+    step=1.0,
+    layout=widgets.Layout(width='auto')
     #continuous_update=False
 )
 elementalRune2 = widgets.IntText(
     value=15.0,
-    step=1.0
+    step=1.0,
+    layout=widgets.Layout(width='auto')
     #continuous_update=False
 )
 elementalRune3 = widgets.IntText(
     value=21.0,
-    step=1.0
+    step=1.0,
+    layout=widgets.Layout(width='auto')
     #continuous_update=False
 )
 elementalRune4 = widgets.IntText(
     value=21.0,
-    step=1.0
+    step=1.0,
+    layout=widgets.Layout(width='auto')
     #continuous_update=False
 )
+
+classSelector = widgets.Dropdown(
+        options=["Alchemist",
+                 "Barbarian",
+                 "Bard",
+                 "Cantrips",
+                 "Champion",
+                 "Cleric",
+                 "Druid",
+                 "Fighter",
+                 "Monk",
+                 "Ranger",
+                 "Rogue",
+                 "Sorcerer",
+                 "Wizard",
+                 "Animal Companion",
+                 "Monster"],
+        value="Fighter",
+        layout=widgets.Layout(width='auto')
+)
+alchemistOptions = []
+barbarianOptions = []
+bardOptions = []
+championOptions = []
+cantripOptions = []
+casterstrikeOptions = []
+clericOptions = []
+druidOptions = []
+fighterOptions = ['Fighter Strike',
+             'Fighter Snagging Strike',
+             'Fighter Certain Strike',
+             'Fighter d10 Power Attack',
+             'Fighter d12 Power Attack',
+             'Fighter Brutish Shove',
+             'Fighter Knockdown',
+             'Fighter d10 Brutal Finish',
+             'Fighter d12 Brutal Finish',
+             'Fighter propulsive 12',
+             'Fighter propulsive 14',
+             'Fighter propulsive 16'
+             ]
+monkOptions = []
+rangerOptions = []
+rogueOptions = []
+sorcererOptions = []
+wizardOptions = []
+animalcompanionOptions = []
+monsterOptions = []
+
+selectionSwitcher = {"Alchemist": alchemistOptions, 
+                     "Barbarian": barbarianOptions,
+                     "Bard": bardOptions,
+                     "Cantrips": cantripOptions,
+                     "Caster Strikes": casterstrikeOptions,
+                     "Champion": championOptions,
+                     "Cleric": clericOptions,
+                     "Druid": druidOptions,
+                     "Fighter": fighterOptions,
+                     "Monk": monkOptions,
+                     "Ranger": rangerOptions,
+                     "Rogue": rogueOptions,
+                     "Sorcerer": sorcererOptions,
+                     "Wizard": wizardOptions,
+                     "Animal Companion": animalcompanionOptions,
+                     "Monster": monsterOptions}
 
 
 selector = widgets.SelectMultiple(
@@ -144,15 +229,19 @@ selector = widgets.SelectMultiple(
              ],
     value=['Fighter Strike'],
     description='Selection:',
-    layout=widgets.Layout(width='30%'),
+    layout=widgets.Layout(width='auto', height='auto'),
     disabled=False,
 )
+
+def classSelectorResponse(b):
+    selector.options = selectionSwitcher[classSelector.value]
+    #selector.value = [selector.options[0]]
 
 selections = widgets.SelectMultiple(
     options=[],
     # rows=10,
     description='Current selections:',
-    layout=widgets.Layout(width='80%'),
+    layout=widgets.Layout(width='80%', height='auto'),
     disabled=False
 )
 
@@ -191,6 +280,7 @@ attackModifier = widgets.BoundedIntText(
     max=10.0,
     step=1.0,
     description='Attack Bonus:',
+    layout=widgets.Layout(width='auto')
     #continuous_update=False
 )
 
@@ -200,15 +290,17 @@ damageModifier = widgets.BoundedIntText(
     max=50.0,
     step=1.0,
     description='Damage Bonus:',
+    layout=widgets.Layout(width='auto')
     #continuous_update=False
 )
 
 levelLimiter = widgets.IntRangeSlider(
     value=[1, 20],
-    min=0,
+    min=1,
     max=20,
     step=1,
-    description = 'Level Range'
+    description = 'Level Range',
+    layout=widgets.Layout(width='auto')
 )
 
 removeSelectionButton = widgets.Button(description="Remove Selections")
@@ -343,7 +435,7 @@ def on_maxButton_clicked(b):
         updateEDBLGraph()
 maxButton.on_click(on_maxButton_clicked)
 
-newNameBox = widgets.Text(value="")
+newNameBox = widgets.Text(value="",layout=widgets.Layout(width='auto'))
 
 g = go.FigureWidget() 
 g.update_layout(title_text="Expected damage by level",
@@ -356,14 +448,14 @@ g.layout.yaxis.range = [0,60]
 
 def updateEDBLGraph():
     if byLevelView.value:
-        xLists, yLists, nameList = createLevelTraces(levelDiff.value, 
+        xLists, yLists, pyLists, nameList = createLevelTraces(levelDiff.value, 
                                             flatfootedBox.value, 
                                             attackBonus.value,
                                             damageBonus.value,
                                             weakness.value,
                                             levelSelector.value)
     else:
-        xLists, yLists, nameList = createTraces(levelDiff.value, 
+        xLists, yLists, pyLists, nameList = createTraces(levelDiff.value, 
                                             flatfootedBox.value, 
                                             attackBonus.value,
                                             damageBonus.value,
@@ -375,7 +467,14 @@ def updateEDBLGraph():
 # #             print(selectedAttack[i])
 #             xList.append(i)
 #             yList.append(calculateED(Selector.selectedAttack[i]+attackBonus.value,averageAcByLevel[i+levelDiff.value],Selector.selectedDamage[i]+damageBonus.value,dm=weakness.value))
-    if percentageView.value and len(yLists)>0:
+    
+# add persistent damage to damage
+    for i in range(len(yLists)):
+        for ii in range(len(yLists[i])):
+            yLists[i][ii] += persistentDamageWeightBox.value * pyLists[i][ii]
+            
+    wantedView = percentageView.value
+    if wantedView == 'Percent of First Selection' and len(yLists)>0:
         firsty = copy.copy(yLists[0])
         firstx = xLists[0]
         for i in range(len(firstx)):
@@ -397,6 +496,40 @@ def updateEDBLGraph():
                         yLists[i].pop(xi)
                         xLists[i].pop(xi)
                         
+    elif wantedView == 'Percent of High HP' or wantedView == 'Percent of Moderate HP' or wantedView == 'Percent of Low HP':
+        if wantedView == 'Percent of High HP':
+            hpList = creatureData['HP']['High']
+        if wantedView == 'Percent of Moderate HP':
+            hpList = creatureData['HP']['Moderate']
+        if wantedView == 'Percent of Low HP':
+            hpList = creatureData['HP']['Low']
+        if byLevelView.value:
+            comparisonHP = hpList[levelSelector.value+levelDiff.value]
+            for i in range(len(xLists)):
+                for ii in range(len(xLists[i])):
+                    y = 100 * yLists[i][ii] / comparisonHP
+                    yLists[i][ii] = y
+        else:
+            for i in range(len(xLists)):
+                for ii in range(len(xLists[i])):
+                    x = xLists[i][ii]
+                    comparisonHP = hpList[x+levelDiff.value]
+                    y = 100 * yLists[i][ii] / comparisonHP
+                    yLists[i][ii] = y
+              
+    maxY = 0
+    for l in yLists:
+        for y in l:
+            maxY = max(maxY,y)
+            
+    minX = 100
+    maxX = 0
+    for l in xLists:
+        for x in l:
+            minX = min(minX,x)
+            maxX = max(maxX,x)
+            
+            
     with g.batch_update():
         g.data = []
         for i in range(len(xLists)):
@@ -406,12 +539,27 @@ def updateEDBLGraph():
         g.update_layout(height=500+10*len(nameList))
         
         # should update the axis so the data fits
-        if percentageView.value:
+        if percentageView.value == 'Percent of First Selection':
             g.layout.yaxis.range = [0,200]
         else:
-            g.layout.yaxis.range = [0,60]
+            if maxY > 15:
+                if maxY > 30:
+                    if maxY > 60:
+                        if maxY > 120:
+                            if maxY > 240:
+                                g.layout.yaxis.range = [0,480]
+                            else:
+                                g.layout.yaxis.range = [0,240]
+                        else:
+                            g.layout.yaxis.range = [0,120]
+                    else:
+                        g.layout.yaxis.range = [0,60]
+                else:
+                    g.layout.yaxis.range = [0,30]
+            else:
+                g.layout.yaxis.range = [0,15]
         if byLevelView.value:
-            g.layout.xaxis.range = [-10,10]
+            g.layout.xaxis.range = [minX-2,maxX+2]
         else:
             g.layout.xaxis.range = [1,20]
             
@@ -426,6 +574,11 @@ flatfootedBox.observe(edblResponse, names="value")
 percentageView.observe(edblResponse, names="value")
 byLevelView.observe(edblResponse, names="value")
 levelSelector.observe(edblResponse, names="value")
+persistentDamageWeightBox.observe(edblResponse, names="value")
+
+targetSelector.observe(targetChangedResponse, names="value")
+classSelector.observe(classSelectorResponse, names="value")
+
 
 adjustments = widgets.HBox([levelDiff,attackBonus,damageBonus,weakness])
 targetRow = widgets.HBox([targetSelector,flatfootedBox,persistentDamageWeightBox,percentageView])
@@ -434,7 +587,8 @@ levelViewRow = widgets.HBox([byLevelView,levelSelector])
 selectorModifiers = widgets.VBox([selectorAddButton,attackModifier,damageModifier,levelLimiter])
 weaponModifiers = widgets.VBox([weaponDamageDie,weaponCritical,criticalSpecialization])
 runeModifiers = widgets.VBox([elementalRunesLabel,elementalRune1,elementalRune2,elementalRune3,elementalRune4])
-selectorBox = widgets.HBox([selector,selectorModifiers,weaponModifiers,runeModifiers])
+selectorBox = widgets.VBox([classSelector,selector])
+selectorRow = widgets.HBox([selectorBox,selectorModifiers,weaponModifiers,runeModifiers])
 
 selectionsButtons = widgets.VBox([removeSelectionButton,movetotopButton,combineSelectionButton,minButton,maxButton,newNameBox])
 selectionsBox = widgets.HBox([selections,selectionsButtons])
@@ -443,5 +597,5 @@ ExpectedDamageByLevelWidget = widgets.VBox([adjustments,
               targetRow,
               levelViewRow,
               g,
-             selectorBox,
+             selectorRow,
              selectionsBox])
