@@ -145,6 +145,13 @@ for i in eRune:
     if i>=15:
         eRune[i] += 3.5
         
+propulsive10 = {i: 0 for i in range(1,21)}
+for i in range(1,21):
+    if i >= 10:
+        propulsive10[i] += 1
+    if i >= 20:
+        propulsive10[i] += 1   
+        
 propulsive12 = {i: 0 for i in range(1,21)}
 for i in range(1,21):
     if i >= 5:
@@ -306,6 +313,68 @@ for i in bestialJawDamage:
     if i >= 17:
         bestialJawDamage[i] = wDice[i]*5.5 + 2
         
+        
+animalJawDamage = {i: wDice[i]*5.5 for i in range(1,21)}
+for i in animalJawDamage:
+    if i >= 7:
+        animalJawDamage[i] = wDice[i]*6.5
+        
+animalClawDamage = {i: wDice[i]*3.5 for i in range(1,21)}
+for i in animalClawDamage:
+    if i >= 7:
+        animalClawDamage[i] = wDice[i]*4.5
+        
+animalragedamage = {i: 2 for i in range(1,21)}
+for i in animalragedamage:
+    if i >= 7:
+        animalragedamage[i] = 5
+    if i >= 15:
+        animalragedamage[i] = 12
+
+dragonragedamage = {i: 4 for i in range(1,21)}
+for i in dragonragedamage:
+    if i >= 7:
+        dragonragedamage[i] = 8
+    if i >= 15:
+        dragonragedamage[i] = 16
+
+furyragedamage = {i: 2 for i in range(1,21)}
+for i in furyragedamage:
+    if i >= 7:
+        furyragedamage[i] = 6
+    if i >= 15:
+        furyragedamage[i] = 12
+        
+giantragedamage = {i: 6 for i in range(1,21)}
+for i in giantragedamage:
+    if i >= 7:
+        giantragedamage[i] = 10
+    if i >= 15:
+        giantragedamage[i] = 18
+
+spiritragedamage = {i: 3 for i in range(1,21)}
+for i in furyragedamage:
+    if i >= 7:
+        furyragedamage[i] = 7
+    if i >= 15:
+        furyragedamage[i] = 13
+        
+smiteevildamage = {i: 0 for i in range(1,21)}
+for i in smiteevildamage:
+    if i >= 6:
+        smiteevildamage[i] = 4
+    if i >= 13:
+        smiteevildamage[i] = 6
+        
+sneakattackdamage = {i: 3.5 for i in range(1,21)}
+for i in sneakattackdamage:
+    if i >= 5:
+        sneakattackdamage[i] = 7
+    if i >= 11:
+        sneakattackdamage[i] = 10.5
+    if i >= 17:
+        sneakattackdamage[i] = 14
+        
 d6Damage = [3.5 * wDice[i] for i in wDice]
 d8Damage = [4.5 * wDice[i] for i in wDice]
 d10Damage = [5.5 * wDice[i] for i in wDice]
@@ -369,11 +438,29 @@ alchemistDamage = {i: wStr[i] + cwSpec[i] for i in range(1,21)}
 alchemistRangedDamage = {i: cwSpec[i] for i in range(1,21)}
 
 strCasterDamage = {i: cStr[i] + cwSpec[i] for i in range(1,21)}
+rangedCasterDamage = {i: cwSpec[i] for i in range(1,21)}
+casterP10Damage = {i: propulsive10[i] + cwSpec[i] for i in range(1,21)}
+casterP12Damage = {i: propulsive12[i] + cwSpec[i] for i in range(1,21)}
+casterP14Damage = {i: propulsive14[i] + cwSpec[i] for i in range(1,21)}
+casterP16Damage = {i: propulsive16[i] + cwSpec[i] for i in range(1,21)}
+
+cantripTPDamage = {i: mStr[i] + sDice[i]*3.5 for i in range(1,21)}
+cantripRFDamage = {i: mStr[i] + sDice[i]*2.5 for i in range(1,21)}
 
 martialDamage = {i: mStr[i] + mwSpec[i] for i in range(1,21)}
 
+barbariananimaldamage = {i: martialDamage[i] + animalragedamage[i] for i in range(1,21)}
+barbarianagileanimaldamage = {i: martialDamage[i] + int(animalragedamage[i]/2) for i in range(1,21)}
+barbariandragondamage = {i: martialDamage[i] + dragonragedamage[i] for i in range(1,21)}
+barbarianfurydamage = {i: martialDamage[i] + furyragedamage[i] for i in range(1,21)}
+barbariangiantdamage = {i: martialDamage[i] + giantragedamage[i] for i in range(1,21)}
+barbarianspiritdamage = {i: martialDamage[i] + spiritragedamage[i] for i in range(1,21)}
+
+championsmiteevildamage = {i: martialDamage[i] + smiteevildamage[i] for i in range(1,21)}
+
 warpriestDamage = {i: wStr[i] + cwSpec[i] + 1 for i in range(1,21)}
 warpriestDamage[1] -= 1
+
 
 
 fighterDamage = {i: mStr[i]+fwSpec[i] for i in range(1,21)}
@@ -724,6 +811,63 @@ alchemistAttackSwitcher = {'Alchemist Melee Strike': [alchemistStrike],
                     'Alchemist Perpetual Frost': [alchemistpfrosts],
                     'Alchemist Bomber Perpetual Frost': [alchemistbpfrosts]}
 
+# Barbarian
+# rage, instinct, devastator
+
+
+barbariananimaljaws = AtkSelection(martialAttackBonus, barbariananimaldamage, csLevel=5)
+barbariananimaljaws.weaponDamage = animalJawDamage
+barbariananimalclaws = AtkSelection(martialAttackBonus, barbarianagileanimaldamage, csLevel=5)
+barbariananimalclaws.weaponDamage = animalClawDamage
+
+barbariandragonstrike = AtkSelection(martialAttackBonus, barbariandragondamage, csLevel=5)
+
+barbarianfurystrike = AtkSelection(martialAttackBonus, barbarianfurydamage, csLevel=5)
+
+barbariangiantstrike = AtkSelection(martialAttackBonus, barbariangiantdamage, csLevel=5)
+
+barbarianspiritstrike = AtkSelection(martialAttackBonus, barbarianspiritdamage, csLevel=5)
+
+barbarianAttackSwitcher = {'Barbarian Animal Claw': [barbariananimalclaws],
+                    'Barbarian Animal Jaw': [barbariananimaljaws],
+                    'Barbarian Dragon Strike': [barbariandragonstrike],
+                    'Barbarian Fury Strike': [barbarianfurystrike],
+                    'Barbarian Giant Strike': [barbariangiantstrike],
+                    'Barbarian Spirit Strike': [barbarianspiritstrike]}
+
+
+casterstrike = AtkSelection(casterAttackBonus, strCasterDamage, csLevel=11)
+casterrangedstrike = AtkSelection(casterAttackBonus, rangedCasterDamage, csLevel=11)
+casterpropulsive10 = AtkSelection(casterAttackBonus, casterP10Damage, csLevel=11)
+casterpropulsive12 = AtkSelection(casterAttackBonus, casterP12Damage, csLevel=11)
+casterpropulsive14 = AtkSelection(casterAttackBonus, casterP14Damage, csLevel=11)
+casterpropulsive16 = AtkSelection(casterAttackBonus, casterP16Damage, csLevel=11)
+
+martialstrike = AtkSelection(martialAttackBonus, martialDamage, csLevel=5)
+championsmiteevil = AtkSelection(martialAttackBonus, championsmiteevildamage, csLevel=3)
+
+warprieststrike = AtkSelection(warpriestAttackBonus, warpriestDamage, csLevel=7)
+
+roguestrike = AtkSelection(martialAttackBonus, martialDamage, csLevel=5)
+roguestrike.flatfootedDamage = sneakattackdamage
+
+otherAttackSwitcher = {'Caster Strike': [casterstrike],
+                       'Caster Ranged Strike': [casterrangedstrike],
+                       'Caster Propulsive 10': [casterpropulsive10],
+                       'Caster Propulsive 12': [casterpropulsive12],
+                       'Caster Propulsive 14': [casterpropulsive14],
+                       'Caster Propulsive 16': [casterpropulsive16],
+                       'Martial Strike': [martialstrike],
+                       'Champion Smite Evil': [championsmiteevil],
+                       'Warpriest Strike': [warprieststrike],
+                       'Rogue Strike': [roguestrike]
+                       }
+
+cantripTP = AtkSelection(cantripAttackBonus, cantripTPDamage, isWeapon=False)
+cantripRF = AtkSelection(cantripAttackBonus, cantripRFDamage, isWeapon=False)
+
+cantripAttackSwitcher = {'Telekinetic Projectile': [cantripTP],
+                  'Ray of Frost': [cantripRF]}
 # fighter, double slice, exacting strike, power attack, snagging strike
 # combat grab
         
@@ -829,5 +973,8 @@ monsterAttackSwitcher = {'Monster Extreme Attack High Damage': [monsterEH],
                   }
 
 attackSwitcher = {**alchemistAttackSwitcher,
+                  **barbarianAttackSwitcher,
+                  **otherAttackSwitcher,
+                  **cantripAttackSwitcher,
                   **fighterAttackSwitcher,
                   **monsterAttackSwitcher}

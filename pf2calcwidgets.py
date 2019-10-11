@@ -153,8 +153,7 @@ elementalRune4 = widgets.IntText(
 classSelector = widgets.Dropdown(
         options=["Alchemist",
                  "Barbarian",
-                 "Bard",
-                 "Cantrips",
+                 "Bard", 
                  "Champion",
                  "Cleric",
                  "Druid",
@@ -165,6 +164,8 @@ classSelector = widgets.Dropdown(
                  "Sorcerer",
                  "Wizard",
                  "Animal Companion",
+                 "Cantrips",
+                 "Caster Strikes",
                  "Monster"],
         value="Fighter",
         layout=widgets.Layout(width='auto')
@@ -191,13 +192,28 @@ alchemistOptions = ['Alchemist Melee Strike',
                     'Alchemist Bomber Frost',
                     'Alchemist Perpetual Frost',
                     'Alchemist Bomber Perpetual Frost']
-barbarianOptions = []
-bardOptions = []
-championOptions = []
-cantripOptions = []
-casterstrikeOptions = []
-clericOptions = []
-druidOptions = []
+barbarianOptions = ['Martial Strike',
+                    'Barbarian Animal Claw',
+                    'Barbarian Animal Jaw',
+                    'Barbarian Dragon Strike',
+                    'Barbarian Fury Strike',
+                    'Barbarian Giant Strike',
+                    'Barbarian Spirit Strike'
+                    ]
+bardOptions = ['Caster Strike']
+championOptions = ['Martial Strike',
+                   'Champion Smite Evil']
+cantripOptions = ['Telekinetic Projectile',
+                  'Ray of Frost']
+casterstrikeOptions = ['Caster Strike',
+                       'Caster Ranged Strike',
+                       'Caster Propulsive 10',
+                       'Caster Propulsive 12',
+                       'Caster Propulsive 14',
+                       'Caster Propulsive 16']
+clericOptions = ['Caster Strike',
+                 'Warpriest Strike']
+druidOptions = ['Caster Strike']
 fighterOptions = ['Fighter Melee Strike',
              'Fighter Snagging Strike',
              'Fighter Certain Strike',
@@ -211,11 +227,11 @@ fighterOptions = ['Fighter Melee Strike',
              'Fighter propulsive 14',
              'Fighter propulsive 16'
              ]
-monkOptions = []
-rangerOptions = []
-rogueOptions = []
-sorcererOptions = []
-wizardOptions = []
+monkOptions = ['Martial Strike']
+rangerOptions = ['Martial Strike']
+rogueOptions = ['Rogue Strike']
+sorcererOptions = ['Caster Strike']
+wizardOptions = ['Caster Strike']
 animalcompanionOptions = []
 monsterOptions = ['Monster Extreme Attack High Damage',
                   'Monster Extreme Attack Moderate Damage',
