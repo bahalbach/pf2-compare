@@ -1,5 +1,5 @@
 import copy
-from pf2calc import Selector, createTraces, createLevelTraces, creatureData
+from pf2calc import Selector, CombinedAttack, createTraces, createLevelTraces, creatureData
 import plotly.graph_objects as go
 from ipywidgets import widgets
 
@@ -217,7 +217,20 @@ rogueOptions = []
 sorcererOptions = []
 wizardOptions = []
 animalcompanionOptions = []
-monsterOptions = []
+monsterOptions = ['Monster Extreme Attack High Damage',
+                  'Monster Extreme Attack Moderate Damage',
+                  'Monster High Attack Extreme Damage',
+                  'Monster High Attack High Damage',
+                  'Monster High Attack Moderate Damage',
+                  'Monster High Attack Low Damage',
+                  'Monster Moderate Attack Extreme Damage',
+                  'Monster Moderate Attack High Damage',
+                  'Monster Moderate Attack Moderate Damage',
+                  'Monster Moderate Attack Low Damage',
+                  'Monster Low Attack High Damage',
+                  'Monster Low Attack Moderate Damage',
+                  'Monster Low Attack Low Damage'   
+                  ]
 
 selectionSwitcher = {"Alchemist": alchemistOptions, 
                      "Barbarian": barbarianOptions,
@@ -262,11 +275,11 @@ def on_addSelection_clicked(b):
     #add to selections
     for s in selector.value:
         name = s
-        if Selector.shouldAddWeaponDamage(name):
+        if Selector.shouldAddWeaponDamage(s):
             name += " " + weaponDamageDie.value
-        if not weaponCritical.value == "none":
+        if not weaponCritical.value == "none" and Selector.isWeapon(s):
             name += " " + weaponCritical.value
-        if not criticalSpecialization.value == "other/none":
+        if not criticalSpecialization.value == "other/none" and Selector.isWeapon(s):
             name += " " + criticalSpecialization.value
         if attackModifier.value != 0:
             name += " +a" + str(attackModifier.value)
@@ -382,7 +395,7 @@ def on_combineSelection_clicked(b):
             updateEDBLGraph()
 combineSelectionButton.on_click(on_combineSelection_clicked)
 
-minButton = widgets.Button(description="Min Selections")
+minButton = widgets.Button(description="Min/rename Selections")
 def on_minButton_clicked(b):
     if (newNameBox.value == ""):
         return
@@ -415,7 +428,7 @@ def on_minButton_clicked(b):
         updateEDBLGraph()
 minButton.on_click(on_minButton_clicked)
 
-maxButton = widgets.Button(description="Max Selections")
+maxButton = widgets.Button(description="Max/rename Selections")
 def on_maxButton_clicked(b):
     if (newNameBox.value == ""):
         return
@@ -460,6 +473,7 @@ g.layout.xaxis.range = [0,20]
 g.layout.yaxis.range = [0,60]
 
 def updateEDBLGraph():
+    CombinedAttack.PDWeight = persistentDamageWeightBox.value
     if byLevelView.value:
         xLists, yLists, pyLists, nameList = createLevelTraces(levelDiff.value, 
                                             flatfootedBox.value, 

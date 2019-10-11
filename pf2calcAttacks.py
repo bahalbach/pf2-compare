@@ -327,14 +327,14 @@ fatald8Damage = {i: 4.5 + wDice[i]*4 for i in range(1,21)}
 fatald10Damage = {i: 5.5 + wDice[i]*4 for i in range(1,21)}
 fatald12Damage = {i: 6.5 + wDice[i]*2 for i in range(1,21)}
 
-criticalDiceConverter = {"none": noneDamage,
-                 "deadly d6": deadlyd6Damage,
-                 "deadly d8": deadlyd8Damage,
-                 "deadly d10": deadlyd10Damage,
-                 "deadly d12": deadlyd12Damage,
-                 "fatal d8": fatald8Damage,
-                 "fatal d10": fatald10Damage,
-                 "fatal d12": fatald12Damage
+criticalDiceConverter = {"none": [False, noneDamage],
+                 "deadly d6": [False, deadlyd6Damage],
+                 "deadly d8": [False, deadlyd8Damage],
+                 "deadly d10": [False, deadlyd10Damage],
+                 "deadly d12": [False, deadlyd12Damage],
+                 "fatal d8": [True, 4.5],
+                 "fatal d10": [True, 5.5],
+                 "fatal d12": [True, 6.5]
         }
 
 d12pad = {i: 6.5 for i in range(1,21)}
@@ -445,8 +445,12 @@ class AtkSelection:
         def setCriticalEffects(self, weaponCriticalName):
             if self.isWeapon:
                 cd = criticalDiceConverter[weaponCriticalName]
-                for i in range(1,21):
-                    self.cd[i] += cd[i]
+                if cd[0]:
+                    for i in range(1,21):
+                        self.cd[i] += cd[1] + wDice[i]*2*(cd[1] - self.damageDice)
+                else:
+                    for i in range(1,21):
+                        self.cd[i] += cd[1][i]
             
         def setCriticalSpecialization(self, csName):
             if self.isWeapon:
@@ -549,11 +553,22 @@ class AtkSelection:
             self.minL, self.maxL = minl, maxl
             
 class CombinedAttack:
+    PDWeight = 0
     def __init__(self, attackList, function=min):
         self.function=function
         self.attackList=attackList
         # what if attackList has a combined attack?
         #also update create Traces
+        
+    def choose(self, d, pd, newd, newpd):
+        totaldamage = d + pd*CombinedAttack.PDWeight
+        newtotal = newd + newpd**CombinedAttack.PDWeight
+        if self.function(totaldamage,newtotal) == totaldamage:
+            return d, pd
+        elif self.function(totaldamage,newtotal) == newtotal:
+            return newd, newpd
+        else:
+            print(d, pd, newd, newpd)
         
     def contains(self, level):
         for sr in self.attackList:
@@ -771,6 +786,48 @@ fighterAttackSwitcher = {'Fighter Melee Strike':
                   'Fighter propulsive 16':
                   [fighterpropulsive16]
                   }
+    
+attackExtreme = creatureData['Attack']['Extreme']
+attackHigh = creatureData['Attack']['High']
+attackModerate = creatureData['Attack']['Moderate']
+attackLow = creatureData['Attack']['Low']
+damageExtreme = creatureData['Damage']['Extreme']
+damageHigh = creatureData['Damage']['High']
+damageModerate = creatureData['Damage']['Moderate']
+damageLow = creatureData['Damage']['Low']
+
+monsterEH = AtkSelection(attackExtreme,damageHigh,isWeapon=False)
+monsterEM = AtkSelection(attackExtreme,damageModerate,isWeapon=False)
+
+monsterHE = AtkSelection(attackHigh,damageExtreme,isWeapon=False)
+monsterHH = AtkSelection(attackHigh,damageHigh,isWeapon=False)
+monsterHM = AtkSelection(attackHigh,damageModerate,isWeapon=False)
+monsterHL = AtkSelection(attackHigh,damageLow,isWeapon=False)
+
+monsterME = AtkSelection(attackModerate,damageExtreme,isWeapon=False)
+monsterMH = AtkSelection(attackModerate,damageHigh,isWeapon=False)
+monsterMM = AtkSelection(attackModerate,damageModerate,isWeapon=False)
+monsterML = AtkSelection(attackModerate,damageLow,isWeapon=False)
+
+monsterLH = AtkSelection(attackLow,damageHigh,isWeapon=False)
+monsterLM = AtkSelection(attackLow,damageModerate,isWeapon=False)
+monsterLL = AtkSelection(attackLow,damageLow,isWeapon=False)
+    
+monsterAttackSwitcher = {'Monster Extreme Attack High Damage': [monsterEH],
+                  'Monster Extreme Attack Moderate Damage': [monsterEM],
+                  'Monster High Attack Extreme Damage': [monsterHE],
+                  'Monster High Attack High Damage': [monsterHH],
+                  'Monster High Attack Moderate Damage': [monsterHM],
+                  'Monster High Attack Low Damage': [monsterHL],
+                  'Monster Moderate Attack Extreme Damage': [monsterME],
+                  'Monster Moderate Attack High Damage': [monsterMH],
+                  'Monster Moderate Attack Moderate Damage': [monsterMM],
+                  'Monster Moderate Attack Low Damage': [monsterML],
+                  'Monster Low Attack High Damage': [monsterLH],
+                  'Monster Low Attack Moderate Damage': [monsterLM],
+                  'Monster Low Attack Low Damage': [monsterLL]   
+                  }
 
 attackSwitcher = {**alchemistAttackSwitcher,
-                  **fighterAttackSwitcher}
+                  **fighterAttackSwitcher,
+                  **monsterAttackSwitcher}

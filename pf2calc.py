@@ -135,6 +135,10 @@ class Selector:
         attack = attackSwitcher[key][0]
         return attack.isWeapon and not attack.weaponDamage
     
+    def isWeapon(key):
+        attack = attackSwitcher[key][0]
+        return attack.isWeapon
+    
     def addSelection(key, value, wdd, wc, cs, r1, r2, r3, r4, ab, db, minl, maxl):
         attack = attackSwitcher[value][0]
         newAttack = copy.deepcopy(attack)
@@ -218,11 +222,12 @@ def graphTrace(strikeRoutine, target, level, attackBonus, damageBonus, weakness,
     if type(strikeRoutine) is CombinedAttack:
         # what if it contains more combined attacks?
         for sr in strikeRoutine.validFor(level):
-            newy = graphTrace(sr, target, level, attackBonus, damageBonus, weakness, flatfootedStatus)
+            newy, newpy = graphTrace(sr, target, level, attackBonus, damageBonus, weakness, flatfootedStatus)
             if y == 0:
                 y = newy
+                py = newpy
             else:
-                y = strikeRoutine.function(y, newy)
+                y, py = strikeRoutine.choose(y, py, newy, newpy)
         return y, py
         
     for st in strikeRoutine: #for each strike in that routine
