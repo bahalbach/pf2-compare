@@ -131,6 +131,9 @@ class Selector:
         else:
             Selector.selectedTarget = creatureData['AC'][name]
         
+    def shouldAddWeaponDamage(key):
+        attack = attackSwitcher[key][0]
+        return attack.isWeapon and not attack.weaponDamage
     
     def addSelection(key, value, wdd, wc, cs, r1, r2, r3, r4, ab, db, minl, maxl):
         attack = attackSwitcher[value][0]
@@ -321,8 +324,8 @@ def createLevelTraces(levelDiff, flatfootedStatus, attackBonus, damageBonus, wea
         
         if toAdd:
             for i in range(-8,9):
-                xList.append(target[level]-i)
-                y, py = graphTrace(s, target[level], level, attackBonus+i, damageBonus, weakness, flatfootedStatus)
+                xList.append(target[level+levelDiff]-i)
+                y, py = graphTrace(s, target[level+levelDiff], level, attackBonus+i, damageBonus, weakness, flatfootedStatus)
                 yList.append(y)
                 pyList.append(py)
         xLists.append(xList)

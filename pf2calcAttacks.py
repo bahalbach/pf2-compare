@@ -5,6 +5,7 @@ Created on Thu Oct 10 15:18:59 2019
 @author: bhalb
 """
 import copy
+from pf2calcMonsterStats import creatureData
 
 mProf = dict(zip(list(range(1,21)),list(range(1,21))))
 for i in range(1,21):
@@ -107,6 +108,8 @@ casterAttackBonus = {i: cProf[i] + cStr[i] + wiBonus[i] for i in range(1,21)}
 
 warpriestAttackBonus = {i: wProf[i] + wStr[i] + wiBonus[i] for i in range(1,21)}
 
+bombAttackBonus = {i: wProf[i] + wStr[i] + miBonus[i]-1 for i in range(1,21)}
+pbombAttackBonus = {i: wProf[i] + wStr[i] + miBonus[i]-2 for i in range(1,21)}
 mutagenstrikeAttackBonus = {i: wProf[i] + wStr[i] + miBonus[i] for i in range(1,21)}
 
 fighterAttackBonus = {i: fProf[i] + mStr[i] + wiBonus[i] for i in range(1,21)}
@@ -406,7 +409,7 @@ class AtkSelection:
             self.damage = damage
             self.persDamage = copy.copy(noneDamage)
             self.splashDamage = None
-            self.isWeapon = True
+            self.isWeapon = isWeapon
             
             self.critSpecLevel = csLevel
             self.wDice = copy.copy(wDice) # number of dice
@@ -581,106 +584,130 @@ class CombinedAttack:
         
     
 alchemistStrike = AtkSelection(warpriestAttackBonus, alchemistDamage)
+alchemistRangedStrike = AtkSelection(warpriestAttackBonus, alchemistRangedDamage)
 
-alchemistacids = AtkSelection(warpriestAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistacids = AtkSelection(bombAttackBonus, alchemistRangedDamage, isWeapon=False)
 alchemistacids.weaponDamage = acidFlaskDamage
 alchemistacids.persDamage = acidFlaskPersDamage
 alchemistacids.critPersDamage = {i: acidFlaskPersDamage[i]*2 for i in range(1,21)}
 alchemistacids.splashDamage = bombSplashDamage
 
-alchemistbacids = AtkSelection(warpriestAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistbacids = AtkSelection(bombAttackBonus, alchemistRangedDamage, isWeapon=False)
 alchemistbacids.weaponDamage = acidFlaskDamage
 alchemistbacids.persDamage = acidFlaskPersDamage
 alchemistbacids.critPersDamage = {i: acidFlaskPersDamage[i]*2 for i in range(1,21)}
 alchemistbacids.splashDamage = bomberSplashDamage
 
-alchemistpacids = AtkSelection(warpriestAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistpacids = AtkSelection(pbombAttackBonus, alchemistRangedDamage, isWeapon=False)
 alchemistpacids.weaponDamage = pacidFlaskDamage
 alchemistpacids.persDamage = pacidFlaskPersDamage
 alchemistpacids.critPersDamage = {i: pacidFlaskPersDamage[i]*2 for i in range(1,21)}
 alchemistpacids.splashDamage = pbombSplashDamage
 
-alchemistbpacids = AtkSelection(warpriestAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistbpacids = AtkSelection(pbombAttackBonus, alchemistRangedDamage, isWeapon=False)
 alchemistbpacids.weaponDamage = pacidFlaskDamage
 alchemistbpacids.persDamage = pacidFlaskPersDamage
 alchemistbpacids.critPersDamage = {i: pacidFlaskPersDamage[i]*2 for i in range(1,21)}
 alchemistbpacids.splashDamage = pbomberSplashDamage
 
-alchemistfires = AtkSelection(warpriestAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistfires = AtkSelection(bombAttackBonus, alchemistRangedDamage, isWeapon=False)
 alchemistfires.weaponDamage = alchemistsFireDamage
 alchemistfires.persDamage = alchemistsFirePersDamage
 alchemistfires.critPersDamage = {i: alchemistsFirePersDamage[i]*2 for i in range(1,21)}
 alchemistfires.splashDamage = bombSplashDamage
 
-alchemistbfires = AtkSelection(warpriestAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistbfires = AtkSelection(bombAttackBonus, alchemistRangedDamage, isWeapon=False)
 alchemistbfires.weaponDamage = alchemistsFireDamage
 alchemistbfires.persDamage = alchemistsFirePersDamage
 alchemistbfires.critPersDamage = {i: alchemistsFirePersDamage[i]*2 for i in range(1,21)}
 alchemistbfires.splashDamage = bomberSplashDamage
 
-alchemistpfires = AtkSelection(warpriestAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistpfires = AtkSelection(pbombAttackBonus, alchemistRangedDamage, isWeapon=False)
 alchemistpfires.weaponDamage = palchemistsFireDamage
 alchemistpfires.persDamage = palchemistsFirePersDamage
 alchemistpfires.critPersDamage = {i: palchemistsFirePersDamage[i]*2 for i in range(1,21)}
 alchemistpfires.splashDamage = pbombSplashDamage
 
-alchemistbpfires = AtkSelection(warpriestAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistbpfires = AtkSelection(pbombAttackBonus, alchemistRangedDamage, isWeapon=False)
 alchemistbpfires.weaponDamage = palchemistsFireDamage
 alchemistbpfires.persDamage = palchemistsFirePersDamage
 alchemistbpfires.critPersDamage = {i: palchemistsFirePersDamage[i]*2 for i in range(1,21)}
 alchemistbpfires.splashDamage = pbomberSplashDamage
 
-alchemistfrosts = AtkSelection(warpriestAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistfrosts = AtkSelection(bombAttackBonus, alchemistRangedDamage, isWeapon=False)
 alchemistfrosts.weaponDamage = blfvDamage
 alchemistfrosts.splashDamage = bombSplashDamage
 
-alchemistbfrosts = AtkSelection(warpriestAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistbfrosts = AtkSelection(bombAttackBonus, alchemistRangedDamage, isWeapon=False)
 alchemistbfrosts.weaponDamage = blfvDamage
 alchemistbfrosts.splashDamage = bomberSplashDamage
 
-alchemistpfrosts = AtkSelection(warpriestAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistpfrosts = AtkSelection(pbombAttackBonus, alchemistRangedDamage, isWeapon=False)
 alchemistpfrosts.weaponDamage = pblfvDamage
 alchemistpfrosts.splashDamage = pbombSplashDamage
 
-alchemistbpfrosts = AtkSelection(warpriestAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistbpfrosts = AtkSelection(pbombAttackBonus, alchemistRangedDamage, isWeapon=False)
 alchemistbpfrosts.weaponDamage = pblfvDamage
 alchemistbpfrosts.splashDamage = pbomberSplashDamage
 
-alchemistlightnings = AtkSelection(warpriestAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistlightnings = AtkSelection(bombAttackBonus, alchemistRangedDamage, isWeapon=False)
 alchemistlightnings.setFFonCrit(1)
 alchemistlightnings.setFFonSuccess(1)
 alchemistlightnings.weaponDamage = blfvDamage
 alchemistlightnings.splashDamage = bombSplashDamage
 
-alchemistblightnings = AtkSelection(warpriestAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistblightnings = AtkSelection(bombAttackBonus, alchemistRangedDamage, isWeapon=False)
 alchemistblightnings.setFFonCrit(1)
 alchemistblightnings.setFFonSuccess(1)
 alchemistblightnings.weaponDamage = blfvDamage
 alchemistblightnings.splashDamage = bomberSplashDamage
 
-alchemistplightnings = AtkSelection(warpriestAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistplightnings = AtkSelection(pbombAttackBonus, alchemistRangedDamage, isWeapon=False)
 alchemistplightnings.setFFonCrit(1)
 alchemistplightnings.setFFonSuccess(1)
 alchemistplightnings.weaponDamage = pblfvDamage
 alchemistplightnings.splashDamage = pbombSplashDamage
 
-alchemistbplightnings = AtkSelection(warpriestAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistbplightnings = AtkSelection(pbombAttackBonus, alchemistRangedDamage, isWeapon=False)
 alchemistbplightnings.setFFonCrit(1)
 alchemistbplightnings.setFFonSuccess(1)
 alchemistbplightnings.weaponDamage = pblfvDamage
 alchemistbplightnings.splashDamage = pbomberSplashDamage
 
-alchemistbestialClawStrike = AtkSelection(warpriestAttackBonus, alchemistDamage)
+alchemistbestialClawStrike = AtkSelection(mutagenstrikeAttackBonus, alchemistDamage)
 alchemistbestialClawStrike.weaponDamage = bestialClawDamage
 
-alchemistbestialJawStrike = AtkSelection(warpriestAttackBonus, alchemistDamage)
+alchemistbestialJawStrike = AtkSelection(mutagenstrikeAttackBonus, alchemistDamage)
 alchemistbestialJawStrike.weaponDamage = bestialJawDamage
 
-alchemistferalClawStrike = AtkSelection(warpriestAttackBonus, alchemistDamage)
+alchemistferalClawStrike = AtkSelection(mutagenstrikeAttackBonus, alchemistDamage)
 alchemistferalClawStrike.weaponDamage = {i: bestialClawDamage[i] + wDice[i] for i in range(1,21)}
 
-alchemistferalJawStrike = AtkSelection(warpriestAttackBonus, alchemistDamage)
+alchemistferalJawStrike = AtkSelection(mutagenstrikeAttackBonus, alchemistDamage)
 alchemistferalJawStrike.weaponDamage = {i: bestialJawDamage[i] + wDice[i] for i in range(1,21)}
+
+alchemistAttackSwitcher = {'Alchemist Melee Strike': [alchemistStrike],
+                    'Alchemist Ranged Strike': [alchemistRangedStrike],
+                    'Alchemist Bestial Claw': [alchemistbestialClawStrike],
+                    'Alchemist Bestial Jaw': [alchemistbestialJawStrike],
+                    'Alchemist Feral Claw': [alchemistferalClawStrike],
+                    'Alchemist Feral Jaw': [alchemistferalJawStrike],
+                    'Alchemist Acid Flask': [alchemistacids],
+                    'Alchemist Bomber Acid': [alchemistbacids],
+                    'Alchemist Perpetual Acid': [alchemistpacids],
+                    'Alchemist Bomber Perpetual Acid': [alchemistbpacids],
+                    'Alchemist Fire': [alchemistfires],
+                    'Alchemist Bomber Fire': [alchemistbfires],
+                    'Alchemist Perpetual Fire': [alchemistpfires],
+                    'Alchemist Bomber Perpetual Fire': [alchemistbpfires],
+                    'Alchemist Bottled Lightning': [alchemistlightnings],
+                    'Alchemist Bomber Lightning': [alchemistblightnings],
+                    'Alchemist Perpetual Lightning': [alchemistplightnings],
+                    'Alchemist Bomber Perpetual Lightning': [alchemistbplightnings],
+                    'Alchemist Frost Vial': [alchemistfrosts],
+                    'Alchemist Bomber Frost': [alchemistbfrosts],
+                    'Alchemist Perpetual Frost': [alchemistpfrosts],
+                    'Alchemist Bomber Perpetual Frost': [alchemistbpfrosts]}
 
 # fighter, double slice, exacting strike, power attack, snagging strike
 # combat grab
@@ -719,7 +746,7 @@ fighterpropulsive12 = AtkSelection(fighterAttackBonus, fighterpropulsive12Damage
 fighterpropulsive14 = AtkSelection(fighterAttackBonus, fighterpropulsive14Damage, csLevel=5)
 fighterpropulsive16 = AtkSelection(fighterAttackBonus, fighterpropulsive16Damage, csLevel=5)
 
-fighterAttackSwitcher = {'Fighter Strike': 
+fighterAttackSwitcher = {'Fighter Melee Strike': 
                   [fighterstrike], 
                   'Fighter Snagging Strike': 
                   [fightersnaggingstrike], 
@@ -745,4 +772,5 @@ fighterAttackSwitcher = {'Fighter Strike':
                   [fighterpropulsive16]
                   }
 
-attackSwitcher = {**fighterAttackSwitcher}
+attackSwitcher = {**alchemistAttackSwitcher,
+                  **fighterAttackSwitcher}

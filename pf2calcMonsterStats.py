@@ -55,14 +55,14 @@ hp = {'High': highHP,
 with open("hp.csv") as hpData:
     reader = csv.DictReader(hpData, delimiter=',')
     line = 0
-    for row in reader:      
-        hhpl = (row['High']).split('–')
+    for row in reader:    
+        hhpl = (row['High']).split('~')
         ave = (int(hhpl[0])+int(hhpl[1])) / 2
         highHP[int(row['Level'])] = ave
-        mhpl = (row['Moderate']).split('–')
+        mhpl = (row['Moderate']).split('~')
         ave = (int(mhpl[0])+int(mhpl[1])) / 2
         moderateHP[int(row['Level'])] = ave
-        lhpl = (row['Low']).split('–')
+        lhpl = (row['Low']).split('~')
         ave = (int(lhpl[0])+int(lhpl[1])) / 2
         lowHP[int(row['Level'])] = ave
         

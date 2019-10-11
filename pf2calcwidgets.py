@@ -169,7 +169,28 @@ classSelector = widgets.Dropdown(
         value="Fighter",
         layout=widgets.Layout(width='auto')
 )
-alchemistOptions = []
+alchemistOptions = ['Alchemist Melee Strike',
+                    'Alchemist Ranged Strike',
+                    'Alchemist Bestial Claw',
+                    'Alchemist Bestial Jaw',
+                    'Alchemist Feral Claw',
+                    'Alchemist Feral Jaw',
+                    'Alchemist Acid Flask',
+                    'Alchemist Bomber Acid',
+                    'Alchemist Perpetual Acid',
+                    'Alchemist Bomber Perpetual Acid',
+                    'Alchemist Fire',
+                    'Alchemist Bomber Fire',
+                    'Alchemist Perpetual Fire',
+                    'Alchemist Bomber Perpetual Fire',
+                    'Alchemist Bottled Lightning',
+                    'Alchemist Bomber Lightning',
+                    'Alchemist Perpetual Lightning',
+                    'Alchemist Bomber Perpetual Lightning',
+                    'Alchemist Frost Vial',
+                    'Alchemist Bomber Frost',
+                    'Alchemist Perpetual Frost',
+                    'Alchemist Bomber Perpetual Frost']
 barbarianOptions = []
 bardOptions = []
 championOptions = []
@@ -177,7 +198,7 @@ cantripOptions = []
 casterstrikeOptions = []
 clericOptions = []
 druidOptions = []
-fighterOptions = ['Fighter Strike',
+fighterOptions = ['Fighter Melee Strike',
              'Fighter Snagging Strike',
              'Fighter Certain Strike',
              'Fighter d10 Power Attack',
@@ -217,17 +238,8 @@ selectionSwitcher = {"Alchemist": alchemistOptions,
 
 
 selector = widgets.SelectMultiple(
-    options=['Fighter Strike',
-             'Fighter Snagging Strike',
-             'Fighter Certain Strike',
-             'Fighter d10 Power Attack',
-             'Fighter d12 Power Attack',
-             'Fighter Brutish Shove',
-             'Fighter Knockdown',
-             'Fighter d10 Brutal Finish',
-             'Fighter d12 Brutal Finish'
-             ],
-    value=['Fighter Strike'],
+    options=fighterOptions,
+    value=[fighterOptions[0]],
     description='Selection:',
     layout=widgets.Layout(width='auto', height='auto'),
     disabled=False,
@@ -250,7 +262,8 @@ def on_addSelection_clicked(b):
     #add to selections
     for s in selector.value:
         name = s
-        name += " " + weaponDamageDie.value
+        if Selector.shouldAddWeaponDamage(name):
+            name += " " + weaponDamageDie.value
         if not weaponCritical.value == "none":
             name += " " + weaponCritical.value
         if not criticalSpecialization.value == "other/none":
