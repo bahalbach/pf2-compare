@@ -1,6 +1,6 @@
 import copy
 from pf2calcMonsterStats import creatureData
-from pf2calcAttacks import AtkSelection, CombinedAttack, attackSwitcher
+from pf2calcAttacks import AtkSelection, CombinedAttack, attackSwitcher, noneDamage
 
 
 
@@ -105,13 +105,13 @@ def critSuccessChance(attackMinusAc, keen=False):
     
     return chance
     
-def calculateED(accuracy, defense, damage, dm=0, cd=0, fd=0, sd=0, keen=False):
+def calculateED(accuracy, defense, damageBonus, damageDice, dm=0, cd=0, fd=0, sd=0, keen=False, cs=False):
     # fd = failure damage, cd = crit added damage, dm is damage that applies on all hits, like weakness/resistance
     exD = 0
     if fd != 0 or sd != 0:
         exD += failChance(accuracy-defense) * (fd + sd + dm)
-    exD += successChance(accuracy-defense, keen) * (damage + sd + dm)
-    exD += critSuccessChance(accuracy-defense, keen) * (damage + damage + sd + dm)
+    exD += successChance(accuracy-defense, keen) * ((damageBonus + damageDice) + sd + dm)
+    exD += critSuccessChance(accuracy-defense, keen) * ((damageBonus + damageDice)*2 + sd + dm)
     if cd != 0:
         exD += critSuccessChance(accuracy-defense, keen) * cd
     return exD / 100
@@ -232,24 +232,26 @@ def graphTrace(strikeRoutine, target, level, attackBonus, damageBonus, weakness,
         
     for st in strikeRoutine: #for each strike in that routine
         a = st.getAttack(level)+attackBonus
-        d = st.getDamage(level)+damageBonus
+        db = st.getDamageBonus(level)+damageBonus
+        dd = st.getDamageDice(level)
         ffd = st.getFFDamage(level)
         fd = st.getFD(level)
         cd = st.getCD(level)
         sd = st.getSplashDamage(level)
         keen = st.getKeen(level)
+        certainStrike = st.certainStrike
         
         pd = st.getPersistentDamage(level)
         cpd = st.getCriticalPersistentDamage(level)
         
         ac = target
                     
-        ffed = calculateED(a,ac-2,d+ffd,dm=weakness,fd=fd,cd=cd,sd=sd,keen=keen)
-        ed = calculateED(a,ac,d,dm=weakness,fd=fd,cd=cd,sd=sd,keen=keen)
+        ffed = calculateED(a,ac-2,db,dd+ffd,dm=weakness,fd=fd,cd=cd,sd=sd,keen=keen,cs=certainStrike)
+        ed = calculateED(a,ac,db,dd,dm=weakness,fd=fd,cd=cd,sd=sd,keen=keen,cs=certainStrike)
         
         #persistent damage
-        ffepd = calculateED(a,ac-2,pd,dm=weakness,cd=cpd,keen=keen)
-        epd = calculateED(a,ac,pd,dm=weakness,cd=cpd,keen=keen)
+        ffepd = calculateED(a,ac-2,0,pd,dm=weakness,cd=cpd,keen=keen)
+        epd = calculateED(a,ac,0,pd,dm=weakness,cd=cpd,keen=keen)
         
         y += (flatfootedChance*ffed + (100-flatfootedChance)*ed) / 100
         py += (flatfootedChance*ffepd + (100-flatfootedChance)*epd) / 100

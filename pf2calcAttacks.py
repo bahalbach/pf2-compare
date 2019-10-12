@@ -491,7 +491,7 @@ class AtkSelection:
 #         attack
 #         damage
 #         target
-        def __init__(self, attack, damage, csLevel=21, fd=None, isWeapon=True):
+        def __init__(self, attack, damage, csLevel=21, fd=None, isWeapon=True, certainStrike=False):
             self.attack = attack
             self.damage = damage
             self.persDamage = copy.copy(noneDamage)
@@ -510,6 +510,7 @@ class AtkSelection:
                 self.fd = copy.copy(fd)
             else:
                 self.fd = copy.copy(noneDamage)
+            self.certainStrike = certainStrike
             self.cd = copy.copy(noneDamage)
             self.critPersDamage = copy.copy(noneDamage)
             
@@ -570,15 +571,20 @@ class AtkSelection:
                 return self.attack[level] + self.ab
             return None
         
-        def getDamage(self, level):
+        def getDamageBonus(self, level):
             if level>=self.minL and level<=self.maxL:
-                d = self.damage[level] + self.db
+                return self.damage[level] + self.db
+            return 0
+        
+        def getDamageDice(self, level):
+            if level>=self.minL and level<=self.maxL:
+                d = 0
                 if self.weaponDamage:
                     d += self.weaponDamage[level]
                 if self.runeDamage:
                     d += self.runeDamage[level]
                 return d
-            return None
+            return 0
         
         def getPersistentDamage(self, level):
             return self.persDamage[level]
@@ -598,7 +604,8 @@ class AtkSelection:
         
         def getFD(self, level):
             if self.fd:
-                return self.fd[level] + self.db
+                if self.fd[level] != 0:
+                    return self.fd[level] + self.db
             return 0
         
         def getCD(self, level):

@@ -270,7 +270,7 @@ selector = widgets.SelectMultiple(
     options=fighterOptions,
     value=[fighterOptions[0]],
     description='Selection:',
-    layout=widgets.Layout(width='auto', height='auto'),
+    layout=widgets.Layout(width='auto', height='100%'),
     disabled=False,
 )
 
@@ -282,7 +282,7 @@ selections = widgets.SelectMultiple(
     options=[],
     # rows=10,
     description='Current selections:',
-    layout=widgets.Layout(width='80%', height='auto'),
+    layout=widgets.Layout(width='80%', height='100%'),
     disabled=False
 )
 
@@ -298,9 +298,17 @@ def on_addSelection_clicked(b):
         if not criticalSpecialization.value == "other/none" and Selector.isWeapon(s):
             name += " " + criticalSpecialization.value
         if attackModifier.value != 0:
-            name += " +a" + str(attackModifier.value)
+            if attackModifier.value > 0:
+                name += " +"
+            else:
+                name += " "
+            name += str(attackModifier.value) + "a"
         if damageModifier.value != 0:
-            name += " +d" + str(damageModifier.value)
+            if damageModifier.value > 0:
+                name += " +"
+            else:
+                name += " "
+            name += str(damageModifier.value) + "d"
         minLevel = levelLimiter.value[0]
         maxLevel = levelLimiter.value[1]
         if not (name in selections.options):
@@ -481,8 +489,9 @@ newNameBox = widgets.Text(value="",layout=widgets.Layout(width='auto'))
 
 g = go.FigureWidget() 
 g.update_layout(title_text="Expected damage by level",
-                  title_font_size=30,
+                  title_font_size=24,
                legend_orientation="h",
+               legend_y=-0.2,
                height=500
                )
 g.layout.xaxis.range = [0,20]
@@ -497,12 +506,16 @@ def updateEDBLGraph():
                                             damageBonus.value,
                                             weakness.value,
                                             levelSelector.value)
+        titleText="Expected damage for level " + str(levelSelector.value)
+        xaxisText="vs AC"
     else:
         xLists, yLists, pyLists, nameList = createTraces(levelDiff.value, 
                                             flatfootedBox.value, 
                                             attackBonus.value,
                                             damageBonus.value,
                                             weakness.value)
+        titleText="Expected damage by level"
+        xaxisText="Level"
 #     print("selected: ", xLists, yLists)
 #     print(Selector.selectedAttack[1])
 #     for i in range(1,21):
@@ -559,7 +572,7 @@ def updateEDBLGraph():
                     comparisonHP = hpList[x+levelDiff.value]
                     y = 100 * yLists[i][ii] / comparisonHP
                     yLists[i][ii] = y
-              
+    
     maxY = 0
     for l in yLists:
         for y in l:
@@ -580,6 +593,10 @@ def updateEDBLGraph():
         
         # update legend size
         g.update_layout(height=500+10*len(nameList))
+        
+        g.update_layout(title_text=titleText,
+                        xaxis_title_text=xaxisText,
+                        yaxis_title_text=wantedView)
         
         # should update the axis so the data fits
         if percentageView.value == 'Percent of First Selection':
