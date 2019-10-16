@@ -1,6 +1,6 @@
 import copy
 from pf2calcMonsterStats import creatureData
-from pf2calcAttacks import AtkSelection, CombinedAttack, attackSwitcher, noneDamage
+from pf2calcAttacks import Strike, SaveAttack, Save, Effect, CombinedAttack, attackSwitcher
 
 
 
@@ -15,6 +15,20 @@ class Target:
     def getAC(self, level):
         if level in self.ac.keys():
             return self.ac[level]
+        
+    def getSaves(self, level):
+        return self.fort[level]
+    
+    def setAC(self, ac):
+        self.ac = ac
+        
+    def setSaves(self, saves):
+        self.fort = saves
+        self.ref = saves
+        self.will = saves
+        
+    def contains(self, level):
+        return level in self.ac and level in self.fort and level in self.ref and level in self.will
         
 averageAcByLevel = {-1: 15,
  0: 16,
@@ -44,7 +58,7 @@ averageAcByLevel = {-1: 15,
 averageTarget = Target(averageAcByLevel,None,None,None)
 
 
-def critFailChance(attackMinusAc):
+def critFailureChance(attackMinusAc):
     chance = 0
     if attackMinusAc < -10:
         chance = (-10 - attackMinusAc) * 5
@@ -53,7 +67,7 @@ def critFailChance(attackMinusAc):
         chance = 5
     return chance
 
-def failChance(attackMinusAc):
+def failureChance(attackMinusAc):
     chance = 0
     if attackMinusAc < -29:
         chance = 5
@@ -109,7 +123,7 @@ def calculateED(accuracy, defense, damageBonus, damageDice, dm=0, cd=0, fd=0, sd
     # fd = failure damage, cd = crit added damage, dm is damage that applies on all hits, like weakness/resistance
     exD = 0
     if fd != 0 or sd != 0:
-        exD += failChance(accuracy-defense) * (fd + sd + dm)
+        exD += failureChance(accuracy-defense) * (fd + sd + dm)
     exD += successChance(accuracy-defense, keen) * ((damageBonus + damageDice) + sd + dm)
     exD += critSuccessChance(accuracy-defense, keen) * ((damageBonus + damageDice)*2 + sd + dm)
     if cd != 0:
@@ -121,16 +135,21 @@ def calculateED(accuracy, defense, damageBonus, damageDice, dm=0, cd=0, fd=0, sd
             
 class Selector:
     
-    selectedTarget = creatureData['AC']['High'] # use averageTarget later
+    selectedTarget = averageTarget # use averageTarget later
+    selectedTarget.setSaves(creatureData['Saves']['Moderate'])
+    selectedTarget.setAC(creatureData['AC']['Moderate'])
     selections = dict()
     keyList = list()
     
-    def changeTarget(name):
-        if name == 'average bestiary AC':
-            Selector.selectedTarget = averageAcByLevel
+    def changeTargetAC(name):
+        if name == 'average bestiary':
+            Selector.selectedTarget.setAC(averageAcByLevel)
         else:
-            Selector.selectedTarget = creatureData['AC'][name]
-        
+            Selector.selectedTarget.setAC(creatureData['AC'][name])
+     
+    def changeTargetSaves(name):
+        Selector.selectedTarget.setSaves(creatureData['Saves'][name])
+     
     def shouldAddWeaponDamage(key):
         attack = attackSwitcher[key][0]
         return attack.isWeapon and not attack.weaponDamage
@@ -139,7 +158,7 @@ class Selector:
         attack = attackSwitcher[key][0]
         return attack.isWeapon
     
-    def addSelection(key, value, wdd, wc, cs, r1, r2, r3, r4, ab, db, minl, maxl):
+    def addSelection(key, value, wdd, wc, cs, r1, r2, r3, r4, ab, ad, db, minl, maxl):
         attack = attackSwitcher[value][0]
         newAttack = copy.deepcopy(attack)
         
@@ -151,6 +170,7 @@ class Selector:
         newAttack.setRuneDamage(r1,r2,r3,r4)
         
         newAttack.modifyAB(ab)
+        newAttack.modifyAD(ad)
         newAttack.modifyDB(db)
         
         newAttack.setLevels(minl, maxl)
@@ -173,8 +193,10 @@ class Selector:
     
     def doubleSelection(key, value):
         attack = Selector.selections.get(value)
-        atkList = attack + attack
+        atkList = attack
+        atkList += attack
         Selector.selections[key] = atkList
+        Selector.keyList.append(key)
         
     def removeSelection(key):
         Selector.selections.pop(key)
@@ -214,58 +236,172 @@ class Selector:
                 return False
         return True
 
-def graphTrace(strikeRoutine, target, level, attackBonus, damageBonus, weakness, flatfootedStatus):
+class Context:
+    def __init__(self, oldContext, chance, result):
+        if oldContext:
+            self.flatfooted = oldContext.origffstatus
+            self.origffstatus = oldContext.origffstatus
+            self.attackBonus = oldContext.attackBonus
+            self.damageBonus = oldContext.damageBonus
+            self.chance = oldContext.chance * chance
+            self.totalDamage = oldContext.totalDamage
+            self.totalPDamage = oldContext.totalPDamage
+            
+            self.thisStrikeBonus = 0
+            self.thisDamageBonus = 0
+        
+            if result:
+                if result.futureAttacksFF:
+                    self.origffstatus = True
+                    self.flatfooted = True
+                elif result.nextAttackFF:
+                    self.flatfooted = True
+                elif not type(result.atk) is Strike:
+                    self.flatfooted = oldContext.flatfooted
+               
+                if not type(result.atk) is Strike:
+                    self.thisStrikeBonus = max(oldContext.thisStrikeBonus, result.nextStrikeBonus)
+                else:
+                    self.thisStrikeBonus = result.nextStrikeBonus
+                
+                self.totalDamage += result.damage
+                self.totalPDamage += result.pdamage
+                return
+            
+            return 
+        self.flatfooted = False
+        self.origffstatus = False
+        self.attackBonus = 0
+        self.damageBonus = 0
+        self.chance = chance
+        self.totalDamage = 0
+        self.totalPDamage = 0
+        
+        self.thisStrikeBonus = 0
+        self.thisDamageBonus = 0
+        return
+    
+    def setFlatfooted(self):
+        self.origffstatus = True
+        self.flatfooted = True
+        
+    def setAttackBonus(self, ab):
+        self.attackBonus = ab
+        
+    def setDamageBonus(self, db):
+        self.damageBonus = db
+        
+    def getStrikeBonus(self):
+        return self.attackBonus + self.thisStrikeBonus
+    
+    def getSaveAttackBonus(self):
+        return self.attackBonus
+    
+    def getDCBonus(self):
+        return self.attackBonus
+    
+    def getSaveBonus(self):
+        return 0
+    
+    def getEffectBonus(self):
+        return 0
+    
+    def getExtraDamage(self):
+        return self.damageBonus + self.thisDamageBonus
+    
+    def getDamageBonus(self):
+        return self.damageBonus
+    
+    
+def graphTrace(routine, target, level, levelDiff, attackBonus, damageBonus, weakness, flatfootedStatus):
     y = 0
     py = 0
-    flatfootedChance = flatfootedStatus
     
-    if type(strikeRoutine) is CombinedAttack:
+    if type(routine) is CombinedAttack:
         # what if it contains more combined attacks?
-        for sr in strikeRoutine.validFor(level):
-            newy, newpy = graphTrace(sr, target, level, attackBonus, damageBonus, weakness, flatfootedStatus)
+        for atk in routine.validFor(level):
+            newy, newpy = graphTrace(atk, target, level, levelDiff, attackBonus, damageBonus, weakness, flatfootedStatus)
             if y == 0:
                 y = newy
                 py = newpy
             else:
-                y, py = strikeRoutine.choose(y, py, newy, newpy)
+                y, py = routine.choose(y, py, newy, newpy)
         return y, py
         
-    for st in strikeRoutine: #for each strike in that routine
-        a = st.getAttack(level)+attackBonus
-        db = st.getDamageBonus(level)+damageBonus
-        dd = st.getDamageDice(level)
-        ffd = st.getFFDamage(level)
-        fd = st.getFD(level)
-        cd = st.getCD(level)
-        sd = st.getSplashDamage(level)
-        keen = st.getKeen(level)
-        certainStrike = st.certainStrike
+    oContext = Context(None, 1, None)
+    oContext.setAttackBonus(attackBonus)
+    oContext.setDamageBonus(damageBonus)
+    normalContext = Context(oContext, 1-flatfootedStatus,None)
+    ffContext = Context(oContext, flatfootedStatus, None)
+    ffContext.setFlatfooted()
+    contextList = [normalContext, ffContext]
+    
+    for atk in routine: #for each strike in that routine
+        newContextList = []
+        for context in contextList:
+            # calculate the effects for this attack
+            keenStatus = False
+            if(type(atk) is Strike):
+                totalBonus = atk.getAttack(level)
+                totalBonus += context.getStrikeBonus()
+                keenStatus = atk.getKeen(level)
+            
+                totalDC = target.getAC(level+levelDiff)
+            
+                if context.flatfooted:
+                    totalDC -= 2
+            elif(type(atk) is SaveAttack):
+                totalBonus = atk.getAttack(level)
+                totalBonus += context.getSaveAttackBonus()
+                keenStatus = atk.getKeen(level)
+            
+                totalDC = target.getSaveDC(level+levelDiff)
+            elif(type(atk) is Save):
+                totalBonus = target.getSaves(level+levelDiff)
+                totalBonus += context.getSaveBonus()
+                
+                totalDC = atk.getDC(level)
+                totalDC += context.getDCBonus()
+            elif(type(atk) is Effect):
+                r = atk.effectResult(level, context)
+                eContext = Context(context, 1, r)
+                newContextList.append(eContext)
+                continue
+            else:
+                # this should not happen
+                print("attack type was", type(atk))
+                continue
+            
+            # create a new context for each degree of success
+            critSuccessPercent = critSuccessChance(totalBonus-totalDC, keen=keenStatus)
+            critSuccessResult = atk.critSuccessResult(level, context)
+            csContext = Context(context, critSuccessPercent/100, critSuccessResult)
+            newContextList.append(csContext)
+            
+            successPercent = successChance(totalBonus-totalDC, keen=keenStatus)
+            successResult = atk.successResult(level, context)
+            sContext = Context(context, successPercent/100, successResult)
+            newContextList.append(sContext)
+            
+            failurePercent = failureChance(totalBonus-totalDC)
+            failureResult = atk.failureResult(level, context)
+            fContext = Context(context, failurePercent/100, failureResult)
+            newContextList.append(fContext)
+            
+            critFailurePercent = critFailureChance(totalBonus-totalDC)
+            critFailureResult = atk.critFailureResult(level, context)
+            cfContext = Context(context, critFailurePercent/100, critFailureResult)
+            newContextList.append(cfContext)      
+            
+        # replace contextList with the list of newly created contexts
+        contextList = newContextList
         
-        pd = st.getPersistentDamage(level)
-        cpd = st.getCriticalPersistentDamage(level)
-        
-        ac = target
-                    
-        ffed = calculateED(a,ac-2,db,dd+ffd,dm=weakness,fd=fd,cd=cd,sd=sd,keen=keen,cs=certainStrike)
-        ed = calculateED(a,ac,db,dd,dm=weakness,fd=fd,cd=cd,sd=sd,keen=keen,cs=certainStrike)
-        
-        #persistent damage
-        ffepd = calculateED(a,ac-2,0,pd,dm=weakness,cd=cpd,keen=keen)
-        epd = calculateED(a,ac,0,pd,dm=weakness,cd=cpd,keen=keen)
-        
-        y += (flatfootedChance*ffed + (100-flatfootedChance)*ed) / 100
-        py += (flatfootedChance*ffepd + (100-flatfootedChance)*epd) / 100
-        
-                    # check for effects on crit/failure
-        ffonCritChance, ffonSuccessChance, ffonFailChance = 0, 0, 0
-        if st.ffonCrit(level):
-            ffonCritChance = (100-flatfootedChance) * critSuccessChance(a-ac, keen) / 100
-        if st.ffonSuccess(level):
-            ffonSuccessChance = (100-flatfootedChance) * successChance(a-ac, keen) / 100
-        if st.ffonFail(level):
-            ffonFailChance = (100-flatfootedChance) * failChance(a-ac)
-        flatfootedChance += (ffonCritChance + ffonSuccessChance + ffonFailChance)
+    for context in contextList:
+        y += context.totalDamage * context.chance
+        py += context.totalPDamage * context.chance
+    
     return y, py
+
                     
 	
 def createTraces(levelDiff, flatfootedStatus, attackBonus, damageBonus, weakness):
@@ -282,11 +418,11 @@ def createTraces(levelDiff, flatfootedStatus, attackBonus, damageBonus, weakness
         for i in range(1,21):
             toAdd = True
             if(type(s) is CombinedAttack):
-                if s.contains(i) and i+levelDiff in target:
+                if s.contains(i) and target.contains(i+levelDiff):
                     xList.append(i)
             else:
                 for st in s:  
-                    if not(st.getAttack(i) and i+levelDiff in target):
+                    if not(st.getAttack(i) and target.contains(i+levelDiff)):
                         toAdd = False
                 if toAdd:
                     xList.append(i)  
@@ -294,8 +430,8 @@ def createTraces(levelDiff, flatfootedStatus, attackBonus, damageBonus, weakness
             if i in xList:
                 # reset damage and things like flat footed status
                 
-                t = target[i+levelDiff]
-                y, py = graphTrace(s, t, i, attackBonus, damageBonus, weakness, flatfootedStatus)
+                
+                y, py = graphTrace(s, target, i, levelDiff, attackBonus, damageBonus, weakness, flatfootedStatus)
                 yList.append(y)
                 pyList.append(py)
         xLists.append(xList)
@@ -310,7 +446,7 @@ def createLevelTraces(levelDiff, flatfootedStatus, attackBonus, damageBonus, wea
     pyLists = []
     target = Selector.selectedTarget
     
-    if not (level+levelDiff in target):
+    if not target.contains(level+levelDiff):
         return xLists, yLists, pyLists, Selector.keyList
     
     for k in Selector.keyList: #for each attack routine selection
@@ -331,8 +467,8 @@ def createLevelTraces(levelDiff, flatfootedStatus, attackBonus, damageBonus, wea
         
         if toAdd:
             for i in range(-8,9):
-                xList.append(target[level+levelDiff]-i)
-                y, py = graphTrace(s, target[level+levelDiff], level, attackBonus+i, damageBonus, weakness, flatfootedStatus)
+                xList.append(target.getAC(level+levelDiff)-i)
+                y, py = graphTrace(s, target, level, levelDiff, attackBonus+i, damageBonus, weakness, flatfootedStatus)
                 yList.append(y)
                 pyList.append(py)
         xLists.append(xList)

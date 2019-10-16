@@ -36,20 +36,39 @@ weakness = widgets.BoundedIntText(
     #continuous_update=False
 )
 
-targetSelector = widgets.Dropdown(
-    options=['average bestiary AC',
+targetACSelector = widgets.Dropdown(
+    options=['average bestiary',
              'Extreme',
              'High',
              'Moderate',
              'Low'],
-    value='High',
-    description='Target:'
+    value='Moderate',
+    description='Target AC:'
 )
 
-def targetChangedResponse(change):
-    Selector.changeTarget(targetSelector.value)
+targetSavesSelector = widgets.Dropdown(
+#    options=['average bestiary high',
+#             'average bestiary mid',
+#             'average bestiary low',
+#             'average bestiary fort',
+#             'average bestiary ref',
+#             'average bestiary will',
+    options=['Extreme',
+             'High',
+             'Moderate',
+             'Low',
+             'Terrible'],
+    value='Moderate',
+    description='Target Save:'
+)
+
+def targetACChangedResponse(change):
+    Selector.changeTargetAC(targetACSelector.value)
     updateEDBLGraph()  
 
+def targetSavesChangedResponse(change):
+    Selector.changeTargetSaves(targetSavesSelector.value)
+    updateEDBLGraph() 
 
 flatfootedBox = widgets.BoundedIntText(
     value=0,
@@ -85,7 +104,8 @@ levelSelector = widgets.IntSlider(
         value=1,
         min=1,
         max=20,
-        step=1
+        step=1,
+        continuous_update=False
 )
 
 weaponDamageDie = widgets.Dropdown(
@@ -165,8 +185,11 @@ classSelector = widgets.Dropdown(
                  "Wizard",
                  "Animal Companion",
                  "Cantrips",
+                 "Spells",
                  "Caster Strikes",
-                 "Monster"],
+                 "Martial Strikes",
+                 "Monster",
+                 "Effects"],
         value="Fighter",
         layout=widgets.Layout(width='auto')
 )
@@ -203,8 +226,13 @@ barbarianOptions = ['Martial Strike',
 bardOptions = ['Caster Strike']
 championOptions = ['Martial Strike',
                    'Champion Smite Evil']
-cantripOptions = ['Telekinetic Projectile',
-                  'Ray of Frost']
+cantripOptions = ['Acid Splash',
+                  'Electric Arc',
+                  'Daze',
+                  'Divine Lance',
+                  'Produce Flame',
+                  'Ray of Frost',
+                  'Telekinetic Projectile']
 casterstrikeOptions = ['Caster Strike',
                        'Caster Ranged Strike',
                        'Caster Propulsive 10',
@@ -215,6 +243,7 @@ clericOptions = ['Caster Strike',
                  'Warpriest Strike']
 druidOptions = ['Caster Strike']
 fighterOptions = ['Fighter Melee Strike',
+                  'Fighter Exacting Strike',
              'Fighter Snagging Strike',
              'Fighter Certain Strike',
              'Fighter d10 Power Attack',
@@ -225,11 +254,29 @@ fighterOptions = ['Fighter Melee Strike',
              'Fighter d12 Brutal Finish',
              'Fighter propulsive 12',
              'Fighter propulsive 14',
-             'Fighter propulsive 16'
+             'Fighter propulsive 16',
+             'Fighter propulsive 12 es',
+             'Fighter propulsive 14 es',
+             'Fighter propulsive 16 es',
+             'Fighter propulsive 12 cs',
+             'Fighter propulsive 14 cs',
+             'Fighter propulsive 16 cs'
              ]
+martialstrikeOptions = ['Martial Strike',
+                        'Martial Ranged Strike',
+                        'Martial Propulsive 10',
+                        'Martial Propulsive 12',
+                        'Martial Propulsive 14',
+                        'Martial Propulsive 16']
 monkOptions = ['Martial Strike']
-rangerOptions = ['Martial Strike']
-rogueOptions = ['Rogue Strike']
+rangerOptions = ['Martial Strike',
+                        'Martial Ranged Strike',
+                        'Martial Propulsive 10',
+                        'Martial Propulsive 12',
+                        'Martial Propulsive 14',
+                        'Martial Propulsive 16']
+rogueOptions = ['Rogue Strike',
+                'Flat Foot Next Strike']
 sorcererOptions = ['Caster Strike']
 wizardOptions = ['Caster Strike']
 animalcompanionOptions = []
@@ -247,6 +294,12 @@ monsterOptions = ['Monster Extreme Attack High Damage',
                   'Monster Low Attack Moderate Damage',
                   'Monster Low Attack Low Damage'   
                   ]
+effectOptions = ['Flat Foot Target',
+                 'Flat Foot Next Strike']
+spellOptions = ['Basic Save 2d6',
+                'Basic Save 2d6+1',
+                'Basic Save 2d8',
+                'Magic Missle']
 
 selectionSwitcher = {"Alchemist": alchemistOptions, 
                      "Barbarian": barbarianOptions,
@@ -258,12 +311,15 @@ selectionSwitcher = {"Alchemist": alchemistOptions,
                      "Druid": druidOptions,
                      "Fighter": fighterOptions,
                      "Monk": monkOptions,
+                     "Martial Strikes": martialstrikeOptions,
                      "Ranger": rangerOptions,
                      "Rogue": rogueOptions,
                      "Sorcerer": sorcererOptions,
                      "Wizard": wizardOptions,
                      "Animal Companion": animalcompanionOptions,
-                     "Monster": monsterOptions}
+                     "Monster": monsterOptions,
+                     "Effects": effectOptions,
+                     "Spells": spellOptions}
 
 
 selector = widgets.SelectMultiple(
@@ -303,6 +359,12 @@ def on_addSelection_clicked(b):
             else:
                 name += " "
             name += str(attackModifier.value) + "a"
+        if additionalDamage.value != 0:
+            if additionalDamage.value > 0:
+                name += " +"
+            else:
+                name += " "
+            name += str(additionalDamage.value) + "ad"
         if damageModifier.value != 0:
             if damageModifier.value > 0:
                 name += " +"
@@ -317,8 +379,12 @@ def on_addSelection_clicked(b):
                                   weaponCritical.value,criticalSpecialization.value,
                                   elementalRune1.value,elementalRune2.value,
                                   elementalRune3.value,elementalRune4.value,
-                                  attackModifier.value,damageModifier.value,minLevel,maxLevel)
+                                  attackModifier.value,
+                                  additionalDamage.value,
+                                  damageModifier.value,
+                                  minLevel,maxLevel)
     attackModifier.value = 0
+    additionalDamage.value = 0
     damageModifier.value = 0
             
     updateEDBLGraph()
@@ -330,6 +396,16 @@ attackModifier = widgets.BoundedIntText(
     max=10.0,
     step=1.0,
     description='Attack Bonus:',
+    layout=widgets.Layout(width='auto')
+    #continuous_update=False
+)
+
+additionalDamage = widgets.BoundedIntText(
+    value=0.0,
+    min=-50.0,
+    max=50.0,
+    step=1.0,
+    description='Additional Damage:',
     layout=widgets.Layout(width='auto')
     #continuous_update=False
 )
@@ -489,7 +565,7 @@ newNameBox = widgets.Text(value="",layout=widgets.Layout(width='auto'))
 
 g = go.FigureWidget() 
 g.update_layout(title_text="Expected damage by level",
-                  title_font_size=24,
+                  title_font_size=20,
                legend_orientation="h",
                legend_y=-0.2,
                height=500
@@ -506,7 +582,7 @@ def updateEDBLGraph():
                                             damageBonus.value,
                                             weakness.value,
                                             levelSelector.value)
-        titleText="Expected damage for level " + str(levelSelector.value)
+        titleText="Expected damage for level " + str(levelSelector.value) + " vs Level " + str(levelSelector.value+levelDiff.value) + " Target with " + str(targetACSelector.value) + " AC and " + str(targetSavesSelector.value) + " Saves"
         xaxisText="vs AC"
     else:
         xLists, yLists, pyLists, nameList = createTraces(levelDiff.value, 
@@ -514,7 +590,7 @@ def updateEDBLGraph():
                                             attackBonus.value,
                                             damageBonus.value,
                                             weakness.value)
-        titleText="Expected damage by level"
+        titleText="Expected damage by level"+ " vs Level+" + str(levelDiff.value) + " Target with " + str(targetACSelector.value) + " AC and " + str(targetSavesSelector.value) + " Saves"
         xaxisText="Level"
 #     print("selected: ", xLists, yLists)
 #     print(Selector.selectedAttack[1])
@@ -636,15 +712,16 @@ byLevelView.observe(edblResponse, names="value")
 levelSelector.observe(edblResponse, names="value")
 persistentDamageWeightBox.observe(edblResponse, names="value")
 
-targetSelector.observe(targetChangedResponse, names="value")
+targetACSelector.observe(targetACChangedResponse, names="value")
+targetSavesSelector.observe(targetSavesChangedResponse, names="value")
 classSelector.observe(classSelectorResponse, names="value")
 
 
 adjustments = widgets.HBox([levelDiff,attackBonus,damageBonus,weakness])
-targetRow = widgets.HBox([targetSelector,flatfootedBox,persistentDamageWeightBox,percentageView])
+targetRow = widgets.HBox([targetACSelector, targetSavesSelector,flatfootedBox,persistentDamageWeightBox,percentageView])
 levelViewRow = widgets.HBox([byLevelView,levelSelector])
 
-selectorModifiers = widgets.VBox([selectorAddButton,attackModifier,damageModifier,levelLimiter])
+selectorModifiers = widgets.VBox([selectorAddButton,attackModifier,additionalDamage,damageModifier,levelLimiter])
 weaponModifiers = widgets.VBox([weaponDamageDie,weaponCritical,criticalSpecialization])
 runeModifiers = widgets.VBox([elementalRunesLabel,elementalRune1,elementalRune2,elementalRune3,elementalRune4])
 selectorBox = widgets.VBox([classSelector,selector])

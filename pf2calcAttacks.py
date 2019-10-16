@@ -27,7 +27,7 @@ for i in range(1,21):
     if i >=7: 
         wProf[i] += 2
 
-fProf = mProf
+fProf = copy.copy(mProf)
 for i in fProf:
     fProf[i] += 2
     
@@ -444,10 +444,34 @@ casterP12Damage = {i: propulsive12[i] + cwSpec[i] for i in range(1,21)}
 casterP14Damage = {i: propulsive14[i] + cwSpec[i] for i in range(1,21)}
 casterP16Damage = {i: propulsive16[i] + cwSpec[i] for i in range(1,21)}
 
+cantripASDamage = {i: mStr[i] + int((sDice[i]-1)/2)*4.5 for i in range(1,21)}
+cantripASDamage[1] = 4.5
+cantripASDamage[2] = 4.5
+cantripASDamage[3] = 4.5
+cantripASDamage[4] = 4.5
+cantripDDamage = {i: mStr[i] + max(0,int((sDice[i]-1)/2))*3.5 for i in range(1,21)}
 cantripTPDamage = {i: mStr[i] + sDice[i]*3.5 for i in range(1,21)}
 cantripRFDamage = {i: mStr[i] + sDice[i]*2.5 for i in range(1,21)}
+cantripASPDamage = {i: (sDice[i]+1)/2*1 for i in range(1,21)}
+cantripPFPDamage = {i: sDice[i]*2.5 for i in range(1,21)}
+
+magicMissleDamage = {i: int((sDice[i]+1)/2) * 3.5 for i in range(1,21)}
+spellDamage45 = {i: sDice[i]*4.5 for i in range(1,21)}
+spellDamage55 = {i: sDice[i]*5.5 for i in range(1,21)}
+spellDamage7 = {i: sDice[i]*7 for i in range(1,21)}
+spellDamage8 = {i: sDice[i]*8 for i in range(1,21)}
+spellDamage9 = {i: sDice[i]*9 for i in range(1,21)}
+spellDamage10 = {i: sDice[i]*10 for i in range(1,21)}
+spellDamage11 = {i: sDice[i]*11 for i in range(1,21)}
+spellDamage12 = {i: sDice[i]*12 for i in range(1,21)}
+spellDamage13 = {i: sDice[i]*13 for i in range(1,21)}
 
 martialDamage = {i: mStr[i] + mwSpec[i] for i in range(1,21)}
+martialRangedDamage = {i: mwSpec[i] for i in range(1,21)}
+martialP10Damage = {i: propulsive10[i] + mwSpec[i] for i in range(1,21)}
+martialP12Damage = {i: propulsive12[i] + mwSpec[i] for i in range(1,21)}
+martialP14Damage = {i: propulsive14[i] + mwSpec[i] for i in range(1,21)}
+martialP16Damage = {i: propulsive16[i] + mwSpec[i] for i in range(1,21)}
 
 barbariananimaldamage = {i: martialDamage[i] + animalragedamage[i] for i in range(1,21)}
 barbarianagileanimaldamage = {i: martialDamage[i] + int(animalragedamage[i]/2) for i in range(1,21)}
@@ -487,43 +511,86 @@ def ffd(level):
     return mStr[level] + fwSpec[level]
 fighterFailDamage = {i: mStr[i] + fwSpec[i] for i in range(1,21) }
 
+class Result:
+    def __init__(self, damage, pdamage, atk):
+        self.damage = damage
+        self.pdamage = pdamage
+        
+        self.futureAttacksFF = False
+        self.nextAttackFF = False
+        self.nextStrikeBonus = 0
+        
+        self.atk = atk
+        
+    def setFutureAttacksFF(self):
+        self.futureAttacksFF = True
+    def setNextAttackFF(self):
+        self.nextAttackFF = True
+    def setNextStrikeBonus(self, bonus):
+        self.nextStrikeBonus = bonus
+        
+    def setCrit(self):
+        pass
+    def setHit(self):
+        pass
+    def setFail(self):
+        pass
+    def setCritFail(self):
+        pass
+    def setCritSuccessSave(self):
+        pass
+    def setSuccessSave(self):
+        pass
+    def setFailSave(self):
+        pass
+    def setCritFailSave(self):
+        pass
+        
 class AtkSelection:
-#         attack
-#         damage
-#         target
-        def __init__(self, attack, damage, csLevel=21, fd=None, isWeapon=True, certainStrike=False):
+#         4 types: 'Strike', 'SaveAttack', 'Save', 'Effect'
+        def __init__(self, attack, damage):
+            
             self.attack = attack
+            self.attackBonus = 0
             self.damage = damage
+            self.additionalDamage = 0
+            self.damageBonus = 0
             self.persDamage = copy.copy(noneDamage)
             self.splashDamage = None
-            self.isWeapon = isWeapon
-            
-            self.critSpecLevel = csLevel
             self.wDice = copy.copy(wDice) # number of dice
             self.damageDice = 0 # 3.5
             self.weaponDamage = None
             self.runeDamage = None
-            
-            self.flatfootedDamage = None
-            
-            if fd:
-                self.fd = copy.copy(fd)
-            else:
-                self.fd = copy.copy(noneDamage)
-            self.certainStrike = certainStrike
-            self.cd = copy.copy(noneDamage)
+            self.flatfootedDamage = copy.copy(noneDamage)
+            self.failureDamage = copy.copy(noneDamage)
+            self.certainStrike = False
+            self.critDamage = copy.copy(noneDamage)
             self.critPersDamage = copy.copy(noneDamage)
             
-            self.ab = 0
-            self.db = 0
+            self.isWeapon = False
             
+            self.critSpecLevel = 21
             self.keenLevel = 21
             self.ffonCritLevel = 21
             self.ffonSuccessLevel = 21
             self.ffonFailLevel = 21
             
+            self.attackBonusOnFail = 0
+            
             self.minL = 1
             self.maxL = 20
+            
+        def critSuccessResult(self, level, db):
+            return 0
+        
+        def successResult(self, level, db):
+            return 0
+        
+        def failureResult(self, level, db):
+            return 0
+        
+        def critFailureResult(self, level, db):
+            return 0
             
         def setWeaponDamage(self, weaponDamageDiceName):
             if self.isWeapon and not self.weaponDamage:
@@ -535,10 +602,10 @@ class AtkSelection:
                 cd = criticalDiceConverter[weaponCriticalName]
                 if cd[0]:
                     for i in range(1,21):
-                        self.cd[i] += cd[1] + wDice[i]*2*(cd[1] - self.damageDice)
+                        self.critDamage[i] += cd[1] + wDice[i]*2*(cd[1] - self.damageDice)
                 else:
                     for i in range(1,21):
-                        self.cd[i] += cd[1][i]
+                        self.critDamage[i] += cd[1][i]
             
         def setCriticalSpecialization(self, csName):
             if self.isWeapon:
@@ -551,7 +618,7 @@ class AtkSelection:
                     self.ffonCritLevel = min(self.ffonCritLevel,self.critSpecLevel)
                 elif csName == "pick":
                     for i in range(self.critSpecLevel,21):
-                        self.cd[i] += self.wDice[i] * 2
+                        self.critDamage[i] += self.wDice[i] * 2
         
         def setRuneDamage(self, r1, r2, r3, r4):
             if self.isWeapon:
@@ -568,12 +635,12 @@ class AtkSelection:
             
         def getAttack(self, level):
             if level>=self.minL and level<=self.maxL:
-                return self.attack[level] + self.ab
+                return self.attack[level] + self.attackBonus
             return None
         
         def getDamageBonus(self, level):
             if level>=self.minL and level<=self.maxL:
-                return self.damage[level] + self.db
+                return self.damage[level] + self.additionalDamage
             return 0
         
         def getDamageDice(self, level):
@@ -583,11 +650,13 @@ class AtkSelection:
                     d += self.weaponDamage[level]
                 if self.runeDamage:
                     d += self.runeDamage[level]
-                return d
+                return d + self.damageBonus
             return 0
         
         def getPersistentDamage(self, level):
-            return self.persDamage[level]
+            if self.persDamage:
+                return self.persDamage[level]
+            return 0
         
         def getSplashDamage(self, level):
             if self.splashDamage:
@@ -595,22 +664,24 @@ class AtkSelection:
             return 0
         
         def getCriticalPersistentDamage(self, level):
-            return self.critPersDamage[level]
+            if self.critPersDamage:
+                return self.critPersDamage[level]
+            return 0
         
         def getFFDamage(self, level):
             if self.flatfootedDamage:
                 return self.flatfootedDamage[level]
             return 0
         
-        def getFD(self, level):
-            if self.fd:
-                if self.fd[level] != 0:
-                    return self.fd[level] + self.db
+        def getFailureDamage(self, level):
+            if self.failureDamage:
+                if self.failureDamage[level] != 0:
+                    return self.failureDamage[level] + self.damageBonus
             return 0
         
-        def getCD(self, level):
-            if self.cd:
-                return self.cd[level]
+        def getCriticalBonusDamage(self, level):
+            if self.critDamage:
+                return self.critDamage[level]
             return 0
         
         def getKeen(self, level):
@@ -631,21 +702,163 @@ class AtkSelection:
             return False
         
         def modifyAB(self, ab):
-            self.ab = ab
+            self.attackBonus = ab
         def modifyDB(self, db):
-            self.db = db
+            self.damageBonus = db
+        def modifyAD(self, ad):
+            self.additionalDamage = ad
             
         def setKeen(self, level):
             self.keenLevel = level
+            
         def setFFonCrit(self, level):
             self.ffonCritLevel = min(level,self.ffonCritLevel)
         def setFFonSuccess(self, level):
             self.ffonSuccessLevel = min(level,self.ffonSuccessLevel)
         def setFFonFail(self, level):
             self.ffonFailLevel = min(level,self.ffonFailLevel)
+            
         def setLevels(self, minl, maxl):
             self.minL, self.maxL = minl, maxl
+
+class Strike(AtkSelection):
+    def __init__(self, attack, damage, isWeapon=True, csLevel=21):
+        super().__init__(attack, damage)
+        self.critSpecLevel = csLevel
+        self.isWeapon = isWeapon
+        
+    def critSuccessResult(self, level, context):
+        damage = self.getDamageBonus(level)
+        damage += self.getDamageDice(level)
+        damage += context.getExtraDamage()
+        if context.flatfooted:
+            damage += self.getFFDamage(level)
+        
+        damage = damage * 2
+        
+        damage += self.getSplashDamage(level)
+        damage += self.getCriticalBonusDamage(level)
+        
+        pdamage = self.getCriticalPersistentDamage(level)
+        r = Result(max(0,damage), pdamage, self)
+        r.setCrit()
+        if self.ffonCrit(level):
+            r.setFutureAttacksFF()
             
+        return r
+        
+    def successResult(self, level, context):
+        damage = self.getDamageBonus(level)
+        damage += self.getDamageDice(level)
+        damage += context.getExtraDamage()
+        if context.flatfooted:
+            damage += self.getFFDamage(level)
+            
+        damage += self.getSplashDamage(level)
+        pdamage = self.getPersistentDamage(level)
+        
+        r = Result(max(0,damage), pdamage, self)
+        r.setHit()
+        if self.ffonSuccess(level):
+            r.setFutureAttacksFF()
+            
+        return r
+        
+    def failureResult(self, level, context):
+        damage = 0
+        
+        
+        
+        if self.certainStrike:
+            damage += self.getFailureDamage(level)
+            if damage == 0:
+                damage = self.damageBonus
+            damage += self.getDamageBonus(level)
+        else:
+             damage += self.getFailureDamage(level)
+        if damage != 0:
+            damage += context.getDamageBonus()
+            # todo add context damge bonus, not extra dice
+            
+            
+        r = Result(max(0,damage), 0, self)
+        r.setFail()
+        r.setNextStrikeBonus(self.attackBonusOnFail)
+        if self.ffonFail(level):
+            r.setFutureAttacksFF()
+            
+        return r
+        
+    def critFailureResult(self, level, context):
+        r = Result(0,0, self)
+        r.setCritFail()
+        return r
+    
+class SaveAttack(AtkSelection):
+    def __init__(self, attack, damage):
+        super().__init__(attack, damage)
+
+    
+    
+class Save(AtkSelection):
+    def __init__(self, dc, damage):
+        super().__init__(dc, damage)
+        self.dc = dc
+        
+    def getDC(self, level):
+        return self.dc[level]
+    
+    def critSuccessResult(self, level, context):
+        
+        r = Result(0, 0, self)
+        r.setCritSuccessSave()
+        return r
+        
+    def successResult(self, level, context):
+        damage = self.getDamageBonus(level)
+        damage += context.getDamageBonus()
+        damage = damage / 2
+        
+        r = Result(max(0,damage), 0, self)
+        r.setSuccessSave()
+        return r
+        
+    def failureResult(self, level, context):
+        damage = self.getDamageBonus(level)
+        damage += context.getDamageBonus()
+            
+        r = Result(max(0,damage), 0, self)
+        r.setFailSave()
+        
+            
+        return r
+        
+    def critFailureResult(self, level, context):
+        damage = self.getDamageBonus(level)
+        damage += context.getDamageBonus()
+        damage = damage * 2
+        
+        r = Result(max(0,damage), 0, self)
+        r.setCritFailSave()
+        return r
+    
+class Effect(AtkSelection):
+    def __init__(self, damage):
+        super().__init__(casterAttackBonus, damage)
+        self.flatfootNextStrike = False
+        self.flatfoot = False
+        
+    def effectResult(self, level, context):
+        damage = self.getDamageBonus(level)
+        damage += context.getExtraDamage()
+        r = Result(damage,0, self)
+        if self.flatfoot:
+            r.futureAttacksFF = True
+        elif self.flatfootNextStrike:
+            r.nextAttackFF = True
+        return r
+    
+        
 class CombinedAttack:
     PDWeight = 0
     def __init__(self, attackList, function=min):
@@ -692,107 +905,123 @@ class CombinedAttack:
         return validAttackList
         
     
-alchemistStrike = AtkSelection(warpriestAttackBonus, alchemistDamage)
-alchemistRangedStrike = AtkSelection(warpriestAttackBonus, alchemistRangedDamage)
+alchemistStrike = Strike(warpriestAttackBonus, alchemistDamage)
+alchemistRangedStrike = Strike(warpriestAttackBonus, alchemistRangedDamage)
 
-alchemistacids = AtkSelection(bombAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistacids = Strike(bombAttackBonus, alchemistRangedDamage)
+alchemistacids.isWeapon = False
 alchemistacids.weaponDamage = acidFlaskDamage
 alchemistacids.persDamage = acidFlaskPersDamage
 alchemistacids.critPersDamage = {i: acidFlaskPersDamage[i]*2 for i in range(1,21)}
 alchemistacids.splashDamage = bombSplashDamage
 
-alchemistbacids = AtkSelection(bombAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistbacids = Strike(bombAttackBonus, alchemistRangedDamage)
+alchemistbacids.isWeapon = False
 alchemistbacids.weaponDamage = acidFlaskDamage
 alchemistbacids.persDamage = acidFlaskPersDamage
 alchemistbacids.critPersDamage = {i: acidFlaskPersDamage[i]*2 for i in range(1,21)}
 alchemistbacids.splashDamage = bomberSplashDamage
 
-alchemistpacids = AtkSelection(pbombAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistpacids = Strike(pbombAttackBonus, alchemistRangedDamage)
+alchemistpacids.isWeapon = False
 alchemistpacids.weaponDamage = pacidFlaskDamage
 alchemistpacids.persDamage = pacidFlaskPersDamage
 alchemistpacids.critPersDamage = {i: pacidFlaskPersDamage[i]*2 for i in range(1,21)}
 alchemistpacids.splashDamage = pbombSplashDamage
 
-alchemistbpacids = AtkSelection(pbombAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistbpacids = Strike(pbombAttackBonus, alchemistRangedDamage)
+alchemistbpacids.isWeapon = False
 alchemistbpacids.weaponDamage = pacidFlaskDamage
 alchemistbpacids.persDamage = pacidFlaskPersDamage
 alchemistbpacids.critPersDamage = {i: pacidFlaskPersDamage[i]*2 for i in range(1,21)}
 alchemistbpacids.splashDamage = pbomberSplashDamage
 
-alchemistfires = AtkSelection(bombAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistfires = Strike(bombAttackBonus, alchemistRangedDamage)
+alchemistfires.isWeapon = False
 alchemistfires.weaponDamage = alchemistsFireDamage
 alchemistfires.persDamage = alchemistsFirePersDamage
 alchemistfires.critPersDamage = {i: alchemistsFirePersDamage[i]*2 for i in range(1,21)}
 alchemistfires.splashDamage = bombSplashDamage
 
-alchemistbfires = AtkSelection(bombAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistbfires = Strike(bombAttackBonus, alchemistRangedDamage)
+alchemistbfires.isWeapon = False
 alchemistbfires.weaponDamage = alchemistsFireDamage
 alchemistbfires.persDamage = alchemistsFirePersDamage
 alchemistbfires.critPersDamage = {i: alchemistsFirePersDamage[i]*2 for i in range(1,21)}
 alchemistbfires.splashDamage = bomberSplashDamage
 
-alchemistpfires = AtkSelection(pbombAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistpfires = Strike(pbombAttackBonus, alchemistRangedDamage)
+alchemistpfires.isWeapon = False
 alchemistpfires.weaponDamage = palchemistsFireDamage
 alchemistpfires.persDamage = palchemistsFirePersDamage
 alchemistpfires.critPersDamage = {i: palchemistsFirePersDamage[i]*2 for i in range(1,21)}
 alchemistpfires.splashDamage = pbombSplashDamage
 
-alchemistbpfires = AtkSelection(pbombAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistbpfires = Strike(pbombAttackBonus, alchemistRangedDamage)
+alchemistbpfires.isWeapon = False
 alchemistbpfires.weaponDamage = palchemistsFireDamage
 alchemistbpfires.persDamage = palchemistsFirePersDamage
 alchemistbpfires.critPersDamage = {i: palchemistsFirePersDamage[i]*2 for i in range(1,21)}
 alchemistbpfires.splashDamage = pbomberSplashDamage
 
-alchemistfrosts = AtkSelection(bombAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistfrosts = Strike(bombAttackBonus, alchemistRangedDamage)
+alchemistfrosts.isWeapon = False
 alchemistfrosts.weaponDamage = blfvDamage
 alchemistfrosts.splashDamage = bombSplashDamage
 
-alchemistbfrosts = AtkSelection(bombAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistbfrosts = Strike(bombAttackBonus, alchemistRangedDamage)
+alchemistbfrosts.isWeapon = False
 alchemistbfrosts.weaponDamage = blfvDamage
 alchemistbfrosts.splashDamage = bomberSplashDamage
 
-alchemistpfrosts = AtkSelection(pbombAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistpfrosts = Strike(pbombAttackBonus, alchemistRangedDamage)
+alchemistpfrosts.isWeapon = False
 alchemistpfrosts.weaponDamage = pblfvDamage
 alchemistpfrosts.splashDamage = pbombSplashDamage
 
-alchemistbpfrosts = AtkSelection(pbombAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistbpfrosts = Strike(pbombAttackBonus, alchemistRangedDamage)
+alchemistbpfrosts.isWeapon = False
 alchemistbpfrosts.weaponDamage = pblfvDamage
 alchemistbpfrosts.splashDamage = pbomberSplashDamage
 
-alchemistlightnings = AtkSelection(bombAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistlightnings = Strike(bombAttackBonus, alchemistRangedDamage)
+alchemistlightnings.isWeapon = False
 alchemistlightnings.setFFonCrit(1)
 alchemistlightnings.setFFonSuccess(1)
 alchemistlightnings.weaponDamage = blfvDamage
 alchemistlightnings.splashDamage = bombSplashDamage
 
-alchemistblightnings = AtkSelection(bombAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistblightnings = Strike(bombAttackBonus, alchemistRangedDamage)
+alchemistblightnings.isWeapon = False
 alchemistblightnings.setFFonCrit(1)
 alchemistblightnings.setFFonSuccess(1)
 alchemistblightnings.weaponDamage = blfvDamage
 alchemistblightnings.splashDamage = bomberSplashDamage
 
-alchemistplightnings = AtkSelection(pbombAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistplightnings = Strike(pbombAttackBonus, alchemistRangedDamage)
+alchemistplightnings.isWeapon = False
 alchemistplightnings.setFFonCrit(1)
 alchemistplightnings.setFFonSuccess(1)
 alchemistplightnings.weaponDamage = pblfvDamage
 alchemistplightnings.splashDamage = pbombSplashDamage
 
-alchemistbplightnings = AtkSelection(pbombAttackBonus, alchemistRangedDamage, isWeapon=False)
+alchemistbplightnings = Strike(pbombAttackBonus, alchemistRangedDamage)
+alchemistbplightnings.isWeapon = False
 alchemistbplightnings.setFFonCrit(1)
 alchemistbplightnings.setFFonSuccess(1)
 alchemistbplightnings.weaponDamage = pblfvDamage
 alchemistbplightnings.splashDamage = pbomberSplashDamage
 
-alchemistbestialClawStrike = AtkSelection(mutagenstrikeAttackBonus, alchemistDamage)
+alchemistbestialClawStrike = Strike(mutagenstrikeAttackBonus, alchemistDamage)
 alchemistbestialClawStrike.weaponDamage = bestialClawDamage
 
-alchemistbestialJawStrike = AtkSelection(mutagenstrikeAttackBonus, alchemistDamage)
+alchemistbestialJawStrike = Strike(mutagenstrikeAttackBonus, alchemistDamage)
 alchemistbestialJawStrike.weaponDamage = bestialJawDamage
 
-alchemistferalClawStrike = AtkSelection(mutagenstrikeAttackBonus, alchemistDamage)
+alchemistferalClawStrike = Strike(mutagenstrikeAttackBonus, alchemistDamage)
 alchemistferalClawStrike.weaponDamage = {i: bestialClawDamage[i] + wDice[i] for i in range(1,21)}
 
-alchemistferalJawStrike = AtkSelection(mutagenstrikeAttackBonus, alchemistDamage)
+alchemistferalJawStrike = Strike(mutagenstrikeAttackBonus, alchemistDamage)
 alchemistferalJawStrike.weaponDamage = {i: bestialJawDamage[i] + wDice[i] for i in range(1,21)}
 
 alchemistAttackSwitcher = {'Alchemist Melee Strike': [alchemistStrike],
@@ -822,18 +1051,18 @@ alchemistAttackSwitcher = {'Alchemist Melee Strike': [alchemistStrike],
 # rage, instinct, devastator
 
 
-barbariananimaljaws = AtkSelection(martialAttackBonus, barbariananimaldamage, csLevel=5)
+barbariananimaljaws = Strike(martialAttackBonus, barbariananimaldamage, csLevel=5)
 barbariananimaljaws.weaponDamage = animalJawDamage
-barbariananimalclaws = AtkSelection(martialAttackBonus, barbarianagileanimaldamage, csLevel=5)
+barbariananimalclaws = Strike(martialAttackBonus, barbarianagileanimaldamage, csLevel=5)
 barbariananimalclaws.weaponDamage = animalClawDamage
 
-barbariandragonstrike = AtkSelection(martialAttackBonus, barbariandragondamage, csLevel=5)
+barbariandragonstrike = Strike(martialAttackBonus, barbariandragondamage, csLevel=5)
 
-barbarianfurystrike = AtkSelection(martialAttackBonus, barbarianfurydamage, csLevel=5)
+barbarianfurystrike = Strike(martialAttackBonus, barbarianfurydamage, csLevel=5)
 
-barbariangiantstrike = AtkSelection(martialAttackBonus, barbariangiantdamage, csLevel=5)
+barbariangiantstrike = Strike(martialAttackBonus, barbariangiantdamage, csLevel=5)
 
-barbarianspiritstrike = AtkSelection(martialAttackBonus, barbarianspiritdamage, csLevel=5)
+barbarianspiritstrike = Strike(martialAttackBonus, barbarianspiritdamage, csLevel=5)
 
 barbarianAttackSwitcher = {'Barbarian Animal Claw': [barbariananimalclaws],
                     'Barbarian Animal Jaw': [barbariananimaljaws],
@@ -843,19 +1072,25 @@ barbarianAttackSwitcher = {'Barbarian Animal Claw': [barbariananimalclaws],
                     'Barbarian Spirit Strike': [barbarianspiritstrike]}
 
 
-casterstrike = AtkSelection(casterAttackBonus, strCasterDamage, csLevel=11)
-casterrangedstrike = AtkSelection(casterAttackBonus, rangedCasterDamage, csLevel=11)
-casterpropulsive10 = AtkSelection(casterAttackBonus, casterP10Damage, csLevel=11)
-casterpropulsive12 = AtkSelection(casterAttackBonus, casterP12Damage, csLevel=11)
-casterpropulsive14 = AtkSelection(casterAttackBonus, casterP14Damage, csLevel=11)
-casterpropulsive16 = AtkSelection(casterAttackBonus, casterP16Damage, csLevel=11)
+casterstrike = Strike(casterAttackBonus, strCasterDamage, csLevel=11)
+casterrangedstrike = Strike(casterAttackBonus, rangedCasterDamage, csLevel=11)
+casterpropulsive10 = Strike(casterAttackBonus, casterP10Damage, csLevel=11)
+casterpropulsive12 = Strike(casterAttackBonus, casterP12Damage, csLevel=11)
+casterpropulsive14 = Strike(casterAttackBonus, casterP14Damage, csLevel=11)
+casterpropulsive16 = Strike(casterAttackBonus, casterP16Damage, csLevel=11)
 
-martialstrike = AtkSelection(martialAttackBonus, martialDamage, csLevel=5)
-championsmiteevil = AtkSelection(martialAttackBonus, championsmiteevildamage, csLevel=3)
+martialstrike = Strike(martialAttackBonus, martialDamage, csLevel=5)
+martialrangedstrike = Strike(martialAttackBonus, martialRangedDamage, csLevel=5)
+martialp10 = Strike(martialAttackBonus, martialP10Damage, csLevel=5)
+martialp12 = Strike(martialAttackBonus, martialP12Damage, csLevel=5)
+martialp14 = Strike(martialAttackBonus, martialP14Damage, csLevel=5)
+martialp16 = Strike(martialAttackBonus, martialP16Damage, csLevel=5)
 
-warprieststrike = AtkSelection(warpriestAttackBonus, warpriestDamage, csLevel=7)
+championsmiteevil = Strike(martialAttackBonus, championsmiteevildamage, csLevel=3)
 
-roguestrike = AtkSelection(martialAttackBonus, martialDamage, csLevel=5)
+warprieststrike = Strike(warpriestAttackBonus, warpriestDamage, csLevel=7)
+
+roguestrike = Strike(martialAttackBonus, martialDamage, csLevel=5)
 roguestrike.flatfootedDamage = sneakattackdamage
 
 otherAttackSwitcher = {'Caster Strike': [casterstrike],
@@ -865,55 +1100,96 @@ otherAttackSwitcher = {'Caster Strike': [casterstrike],
                        'Caster Propulsive 14': [casterpropulsive14],
                        'Caster Propulsive 16': [casterpropulsive16],
                        'Martial Strike': [martialstrike],
+                       'Martial Ranged Strike': [martialrangedstrike],
+                       'Martial Propulsive 10': [martialp10],
+                       'Martial Propulsive 12': [martialp12],
+                       'Martial Propulsive 14': [martialp14],
+                       'Martial Propulsive 16': [martialp16],
                        'Champion Smite Evil': [championsmiteevil],
                        'Warpriest Strike': [warprieststrike],
                        'Rogue Strike': [roguestrike]
                        }
 
-cantripTP = AtkSelection(cantripAttackBonus, cantripTPDamage, isWeapon=False)
-cantripRF = AtkSelection(cantripAttackBonus, cantripRFDamage, isWeapon=False)
+cantripAS = Strike(cantripAttackBonus, cantripASDamage, isWeapon=False)
+cantripAS.critPersDamage = cantripASPDamage
+cantripEA = Save(spellDC, cantripRFDamage)
+cantripD = Save(spellDC, cantripDDamage)
+cantripDL = Strike(cantripAttackBonus, cantripRFDamage, isWeapon=False)
+cantripPF = Strike(cantripAttackBonus, cantripRFDamage, isWeapon=False)
+cantripPF.critPersDamage = cantripPFPDamage
+cantripTP = Strike(cantripAttackBonus, cantripTPDamage, isWeapon=False)
+cantripRF = Strike(cantripAttackBonus, cantripRFDamage, isWeapon=False)
 
-cantripAttackSwitcher = {'Telekinetic Projectile': [cantripTP],
-                  'Ray of Frost': [cantripRF]}
+cantripAttackSwitcher = {'Acid Splash': [cantripAS],
+                  'Electric Arc': [cantripEA],
+                  'Daze': [cantripD],
+                  'Divine Lance': [cantripDL],
+                  'Produce Flame': [cantripPF],
+                  'Ray of Frost': [cantripRF],
+                  'Telekinetic Projectile': [cantripTP]
+                  }
 # fighter, double slice, exacting strike, power attack, snagging strike
 # combat grab
         
-fighterstrike = AtkSelection(fighterAttackBonus,fighterDamage, csLevel=5)
+fighterstrike = Strike(fighterAttackBonus,fighterDamage, csLevel=5)
 
-fightersnaggingstrike = AtkSelection(fighterAttackBonus,fighterDamage, csLevel=5)
+fighterexactingstrike = Strike(fighterAttackBonus, fighterDamage, csLevel=5)
+fighterexactingstrike.attackBonusOnFail = 5
+
+fightersnaggingstrike = Strike(fighterAttackBonus,fighterDamage, csLevel=5)
 fightersnaggingstrike.setFFonCrit(1)
 fightersnaggingstrike.setFFonSuccess(1)
 
-fightercertainstrike = AtkSelection(fighterAttackBonus,fighterDamage, csLevel=5, fd=fighterFailDamage)
+fightercertainstrike = Strike(fighterAttackBonus,fighterDamage, csLevel=5)
+fightercertainstrike.certainStrike = True
 
-fighterpowerattack = AtkSelection(fighterAttackBonus,fighterDamage, csLevel=5)
+fighterpowerattack = Strike(fighterAttackBonus,fighterDamage, csLevel=5)
 fighterpowerattack.wDice[i] += 1
 for i in range(1,21):
     if i >= 10:
         fighterpowerattack.wDice[i] += 1
     if i >= 18:
         fighterpowerattack.wDice[i] += 1
-fighterd10powerattack = AtkSelection(fighterAttackBonus,fighterd10paDamage, csLevel=5)
-fighterd12powerattack = AtkSelection(fighterAttackBonus,fighterd12paDamage, csLevel=5)
+fighterd10powerattack = Strike(fighterAttackBonus,fighterd10paDamage, csLevel=5)
+fighterd12powerattack = Strike(fighterAttackBonus,fighterd12paDamage, csLevel=5)
 
-fighterbrutishshove = AtkSelection(fighterAttackBonus,fighterDamage, csLevel=5)
+fighterbrutishshove = Strike(fighterAttackBonus,fighterDamage, csLevel=5)
 fighterbrutishshove.setFFonCrit(1)
 fighterbrutishshove.setFFonSuccess(1)
 fighterbrutishshove.setFFonFail(1)
 
-fighterknockdown = AtkSelection(fighterAttackBonus,fighterDamage, csLevel=5)
+fighterknockdown = Strike(fighterAttackBonus,fighterDamage, csLevel=5)
 fighterknockdown.setFFonCrit(1)
 fighterknockdown.setFFonSuccess(1)
 
-fighterd10brutalfinish = AtkSelection(fighterAttackBonus,fighterd10bfDamage, csLevel=5, fd=fighterd10bfDamage)
-fighterd12brutalfinish = AtkSelection(fighterAttackBonus,fighterd12bfDamage, csLevel=5, fd=fighterd12bfDamage)
+fighterd10brutalfinish = Strike(fighterAttackBonus,fighterd10bfDamage, csLevel=5)
+fighterd10brutalfinish.failureDamage = d10bfd
+fighterd12brutalfinish = Strike(fighterAttackBonus,fighterd12bfDamage, csLevel=5)
+fighterd12brutalfinish.failureDamage = d12bfd
 
-fighterpropulsive12 = AtkSelection(fighterAttackBonus, fighterpropulsive12Damage, csLevel=5)
-fighterpropulsive14 = AtkSelection(fighterAttackBonus, fighterpropulsive14Damage, csLevel=5)
-fighterpropulsive16 = AtkSelection(fighterAttackBonus, fighterpropulsive16Damage, csLevel=5)
+fighterrangedstrike = Strike(fighterAttackBonus, fighterrangedDamage, csLevel=5)
+fighterpropulsive12 = Strike(fighterAttackBonus, fighterpropulsive12Damage, csLevel=5)
+fighterpropulsive14 = Strike(fighterAttackBonus, fighterpropulsive14Damage, csLevel=5)
+fighterpropulsive16 = Strike(fighterAttackBonus, fighterpropulsive16Damage, csLevel=5)
+
+fighterpropulsive12cs = Strike(fighterAttackBonus, fighterpropulsive12Damage, csLevel=5)
+fighterpropulsive12cs.certainStrike = True
+fighterpropulsive14cs = Strike(fighterAttackBonus, fighterpropulsive14Damage, csLevel=5)
+fighterpropulsive14cs.certainStrike = True
+fighterpropulsive16cs = Strike(fighterAttackBonus, fighterpropulsive16Damage, csLevel=5)
+fighterpropulsive16cs.certainStrike = True
+
+fighterpropulsive12es = Strike(fighterAttackBonus, fighterpropulsive12Damage, csLevel=5)
+fighterpropulsive12es.attackBonusOnFail = 5
+fighterpropulsive14es = Strike(fighterAttackBonus, fighterpropulsive14Damage, csLevel=5)
+fighterpropulsive14es.attackBonusOnFail = 5
+fighterpropulsive16es = Strike(fighterAttackBonus, fighterpropulsive16Damage, csLevel=5)
+fighterpropulsive16es.attackBonusOnFail = 5
 
 fighterAttackSwitcher = {'Fighter Melee Strike': 
                   [fighterstrike], 
+                  'Fighter Exacting Strike':
+                  [fighterexactingstrike],
                   'Fighter Snagging Strike': 
                   [fightersnaggingstrike], 
                   'Fighter Certain Strike': 
@@ -930,12 +1206,26 @@ fighterAttackSwitcher = {'Fighter Melee Strike':
                   [fighterd10brutalfinish], 
                   'Fighter d12 Brutal Finish': 
                   [fighterd12brutalfinish],
+                  'Fighter Ranged Strike':
+                  [fighterrangedstrike],
                   'Fighter propulsive 12':
                   [fighterpropulsive12],
                   'Fighter propulsive 14':
                   [fighterpropulsive14],
                   'Fighter propulsive 16':
-                  [fighterpropulsive16]
+                  [fighterpropulsive16],
+                  'Fighter propulsive 12 es':
+                  [fighterpropulsive12es],
+                  'Fighter propulsive 14 es':
+                  [fighterpropulsive14es],
+                  'Fighter propulsive 16 es':
+                  [fighterpropulsive16es],
+                  'Fighter propulsive 12 cs':
+                  [fighterpropulsive12cs],
+                  'Fighter propulsive 14 cs':
+                  [fighterpropulsive14cs],
+                  'Fighter propulsive 16 cs':
+                  [fighterpropulsive16cs]
                   }
     
 attackExtreme = creatureData['Attack']['Extreme']
@@ -947,22 +1237,22 @@ damageHigh = creatureData['Damage']['High']
 damageModerate = creatureData['Damage']['Moderate']
 damageLow = creatureData['Damage']['Low']
 
-monsterEH = AtkSelection(attackExtreme,damageHigh,isWeapon=False)
-monsterEM = AtkSelection(attackExtreme,damageModerate,isWeapon=False)
+monsterEH = Strike(attackExtreme,damageHigh,isWeapon=False)
+monsterEM = Strike(attackExtreme,damageModerate,isWeapon=False)
 
-monsterHE = AtkSelection(attackHigh,damageExtreme,isWeapon=False)
-monsterHH = AtkSelection(attackHigh,damageHigh,isWeapon=False)
-monsterHM = AtkSelection(attackHigh,damageModerate,isWeapon=False)
-monsterHL = AtkSelection(attackHigh,damageLow,isWeapon=False)
+monsterHE = Strike(attackHigh,damageExtreme,isWeapon=False)
+monsterHH = Strike(attackHigh,damageHigh,isWeapon=False)
+monsterHM = Strike(attackHigh,damageModerate,isWeapon=False)
+monsterHL = Strike(attackHigh,damageLow,isWeapon=False)
 
-monsterME = AtkSelection(attackModerate,damageExtreme,isWeapon=False)
-monsterMH = AtkSelection(attackModerate,damageHigh,isWeapon=False)
-monsterMM = AtkSelection(attackModerate,damageModerate,isWeapon=False)
-monsterML = AtkSelection(attackModerate,damageLow,isWeapon=False)
+monsterME = Strike(attackModerate,damageExtreme,isWeapon=False)
+monsterMH = Strike(attackModerate,damageHigh,isWeapon=False)
+monsterMM = Strike(attackModerate,damageModerate,isWeapon=False)
+monsterML = Strike(attackModerate,damageLow,isWeapon=False)
 
-monsterLH = AtkSelection(attackLow,damageHigh,isWeapon=False)
-monsterLM = AtkSelection(attackLow,damageModerate,isWeapon=False)
-monsterLL = AtkSelection(attackLow,damageLow,isWeapon=False)
+monsterLH = Strike(attackLow,damageHigh,isWeapon=False)
+monsterLM = Strike(attackLow,damageModerate,isWeapon=False)
+monsterLL = Strike(attackLow,damageLow,isWeapon=False)
     
 monsterAttackSwitcher = {'Monster Extreme Attack High Damage': [monsterEH],
                   'Monster Extreme Attack Moderate Damage': [monsterEM],
@@ -979,9 +1269,32 @@ monsterAttackSwitcher = {'Monster Extreme Attack High Damage': [monsterEH],
                   'Monster Low Attack Low Damage': [monsterLL]   
                   }
 
+#effects
+flatfoot = Effect(noneDamage)
+flatfoot.flatfoot = True
+
+flatfootnext = Effect(noneDamage)
+flatfootnext.flatfootNextStrike = True
+
+effectAttackSwitcher = {'Flat Foot Target': [flatfoot],
+                        'Flat Foot Next Strike': [flatfootnext]}
+
+
+magicmissle = Effect(magicMissleDamage)
+basic7 = Save(spellDC, spellDamage7)
+basic8 = Save(spellDC, spellDamage8)
+basic9 = Save(spellDC, spellDamage9)
+
+spellAttackSwitcher = {'Basic Save 2d6': [basic7],
+                'Basic Save 2d6+1': [basic8],
+                'Basic Save 2d8': [basic9],
+                'Magic Missle': [magicmissle]}
+
 attackSwitcher = {**alchemistAttackSwitcher,
                   **barbarianAttackSwitcher,
                   **otherAttackSwitcher,
                   **cantripAttackSwitcher,
                   **fighterAttackSwitcher,
-                  **monsterAttackSwitcher}
+                  **monsterAttackSwitcher,
+                  **effectAttackSwitcher,
+                  **spellAttackSwitcher}
