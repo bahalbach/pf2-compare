@@ -250,6 +250,11 @@ class Context:
             self.thisStrikeBonus = 0
             self.thisDamageBonus = 0
         
+            self.onFirstHitDamage = oldContext.onFirstHitDamage
+            self.onSecondHitDamage = oldContext.onSecondHitDamage
+            self.onThirdHitDamage = oldContext.onThirdHitDamage
+            self.onEveryHitDamage = oldContext.onEveryHitDamage
+            
             if result:
                 if result.futureAttacksFF:
                     self.origffstatus = True
@@ -263,6 +268,22 @@ class Context:
                     self.thisStrikeBonus = max(oldContext.thisStrikeBonus, result.nextStrikeBonus)
                 else:
                     self.thisStrikeBonus = result.nextStrikeBonus
+                    
+                if result.addfirsthitdamage != 0:
+                    self.onFirstHitDamage += result.addfirsthitdamage
+                if result.addsecondhitdamage != 0:
+                    self.onSecondHitDamage += result.addsecondhitdamage
+                if result.addthirdhitdamage != 0:
+                    self.onThirdHitDamage += result.addthirdhitdamage
+                if result.addeveryhitdamage != 0:
+                    self.onEveryHitDamage += result.addeveryhitdamage
+                    
+                
+                if type(result.atk) is Strike and result.isHit():
+                    self.totalDamage += self.onFirstHitDamage + self.onEveryHitDamage
+                    self.onFirstHitDamage = self.onSecondHitDamage
+                    self.onSecondHitDamage = self.onThirdHitDamage
+                    self.onThirdHitDamage = 0
                 
                 self.totalDamage += result.damage
                 self.totalPDamage += result.pdamage
@@ -279,6 +300,11 @@ class Context:
         
         self.thisStrikeBonus = 0
         self.thisDamageBonus = 0
+        
+        self.onFirstHitDamage = 0
+        self.onSecondHitDamage = 0
+        self.onThirdHitDamage = 0
+        self.onEveryHitDamage = 0
         return
     
     def setFlatfooted(self):

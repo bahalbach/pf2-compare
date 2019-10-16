@@ -269,7 +269,8 @@ martialstrikeOptions = ['Martial Strike',
                         'Martial Propulsive 14',
                         'Martial Propulsive 16']
 monkOptions = ['Martial Strike']
-rangerOptions = ['Martial Strike',
+rangerOptions = ['Ranger Precision Edge',
+                 'Martial Strike',
                         'Martial Ranged Strike',
                         'Martial Propulsive 10',
                         'Martial Propulsive 12',

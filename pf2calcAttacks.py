@@ -375,6 +375,25 @@ for i in sneakattackdamage:
     if i >= 17:
         sneakattackdamage[i] = 14
         
+rangerprecedgedamage1 = {i: 4.5 for i in range(1,21)}
+for i in rangerprecedgedamage1:
+    if i >= 11:
+        rangerprecedgedamage1[i] = 9
+    if i >= 19:
+        rangerprecedgedamage1[i] = 13.5
+        
+rangerprecedgedamage2 = {i: 0 for i in range(1,21)}
+for i in rangerprecedgedamage2:
+    if i >= 17:
+        rangerprecedgedamage2[i] = 4.5  
+    if i >= 19:
+        rangerprecedgedamage2[i] = 9  
+        
+rangerprecedgedamage3 = {i: 0 for i in range(1,21)}
+for i in rangerprecedgedamage3:
+    if i >= 19:
+        rangerprecedgedamage3[i] = 4.5  
+        
 d6Damage = [3.5 * wDice[i] for i in wDice]
 d8Damage = [4.5 * wDice[i] for i in wDice]
 d10Damage = [5.5 * wDice[i] for i in wDice]
@@ -520,7 +539,13 @@ class Result:
         self.nextAttackFF = False
         self.nextStrikeBonus = 0
         
+        self.addfirsthitdamage = 0
+        self.addsecondhitdamage = 0 
+        self.addthirdhitdamage = 0 
+        self.addeveryhitdamage = 0
+        
         self.atk = atk
+        self.ishit = False
         
     def setFutureAttacksFF(self):
         self.futureAttacksFF = True
@@ -530,9 +555,9 @@ class Result:
         self.nextStrikeBonus = bonus
         
     def setCrit(self):
-        pass
+        self.ishit = True
     def setHit(self):
-        pass
+        self.ishit = True
     def setFail(self):
         pass
     def setCritFail(self):
@@ -545,6 +570,9 @@ class Result:
         pass
     def setCritFailSave(self):
         pass
+    
+    def isHit(self):
+        return self.ishit
         
 class AtkSelection:
 #         4 types: 'Strike', 'SaveAttack', 'Save', 'Effect'
@@ -848,6 +876,11 @@ class Effect(AtkSelection):
         self.flatfootNextStrike = False
         self.flatfoot = False
         
+        self.addfirsthitdamage = None
+        self.addsecondhitdamage = None 
+        self.addthirdhitdamage = None
+        self.addeveryhitdamage = None
+        
     def effectResult(self, level, context):
         damage = self.getDamageBonus(level)
         damage += context.getExtraDamage()
@@ -856,6 +889,16 @@ class Effect(AtkSelection):
             r.futureAttacksFF = True
         elif self.flatfootNextStrike:
             r.nextAttackFF = True
+        
+        if self.addfirsthitdamage:
+            r.addfirsthitdamage = self.addfirsthitdamage[level]
+        if self.addsecondhitdamage:
+            r.addsecondhitdamage = self.addsecondhitdamage[level]
+        if self.addthirdhitdamage:
+            r.addthirdhitdamage = self.addthirdhitdamage[level]
+        if self.addeveryhitdamage:
+            r.addeveryhitdamage = self.addeveryhitdamage[level]
+                    
         return r
     
         
@@ -1093,6 +1136,11 @@ warprieststrike = Strike(warpriestAttackBonus, warpriestDamage, csLevel=7)
 roguestrike = Strike(martialAttackBonus, martialDamage, csLevel=5)
 roguestrike.flatfootedDamage = sneakattackdamage
 
+rangerprecedge = Effect(noneDamage)
+rangerprecedge.addfirsthitdamage = rangerprecedgedamage1
+rangerprecedge.addsecondhitdamage = rangerprecedgedamage2
+rangerprecedge.addthirdhitdamage = rangerprecedgedamage3
+
 otherAttackSwitcher = {'Caster Strike': [casterstrike],
                        'Caster Ranged Strike': [casterrangedstrike],
                        'Caster Propulsive 10': [casterpropulsive10],
@@ -1107,7 +1155,8 @@ otherAttackSwitcher = {'Caster Strike': [casterstrike],
                        'Martial Propulsive 16': [martialp16],
                        'Champion Smite Evil': [championsmiteevil],
                        'Warpriest Strike': [warprieststrike],
-                       'Rogue Strike': [roguestrike]
+                       'Rogue Strike': [roguestrike],
+                       'Ranger Precision Edge': [rangerprecedge]          
                        }
 
 cantripAS = Strike(cantripAttackBonus, cantripASDamage, isWeapon=False)
