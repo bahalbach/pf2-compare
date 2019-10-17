@@ -215,8 +215,8 @@ class Selector:
             attackList.append(attack)
         newAttack = CombinedAttack(attackList, function=min)
         Selector.selections[newKey] = newAttack
-        Selector.keyList.append(newKey)
-        
+        if not newKey in Selector.keyList:
+            Selector.keyList.append(newKey)      
     
     def maxSelections(newKey, oldKeyList):
         attackList = []
@@ -225,7 +225,28 @@ class Selector:
             attackList.append(attack)
         newAttack = CombinedAttack(attackList, function=max)
         Selector.selections[newKey] = newAttack
-        Selector.keyList.append(newKey)
+        if not newKey in Selector.keyList:
+            Selector.keyList.append(newKey) 
+        
+    def sumSelections(newKey, oldKeyList):
+        attackList = []
+        for k in oldKeyList:
+            attack = Selector.selections.get(k)
+            attackList.append(attack)
+        newAttack = CombinedAttack(attackList, function=lambda a, b: a + b)
+        Selector.selections[newKey] = newAttack
+        if not newKey in Selector.keyList:
+            Selector.keyList.append(newKey) 
+        
+    def difSelections(newKey, oldKeyList):
+        attackList = []
+        for k in oldKeyList:
+            attack = Selector.selections.get(k)
+            attackList.append(attack)
+        newAttack = CombinedAttack(attackList, function=lambda a, b: a - b)
+        Selector.selections[newKey] = newAttack
+        if not newKey in Selector.keyList:
+            Selector.keyList.append(newKey) 
     
     def canCombine(keyList):
         if len(keyList)==0:
@@ -240,6 +261,7 @@ class Context:
     def __init__(self, oldContext, chance, result):
         if oldContext:
             self.flatfooted = oldContext.origffstatus
+            self.trueStrike = oldContext.trueStrike
             self.origffstatus = oldContext.origffstatus
             self.attackBonus = oldContext.attackBonus
             self.damageBonus = oldContext.damageBonus
@@ -263,11 +285,12 @@ class Context:
                     self.flatfooted = True
                 elif not type(result.atk) is Strike:
                     self.flatfooted = oldContext.flatfooted
+                    
+                if result.trueStrike:
+                    self.trueStrike = True 
                
-                if not type(result.atk) is Strike:
-                    self.thisStrikeBonus = max(oldContext.thisStrikeBonus, result.nextStrikeBonus)
-                else:
-                    self.thisStrikeBonus = result.nextStrikeBonus
+                self.thisStrikeBonus = max(oldContext.thisStrikeBonus, result.nextStrikeBonus)
+                
                     
                 if result.addfirsthitdamage != 0:
                     self.onFirstHitDamage += result.addfirsthitdamage
@@ -292,6 +315,7 @@ class Context:
             return 
         self.flatfooted = False
         self.origffstatus = False
+        self.trueStrike = False
         self.attackBonus = 0
         self.damageBonus = 0
         self.chance = chance
@@ -311,6 +335,9 @@ class Context:
         self.origffstatus = True
         self.flatfooted = True
         
+    def setTrueStrike(self):
+        self.trueStrike = True
+        
     def setAttackBonus(self, ab):
         self.attackBonus = ab
         
@@ -318,7 +345,9 @@ class Context:
         self.damageBonus = db
         
     def getStrikeBonus(self):
-        return self.attackBonus + self.thisStrikeBonus
+        bonus = self.attackBonus + self.thisStrikeBonus
+        self.thisStrikeBonus = 0
+        return bonus
     
     def getSaveAttackBonus(self):
         return self.attackBonus
@@ -337,6 +366,11 @@ class Context:
     
     def getDamageBonus(self):
         return self.damageBonus
+    
+    def hasTrueStrike(self):
+        tss = self.trueStrike
+        self.trueStrike = False
+        return tss
     
     
 def graphTrace(routine, target, level, levelDiff, attackBonus, damageBonus, weakness, flatfootedStatus):
@@ -367,11 +401,13 @@ def graphTrace(routine, target, level, levelDiff, attackBonus, damageBonus, weak
         for context in contextList:
             # calculate the effects for this attack
             keenStatus = False
+            trueStrike = False
             if(type(atk) is Strike):
                 totalBonus = atk.getAttack(level)
                 totalBonus += context.getStrikeBonus()
                 keenStatus = atk.getKeen(level)
-            
+                trueStrike = context.hasTrueStrike()
+                
                 totalDC = target.getAC(level+levelDiff)
             
                 if context.flatfooted:
@@ -380,6 +416,7 @@ def graphTrace(routine, target, level, levelDiff, attackBonus, damageBonus, weak
                 totalBonus = atk.getAttack(level)
                 totalBonus += context.getSaveAttackBonus()
                 keenStatus = atk.getKeen(level)
+                trueStrike = context.hasTrueStrike()
             
                 totalDC = target.getSaveDC(level+levelDiff)
             elif(type(atk) is Save):
@@ -399,22 +436,37 @@ def graphTrace(routine, target, level, levelDiff, attackBonus, damageBonus, weak
                 continue
             
             # create a new context for each degree of success
-            critSuccessPercent = critSuccessChance(totalBonus-totalDC, keen=keenStatus)
+            if trueStrike:
+                notcrit = 100 - critSuccessChance(totalBonus-totalDC, keen=keenStatus)
+                critSuccessPercent = 100 - (notcrit * notcrit / 100)
+                nothit = notcrit - successChance(totalBonus-totalDC, keen=keenStatus)
+                successPercent = 100 - (nothit * nothit / 100) - critSuccessPercent
+                notfail = nothit - failureChance(totalBonus-totalDC)
+                failurePercent = 100 - (notfail * notfail / 100) - successPercent - critSuccessPercent
+                critFailurePercent = critFailureChance(totalBonus-totalDC) * critFailureChance(totalBonus-totalDC) / 100
+                
+            else:
+                critSuccessPercent = critSuccessChance(totalBonus-totalDC, keen=keenStatus)
+                successPercent = successChance(totalBonus-totalDC, keen=keenStatus)
+                failurePercent = failureChance(totalBonus-totalDC)
+                critFailurePercent = critFailureChance(totalBonus-totalDC)
+                
+                
             critSuccessResult = atk.critSuccessResult(level, context)
             csContext = Context(context, critSuccessPercent/100, critSuccessResult)
             newContextList.append(csContext)
             
-            successPercent = successChance(totalBonus-totalDC, keen=keenStatus)
+            
             successResult = atk.successResult(level, context)
             sContext = Context(context, successPercent/100, successResult)
             newContextList.append(sContext)
             
-            failurePercent = failureChance(totalBonus-totalDC)
+            
             failureResult = atk.failureResult(level, context)
             fContext = Context(context, failurePercent/100, failureResult)
             newContextList.append(fContext)
             
-            critFailurePercent = critFailureChance(totalBonus-totalDC)
+            
             critFailureResult = atk.critFailureResult(level, context)
             cfContext = Context(context, critFailurePercent/100, critFailureResult)
             newContextList.append(cfContext)      

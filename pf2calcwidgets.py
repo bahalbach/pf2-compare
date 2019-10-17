@@ -111,11 +111,11 @@ levelSelector = widgets.IntSlider(
 weaponDamageDie = widgets.Dropdown(
         options=["1d4",
                  "1d6",
-                 "1d8/1d6+1",
-                 "1d10/1d8+1/1d6+2",
-                 "1d12/1d10+1/1d8+2",
-                 "1d12+1/1d10+2"],
-        value="1d4",
+                 "1d8",
+                 "1d10",
+                 "1d12",
+                 "1d12+1"],
+        value="1d8",
         layout=widgets.Layout(width='auto')
 )
 
@@ -133,11 +133,12 @@ weaponCritical = widgets.Dropdown(
 )
 
 criticalSpecialization = widgets.Dropdown(
-        options=["other/none",
-                 "dart/knife",
-                 "flail/hammer/sword",
-                 "pick"],
-        value="other/none",
+        options=["other",
+                 "knife",
+                 "hammer",
+                 "pick",
+                 "sword"],
+        value="other",
         layout=widgets.Layout(width='auto')
 )
 
@@ -240,7 +241,9 @@ casterstrikeOptions = ['Caster Strike',
                        'Caster Propulsive 14',
                        'Caster Propulsive 16']
 clericOptions = ['Caster Strike',
-                 'Warpriest Strike']
+                 'Warpriest Strike',
+                 'Warpriest Smite',
+                 'Bespell Weapon']
 druidOptions = ['Caster Strike']
 fighterOptions = ['Fighter Melee Strike',
                   'Fighter Exacting Strike',
@@ -270,6 +273,7 @@ martialstrikeOptions = ['Martial Strike',
                         'Martial Propulsive 16']
 monkOptions = ['Martial Strike']
 rangerOptions = ['Ranger Precision Edge',
+                 'Ranger Bear Support',
                  'Martial Strike',
                         'Martial Ranged Strike',
                         'Martial Propulsive 10',
@@ -278,9 +282,14 @@ rangerOptions = ['Ranger Precision Edge',
                         'Martial Propulsive 16']
 rogueOptions = ['Rogue Strike',
                 'Flat Foot Next Strike']
-sorcererOptions = ['Caster Strike']
-wizardOptions = ['Caster Strike']
-animalcompanionOptions = []
+sorcererOptions = ['Caster Strike',
+                   'Bespell Weapon']
+wizardOptions = ['Caster Strike',
+                 'Bespell Weapon']
+animalcompanionOptions = ['Druid Bear',
+                          'Druid Wolf',
+                          'Ranger Bear',
+                          'Ranger Wolf']
 monsterOptions = ['Monster Extreme Attack High Damage',
                   'Monster Extreme Attack Moderate Damage',
                   'Monster High Attack Extreme Damage',
@@ -297,10 +306,13 @@ monsterOptions = ['Monster Extreme Attack High Damage',
                   ]
 effectOptions = ['Flat Foot Target',
                  'Flat Foot Next Strike']
-spellOptions = ['Basic Save 2d6',
+spellOptions = ['Basic Save 1d8',
+                'Basic Save 1d10',
+                'Basic Save 2d6',
                 'Basic Save 2d6+1',
                 'Basic Save 2d8',
-                'Magic Missle']
+                'Magic Missle',
+                'True Strike']
 
 selectionSwitcher = {"Alchemist": alchemistOptions, 
                      "Barbarian": barbarianOptions,
@@ -515,17 +527,18 @@ def on_minButton_clicked(b):
         selections.options = l
         updateEDBLGraph()
     
-    if len(selections.value) >1:
+    if len(selections.value) ==2:
         oldNames = selections.value
         Selector.minSelections(newName, oldNames)
-        selections.options += (newName,)
         
         l = list(selections.options)
         for s in oldNames:   
             if not(newName == s):
                 Selector.removeSelection(s)
-                l.remove(s)
+            l.remove(s)
         selections.options = l
+        selections.options += (newName,)
+        
         updateEDBLGraph()
 minButton.on_click(on_minButton_clicked)
 
@@ -548,19 +561,62 @@ def on_maxButton_clicked(b):
         selections.options = l
         updateEDBLGraph()
     
-    if len(selections.value) >1:
+    if len(selections.value) ==2:
         oldNames = selections.value
         Selector.maxSelections(newName, oldNames)
-        selections.options += (newName,)
         
         l = list(selections.options)
         for s in oldNames:   
             if not(newName == s):
                 Selector.removeSelection(s)
-                l.remove(s)
+            l.remove(s)
         selections.options = l
+        selections.options += (newName,)
+        
         updateEDBLGraph()
 maxButton.on_click(on_maxButton_clicked)
+
+sumButton = widgets.Button(description="Sum Selections")
+def on_sumButton_clicked(b):
+    if (newNameBox.value == ""):
+        return
+    newName = newNameBox.value
+    newNameBox.value = ""
+    if len(selections.value) ==2:
+        oldNames = selections.value
+        Selector.sumSelections(newName, oldNames)
+        
+        l = list(selections.options)
+        for s in oldNames:   
+            if not(newName == s):
+                Selector.removeSelection(s)
+            l.remove(s)
+        selections.options = l
+        selections.options += (newName,)
+
+        updateEDBLGraph()
+sumButton.on_click(on_sumButton_clicked)
+
+difButton = widgets.Button(description="Dif Selections")
+def on_difButton_clicked(b):
+    if (newNameBox.value == ""):
+        return
+    newName = newNameBox.value
+    newNameBox.value = ""
+    if len(selections.value) ==2:
+        oldNames = selections.value
+        Selector.difSelections(newName, oldNames)
+        
+        l = list(selections.options)
+        for s in oldNames:   
+            if not(newName == s):
+                Selector.removeSelection(s)
+            l.remove(s)
+        selections.options = l
+        selections.options += (newName,)
+        
+        updateEDBLGraph()
+difButton.on_click(on_difButton_clicked)
 
 newNameBox = widgets.Text(value="",layout=widgets.Layout(width='auto'))
 
@@ -728,8 +784,9 @@ runeModifiers = widgets.VBox([elementalRunesLabel,elementalRune1,elementalRune2,
 selectorBox = widgets.VBox([classSelector,selector])
 selectorRow = widgets.HBox([selectorBox,selectorModifiers,weaponModifiers,runeModifiers])
 
-selectionsButtons = widgets.VBox([removeSelectionButton,movetotopButton,combineSelectionButton,minButton,maxButton,newNameBox])
-selectionsBox = widgets.HBox([selections,selectionsButtons])
+selectionsButtons = widgets.VBox([removeSelectionButton,movetotopButton,combineSelectionButton,minButton,maxButton,sumButton,difButton,newNameBox],
+                                 layout=widgets.Layout(height='105%'))
+selectionsBox = widgets.HBox([selections,selectionsButtons],layout=widgets.Layout(height='105%'))
 
 ExpectedDamageByLevelWidget = widgets.VBox([adjustments,
               targetRow,

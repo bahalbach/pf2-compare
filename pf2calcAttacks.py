@@ -117,7 +117,51 @@ fighterAttackBonus = {i: fProf[i] + mStr[i] + wiBonus[i] for i in range(1,21)}
 cantripAttackBonus = {i: sProf[i] + mStr[i] for i in range(1,21)}
 spellDC = {i: 10 + cantripAttackBonus[i] for i in range(1,21)}
 
+basewolf = {i: i+5 for i in range(1,21)}
+maturewolf = {i: i+6 for i in range(1,21)}
+nimblewolf = {i: i+8 for i in range(1,21)}
+specializedwolf = {i: i+12 for i in range(1,21)}
 
+druidwolfattack = {i: basewolf[i] for i in range(1,21)}
+for i in druidwolfattack:
+    if i >= 4:
+        druidwolfattack[i] = maturewolf[i]
+    if i >= 8:
+        druidwolfattack[i] = nimblewolf[i]
+    if i >= 14:
+        druidwolfattack[i] = specializedwolf[i]
+        
+rangerwolfattack = {i: basewolf[i] for i in range(1,21)}
+for i in rangerwolfattack:
+    if i >= 6:
+        rangerwolfattack[i] = maturewolf[i]
+    if i >= 10:
+        rangerwolfattack[i] = nimblewolf[i]
+    if i >= 16:
+        rangerwolfattack[i] = specializedwolf[i]
+
+basebear = {i: i+5 for i in range(1,21)}
+maturebear = {i: i+6 for i in range(1,21)}
+savagebear = {i: i+8 for i in range(1,21)}
+specializedbear = {i: i+11 for i in range(1,21)}
+
+druidbearattack = {i: basebear[i] for i in range(1,21)}
+for i in druidbearattack:
+    if i >= 4:
+        druidbearattack[i] = maturebear[i]
+    if i >= 8:
+        druidbearattack[i] = savagebear[i]
+    if i >= 14:
+        druidbearattack[i] = specializedbear[i]
+        
+rangerbearattack = {i: basebear[i] for i in range(1,21)}
+for i in rangerbearattack:
+    if i >= 6:
+        rangerbearattack[i] = maturebear[i]
+    if i >= 10:
+        rangerbearattack[i] = savagebear[i]
+    if i >= 16:
+        rangerbearattack[i] = specializedbear[i]
 
 mwSpec = {i: 0 for i in range(1,21)}
 for i in mwSpec:
@@ -394,6 +438,47 @@ for i in rangerprecedgedamage3:
     if i >= 19:
         rangerprecedgedamage3[i] = 4.5  
         
+rangerbearsupportdamage = {i: 4.5 for i in range(1,21)}
+for i in rangerbearsupportdamage:
+    if i >= 10:
+        rangerbearsupportdamage[i] = 9
+        
+druidwolfdamage = {i: 6.5 for i in range(1,21)}
+for i in druidwolfdamage:
+    if i >= 4:
+        druidwolfdamage[i] = 12
+    if i >= 8:
+        druidwolfdamage[i] = 15 
+    if i >= 14:
+        druidwolfdamage[i] = 21.5 
+        
+rangerwolfdamage = {i: 6.5 for i in range(1,21)}
+for i in rangerwolfdamage:
+    if i >= 6:
+        rangerwolfdamage[i] = 12
+    if i >= 10:
+        rangerwolfdamage[i] = 15 
+    if i >= 16:
+        rangerwolfdamage[i] = 21.5 
+        
+druidbeardamage = {i: 7.5 for i in range(1,21)}
+for i in druidbeardamage:
+    if i >= 4:
+        druidbeardamage[i] = 13
+    if i >= 8:
+        druidbeardamage[i] = 18 
+    if i >= 14:
+        druidbeardamage[i] = 26.5 
+        
+rangerbeardamage = {i: 7.5 for i in range(1,21)}
+for i in rangerbeardamage:
+    if i >= 6:
+        rangerbeardamage[i] = 13
+    if i >= 10:
+        rangerbeardamage[i] = 18
+    if i >= 16:
+        rangerbeardamage[i] = 26.5 
+        
 d6Damage = [3.5 * wDice[i] for i in wDice]
 d8Damage = [4.5 * wDice[i] for i in wDice]
 d10Damage = [5.5 * wDice[i] for i in wDice]
@@ -401,10 +486,10 @@ d12Damage = [6.5 * wDice[i] for i in wDice]
 
 damageDiceConverter = {"1d4": 2.5,
                        "1d6": 3.5,
-                       "1d8/1d6+1": 4.5,
-                       "1d10/1d8+1/1d6+2": 5.5,
-                       "1d12/1d10+1/1d8+2": 6.5,
-                       "1d12+1/1d10+2": 7.5}
+                       "1d8": 4.5,
+                       "1d10": 5.5,
+                       "1d12": 6.5,
+                       "1d12+1": 7.5}
 
 noneDamage = {i: 0 for i in range(1,21)}
 deadlyd6Damage = {i: max(3.5,(wDice[i]-1)*3.5) for i in range(1,21)}
@@ -504,6 +589,8 @@ championsmiteevildamage = {i: martialDamage[i] + smiteevildamage[i] for i in ran
 warpriestDamage = {i: wStr[i] + cwSpec[i] + 1 for i in range(1,21)}
 warpriestDamage[1] -= 1
 
+warpriestSmiteDamage = {i: warpriestDamage[i] + sDice[i]*4.5 for i in range(1,21)}
+
 
 
 fighterDamage = {i: mStr[i]+fwSpec[i] for i in range(1,21)}
@@ -537,6 +624,7 @@ class Result:
         
         self.futureAttacksFF = False
         self.nextAttackFF = False
+        self.trueStrike = False
         self.nextStrikeBonus = 0
         
         self.addfirsthitdamage = 0
@@ -551,6 +639,8 @@ class Result:
         self.futureAttacksFF = True
     def setNextAttackFF(self):
         self.nextAttackFF = True
+    def setTrueStrike(self):
+        self.trueStrike = True
     def setNextStrikeBonus(self, bonus):
         self.nextStrikeBonus = bonus
         
@@ -637,12 +727,14 @@ class AtkSelection:
             
         def setCriticalSpecialization(self, csName):
             if self.isWeapon:
-                if csName == "other/none":
+                if csName == "other":
                     return
-                elif csName == "dart/knife":
+                elif csName == "knife":
                     for i in range(self.critSpecLevel,21):
                         self.critPersDamage[i] += 3.5 + wiBonus[i]
-                elif csName == "flail/hammer/sword":
+                elif csName == "hammer":
+                    self.ffonCritLevel = min(self.ffonCritLevel,self.critSpecLevel)
+                elif csName == "sword":
                     self.ffonCritLevel = min(self.ffonCritLevel,self.critSpecLevel)
                 elif csName == "pick":
                     for i in range(self.critSpecLevel,21):
@@ -831,10 +923,10 @@ class SaveAttack(AtkSelection):
 class Save(AtkSelection):
     def __init__(self, dc, damage):
         super().__init__(dc, damage)
-        self.dc = dc
+
         
     def getDC(self, level):
-        return self.dc[level]
+        return self.getAttack(level)
     
     def critSuccessResult(self, level, context):
         
@@ -875,6 +967,7 @@ class Effect(AtkSelection):
         super().__init__(casterAttackBonus, damage)
         self.flatfootNextStrike = False
         self.flatfoot = False
+        self.trueStrike = False
         
         self.addfirsthitdamage = None
         self.addsecondhitdamage = None 
@@ -889,6 +982,8 @@ class Effect(AtkSelection):
             r.futureAttacksFF = True
         elif self.flatfootNextStrike:
             r.nextAttackFF = True
+        
+        r.trueStrike = self.trueStrike
         
         if self.addfirsthitdamage:
             r.addfirsthitdamage = self.addfirsthitdamage[level]
@@ -917,6 +1012,10 @@ class CombinedAttack:
             return d, pd
         elif self.function(totaldamage,newtotal) == newtotal:
             return newd, newpd
+        elif self.function(totaldamage,newtotal) == totaldamage + newtotal:
+            return d+newd, pd+newpd
+        elif self.function(totaldamage,newtotal) == totaldamage - newtotal:
+            return d-newd, pd-newpd
         else:
             print(d, pd, newd, newpd)
         
@@ -1132,6 +1231,7 @@ martialp16 = Strike(martialAttackBonus, martialP16Damage, csLevel=5)
 championsmiteevil = Strike(martialAttackBonus, championsmiteevildamage, csLevel=3)
 
 warprieststrike = Strike(warpriestAttackBonus, warpriestDamage, csLevel=7)
+warpriestsmite = Strike(warpriestAttackBonus, warpriestSmiteDamage, csLevel=7)
 
 roguestrike = Strike(martialAttackBonus, martialDamage, csLevel=5)
 roguestrike.flatfootedDamage = sneakattackdamage
@@ -1140,6 +1240,12 @@ rangerprecedge = Effect(noneDamage)
 rangerprecedge.addfirsthitdamage = rangerprecedgedamage1
 rangerprecedge.addsecondhitdamage = rangerprecedgedamage2
 rangerprecedge.addthirdhitdamage = rangerprecedgedamage3
+
+rangerbearsupport = Effect(noneDamage)
+rangerbearsupport.addeveryhitdamage = rangerbearsupportdamage
+
+bespellweapon = Effect(noneDamage)
+bespellweapon.addeveryhitdamage = {i: 3.5 for i in range(1,21)}
 
 otherAttackSwitcher = {'Caster Strike': [casterstrike],
                        'Caster Ranged Strike': [casterrangedstrike],
@@ -1155,8 +1261,11 @@ otherAttackSwitcher = {'Caster Strike': [casterstrike],
                        'Martial Propulsive 16': [martialp16],
                        'Champion Smite Evil': [championsmiteevil],
                        'Warpriest Strike': [warprieststrike],
+                       'Warpriest Smite': [warpriestsmite],
                        'Rogue Strike': [roguestrike],
-                       'Ranger Precision Edge': [rangerprecedge]          
+                       'Ranger Precision Edge': [rangerprecedge],
+                       'Ranger Bear Support': [rangerbearsupport],
+                       'Bespell Weapon': [bespellweapon]
                        }
 
 cantripAS = Strike(cantripAttackBonus, cantripASDamage, isWeapon=False)
@@ -1277,6 +1386,17 @@ fighterAttackSwitcher = {'Fighter Melee Strike':
                   [fighterpropulsive16cs]
                   }
     
+    
+druidwolf = Strike(druidwolfattack, druidwolfdamage, isWeapon=False)
+rangerwolf = Strike(rangerwolfattack, rangerwolfdamage, isWeapon=False)
+druidbear = Strike(druidbearattack, druidbeardamage, isWeapon=False)
+rangerbear = Strike(rangerbearattack, rangerbeardamage, isWeapon=False)
+  
+animalcompanionAttackSwitcher = {'Druid Bear': [druidbear],
+                          'Druid Wolf': [druidwolf],
+                          'Ranger Bear': [rangerbear],
+                          'Ranger Wolf': [rangerwolf]}
+    
 attackExtreme = creatureData['Attack']['Extreme']
 attackHigh = creatureData['Attack']['High']
 attackModerate = creatureData['Attack']['Moderate']
@@ -1330,20 +1450,29 @@ effectAttackSwitcher = {'Flat Foot Target': [flatfoot],
 
 
 magicmissle = Effect(magicMissleDamage)
+truestrike = Effect(noneDamage)
+truestrike.trueStrike = True
+
+basic45 = Save(spellDC, spellDamage45)
+basic55 = Save(spellDC, spellDamage55)
 basic7 = Save(spellDC, spellDamage7)
 basic8 = Save(spellDC, spellDamage8)
 basic9 = Save(spellDC, spellDamage9)
 
-spellAttackSwitcher = {'Basic Save 2d6': [basic7],
+spellAttackSwitcher = {'Basic Save 1d8': [basic45],
+                       'Basic Save 1d10': [basic55],
+                       'Basic Save 2d6': [basic7],
                 'Basic Save 2d6+1': [basic8],
                 'Basic Save 2d8': [basic9],
-                'Magic Missle': [magicmissle]}
+                'Magic Missle': [magicmissle],
+                'True Strike': [truestrike]}
 
 attackSwitcher = {**alchemistAttackSwitcher,
                   **barbarianAttackSwitcher,
                   **otherAttackSwitcher,
                   **cantripAttackSwitcher,
                   **fighterAttackSwitcher,
+                  **animalcompanionAttackSwitcher,
                   **monsterAttackSwitcher,
                   **effectAttackSwitcher,
                   **spellAttackSwitcher}
