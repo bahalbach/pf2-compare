@@ -7,6 +7,76 @@ Created on Thu Oct 10 15:18:59 2019
 import copy
 from pf2calcMonsterStats import creatureData
 
+summonAnimalAttackB = [7,
+7,
+9,
+9,
+10,
+10,
+12,
+12,
+16,
+16,
+18,
+18,
+22,
+22,
+25,
+25,
+28,
+28,
+31,
+31]
+summonAnimalDamageB = [4.5,
+4.5,
+5.5,
+5.5,
+11,
+11,
+10.5,
+10.5,
+16,
+16,
+18,
+18,
+24,
+24,
+27,
+27,
+31.5,
+31.5,
+35.5,
+35.5]
+summonDragonAttackB = [14,
+14,
+19,
+19,
+21,
+21,
+25,
+25,
+28,
+28,
+31,
+31]
+summonDragonDamageB = [17.5,
+17.5,
+23.5,
+23.5,
+26.5,
+26.5,
+33,
+33,
+34.5,
+34.5,
+46,
+46]
+sumAniAttack = {i: summonAnimalAttackB[i-1] for i in range(1,21)}
+sumAniDamage = {i: summonAnimalDamageB[i-1] for i in range(1,21)}
+sumDraAttack = {i: summonDragonAttackB[i-9] for i in range(9,21)}
+sumDraDamage = {i: summonDragonDamageB[i-9] for i in range(9,21)}
+
+
 mProf = dict(zip(list(range(1,21)),list(range(1,21))))
 for i in range(1,21):
     mProf[i] += 2
@@ -484,12 +554,21 @@ d8Damage = [4.5 * wDice[i] for i in wDice]
 d10Damage = [5.5 * wDice[i] for i in wDice]
 d12Damage = [6.5 * wDice[i] for i in wDice]
 
-damageDiceConverter = {"1d4": 2.5,
-                       "1d6": 3.5,
-                       "1d8": 4.5,
-                       "1d10": 5.5,
-                       "1d12": 6.5,
-                       "1d12+1": 7.5}
+damageDiceConverter = {"1d4": [2.5,0],
+                       "1d6": [3.5,0],
+                       "1d8": [4.5,0],
+                       "1d10": [5.5,0],
+                       "1d12": [6.5,0],
+                       "1d4+1": [2.5,1],
+                       "1d6+1": [3.5,1],
+                       "1d8+1": [4.5,1],
+                       "1d10+1": [5.5,1],
+                       "1d12+1": [6.5,1],
+                       "1d4+2": [2.5,2],
+                       "1d6+2": [3.5,2],
+                       "1d8+2": [4.5,2],
+                       "1d10+2": [5.5,2],
+                       "1d12+2": [6.5,2]}
 
 noneDamage = {i: 0 for i in range(1,21)}
 deadlyd6Damage = {i: max(3.5,(wDice[i]-1)*3.5) for i in range(1,21)}
@@ -676,8 +755,9 @@ class AtkSelection:
             self.persDamage = copy.copy(noneDamage)
             self.splashDamage = None
             self.wDice = copy.copy(wDice) # number of dice
-            self.damageDice = 0 # 3.5
+            self.damageDie = 0 # 3.5
             self.weaponDamage = None
+            self.damageDieBonus = None
             self.runeDamage = None
             self.flatfootedDamage = copy.copy(noneDamage)
             self.failureDamage = copy.copy(noneDamage)
@@ -712,15 +792,17 @@ class AtkSelection:
             
         def setWeaponDamage(self, weaponDamageDiceName):
             if self.isWeapon and not self.weaponDamage:
-                self.damageDice = damageDiceConverter[weaponDamageDiceName]
-                self.weaponDamage = {i: self.wDice[i]*self.damageDice for i in range(1,21)}
+                self.damageDie = damageDiceConverter[weaponDamageDiceName][0]
+                self.damageDieBonus = damageDiceConverter[weaponDamageDiceName][1]
+                self.weaponDamage = {i: self.wDice[i]*self.damageDie for i in range(1,21)}
+                
             
         def setCriticalEffects(self, weaponCriticalName):
             if self.isWeapon:
                 cd = criticalDiceConverter[weaponCriticalName]
                 if cd[0]:
                     for i in range(1,21):
-                        self.critDamage[i] += cd[1] + wDice[i]*2*(cd[1] - self.damageDice)
+                        self.critDamage[i] += cd[1] + wDice[i]*2*(cd[1] - self.damageDie)
                 else:
                     for i in range(1,21):
                         self.critDamage[i] += cd[1][i]
@@ -760,7 +842,10 @@ class AtkSelection:
         
         def getDamageBonus(self, level):
             if level>=self.minL and level<=self.maxL:
-                return self.damage[level] + self.additionalDamage
+                d = self.damage[level] + self.additionalDamage
+                if self.damageDieBonus:
+                    d += self.damageDieBonus*self.wDice[level]
+                return d
             return 0
         
         def getDamageDice(self, level):
@@ -839,7 +924,8 @@ class AtkSelection:
             self.ffonFailLevel = min(level,self.ffonFailLevel)
             
         def setLevels(self, minl, maxl):
-            self.minL, self.maxL = minl, maxl
+            self.minL = max(minl, self.minL)
+            self.maxL = min(maxl, self.maxL)
 
 class Strike(AtkSelection):
     def __init__(self, attack, damage, isWeapon=True, csLevel=21):
@@ -851,6 +937,7 @@ class Strike(AtkSelection):
         damage = self.getDamageBonus(level)
         damage += self.getDamageDice(level)
         damage += context.getExtraDamage()
+        damage = max(damage,1)
         if context.flatfooted:
             damage += self.getFFDamage(level)
         
@@ -870,12 +957,15 @@ class Strike(AtkSelection):
     def successResult(self, level, context):
         damage = self.getDamageBonus(level)
         damage += self.getDamageDice(level)
-        damage += context.getExtraDamage()
         if context.flatfooted:
             damage += self.getFFDamage(level)
+        damage += context.getExtraDamage()
+        damage = max(damage,1)
+        
             
         damage += self.getSplashDamage(level)
         pdamage = self.getPersistentDamage(level)
+        
         
         r = Result(max(0,damage), pdamage, self)
         r.setHit()
@@ -898,6 +988,7 @@ class Strike(AtkSelection):
              damage += self.getFailureDamage(level)
         if damage != 0:
             damage += context.getDamageBonus()
+            damage = max(damage,1)
             # todo add context damge bonus, not extra dice
             
             
@@ -1396,7 +1487,14 @@ animalcompanionAttackSwitcher = {'Druid Bear': [druidbear],
                           'Druid Wolf': [druidwolf],
                           'Ranger Bear': [rangerbear],
                           'Ranger Wolf': [rangerwolf]}
-    
+
+summonanimal = Strike(sumAniAttack, sumAniDamage, isWeapon=False)
+summondragon = Strike(sumDraAttack, sumDraDamage, isWeapon=False)
+summondragon.setLevels(9,20)
+
+summonAttackSwitcher = {'Summon Animal': [summonanimal],
+                        'Summon Dragon': [summondragon]}
+ 
 attackExtreme = creatureData['Attack']['Extreme']
 attackHigh = creatureData['Attack']['High']
 attackModerate = creatureData['Attack']['Moderate']
@@ -1473,6 +1571,7 @@ attackSwitcher = {**alchemistAttackSwitcher,
                   **cantripAttackSwitcher,
                   **fighterAttackSwitcher,
                   **animalcompanionAttackSwitcher,
+                  **summonAttackSwitcher,
                   **monsterAttackSwitcher,
                   **effectAttackSwitcher,
                   **spellAttackSwitcher}

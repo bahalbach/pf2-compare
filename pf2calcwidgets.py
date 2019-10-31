@@ -110,11 +110,20 @@ levelSelector = widgets.IntSlider(
 
 weaponDamageDie = widgets.Dropdown(
         options=["1d4",
-                 "1d6",
-                 "1d8",
-                 "1d10",
-                 "1d12",
-                 "1d12+1"],
+                       "1d6",
+                       "1d8",
+                       "1d10",
+                       "1d12",
+                       "1d4+1",
+                       "1d6+1",
+                       "1d8+1",
+                       "1d10+1",
+                       "1d12+1",
+                       "1d4+2",
+                       "1d6+2",
+                       "1d8+2",
+                       "1d10+2",
+                       "1d12+2"],
         value="1d8",
         layout=widgets.Layout(width='auto')
 )
@@ -312,7 +321,9 @@ spellOptions = ['Basic Save 1d8',
                 'Basic Save 2d6+1',
                 'Basic Save 2d8',
                 'Magic Missle',
-                'True Strike']
+                'True Strike',
+                'Summon Animal',
+                'Summon Dragon']
 
 selectionSwitcher = {"Alchemist": alchemistOptions, 
                      "Barbarian": barbarianOptions,
