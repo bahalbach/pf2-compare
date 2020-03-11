@@ -7,6 +7,12 @@ Created on Thu Oct 10 15:18:59 2019
 import copy
 from pf2calcMonsterStats import creatureData
 
+d4 = [1/4] * 4
+d6 = [1/6] * 6
+d8 = [1/8] * 8
+d10 = [1/10] * 10
+d12 = [1/12] * 12
+
 summonAnimalAttackB = [7,
 7,
 9,
@@ -76,6 +82,233 @@ sumAniDamage = {i: summonAnimalDamageB[i-1] for i in range(1,21)}
 sumDraAttack = {i: summonDragonAttackB[i-9] for i in range(9,21)}
 sumDraDamage = {i: summonDragonDamageB[i-9] for i in range(9,21)}
 
+animalFormAttackB = [9,
+9,
+14,
+14,
+16,
+16,
+18,
+18,
+18,
+18,
+18,
+18,
+18,
+18,
+18,
+18,
+18,
+18]
+animalFormDamageB = [10,
+10,
+14,
+14,
+18,
+18,
+25,
+25,
+25,
+25,
+25,
+25,
+25,
+25,
+25,
+25,
+25,
+25]
+insectFormAttackB = [13,
+13,
+16,
+16,
+18,
+18,
+18,
+18,
+18,
+18,
+18,
+18,
+18,
+18,
+18,
+18]
+insectFormDamageB = [13,
+13,
+17,
+17,
+24,
+24,
+24,
+24,
+24,
+24,
+24,
+24,
+24,
+24,
+24,
+24]
+dinoFormAttackB = [16,
+16,
+18,
+18,
+18,
+18,
+25,
+25,
+25,
+25,
+25,
+25,
+25,
+25]
+dinoFormDamageB = [18,
+18,
+24,
+24,
+24,
+24,
+33,
+33,
+33,
+33,
+33,
+33,
+33,
+33]
+aerialFormAttackB = [16,
+16,
+18,
+18,
+21,
+21,
+21,
+21,
+21,
+21,
+21,
+21,
+21,
+21]
+aerialFormDamageB = [15.5,
+15.5,
+18.5,
+18.5,
+25,
+25,
+25,
+25,
+25,
+25,
+25,
+25,
+25,
+25]
+elemFormAttackB = [18,
+18,
+23,
+23,
+25,
+25,
+25,
+25,
+25,
+25,
+25,
+25]
+elemFormDamageB = [20,
+20,
+24,
+24,
+33,
+33,
+33,
+33,
+33,
+33,
+33,
+33]
+plantFormAttackB = [17,
+17,
+21,
+21,
+21,
+21,
+21,
+21,
+21,
+21,
+21,
+21]
+plantFormDamageB = [22,
+22,
+27,
+27,
+27,
+27,
+27,
+27,
+27,
+27,
+27,
+27]
+dragonFormAttackB=[22,
+22,
+22,
+22,
+28,
+28,
+28,
+28,
+28,
+28]
+dragonFormDamageB = [26,
+26,
+26,
+26,
+32,
+32,
+32,
+32,
+32,
+32]
+monFormAttackB = [28,
+28,
+31,
+31,
+31,
+31]
+monFormDamageB = [33,
+33,
+39.5,
+39.5,
+39.5,
+39.5]
+natFormAttackB = [34,
+34]
+natFormDamageB=[43,
+43]
+
+animalFormAttack = {i: animalFormAttackB[i-3] for i in range(3,21)}
+animalFormDamage = {i: animalFormDamageB[i-3] for i in range(3,21)}
+insectFormAttack = {i: insectFormAttackB[i-5] for i in range(5,21)}
+insectFormDamage = {i: insectFormDamageB[i-5] for i in range(5,21)}
+dinoFormAttack = {i: dinoFormAttackB[i-7] for i in range(7,21)}
+dinoFormDamage = {i: dinoFormDamageB[i-7] for i in range(7,21)}
+aerialFormAttack = {i: aerialFormAttackB[i-7] for i in range(7,21)}
+aerialFormDamage = {i: aerialFormDamageB[i-7] for i in range(7,21)}
+elemFormAttack = {i: elemFormAttackB[i-9] for i in range(9,21)}
+elemFormDamage = {i: elemFormDamageB[i-9] for i in range(9,21)}
+plantFormAttack = {i: plantFormAttackB[i-9] for i in range(9,21)}
+plantFormDamage = {i: plantFormDamageB[i-9] for i in range(9,21)}
+dragonFormAttack = {i: dragonFormAttackB[i-11] for i in range(11,21)}
+dragonFormDamage = {i: dragonFormDamageB[i-11] for i in range(11,21)}
+monFormAttack = {i: monFormAttackB[i-15] for i in range(15,21)}
+monFormDamage = {i: monFormDamageB[i-15] for i in range(15,21)}
+natFormAttack = {i: natFormAttackB[i-19] for i in range(19,21)}
+natFormDamage = {i: natFormDamageB[i-19] for i in range(19,21)}
 
 mProf = dict(zip(list(range(1,21)),list(range(1,21))))
 for i in range(1,21):
@@ -116,6 +349,7 @@ for i in wsProf:
         wsProf[i] += 2
     if i >= 19:
         wsProf[i] += 2
+
     
 mStr = {i: 4 for i in range(1,21)}
 for i in mStr:
@@ -126,21 +360,21 @@ for i in mStr:
     if i >=20:
         mStr[i] +=1
         
-cStr = {i: 3 for i in range(1,21)}
-for i in cStr:
-    if i >= 5:
-        cStr[i] += 1
-    if i >= 15:
-        cStr[i] += 1
-
-wStr = {i: 3 for i in range(1,21)}
-for i in wStr:
-    if i >= 5:
-        wStr[i] += 1
-    if i >= 15:
-        wStr[i] += 1
-    if i >= 17:
-        wStr[i] += 1
+#cStr = {i: 3 for i in range(1,21)}
+#for i in cStr:
+#    if i >= 5:
+#        cStr[i] += 1
+#    if i >= 15:
+#        cStr[i] += 1
+#
+#wStr = {i: 3 for i in range(1,21)}
+#for i in wStr:
+#    if i >= 5:
+#        wStr[i] += 1
+#    if i >= 15:
+#        wStr[i] += 1
+#    if i >= 17:
+#        wStr[i] += 1
         
 wiBonus = {i: 0 for i in range(1,21)}
 for i in wiBonus:
@@ -172,20 +406,22 @@ for i in wDice:
         
 sDice = {i: int((i+1)/2) for i in range(1,21)}
 
-martialAttackBonus = {i: mProf[i] + mStr[i] + wiBonus[i] for i in range(1,21)}
+martialAttackBonus = {i: mProf[i]  + wiBonus[i] for i in range(1,21)}
 
-casterAttackBonus = {i: cProf[i] + cStr[i] + wiBonus[i] for i in range(1,21)}
+casterAttackBonus = {i: cProf[i] + wiBonus[i] for i in range(1,21)}
 
-warpriestAttackBonus = {i: wProf[i] + wStr[i] + wiBonus[i] for i in range(1,21)}
+warpriestAttackBonus = {i: wProf[i]  + wiBonus[i] for i in range(1,21)}
+wildshapeAttackBonus = {i: cProf[i] + wiBonus[i] + 2 for i in range(1,21)}
 
-bombAttackBonus = {i: wProf[i] + wStr[i] + miBonus[i]-1 for i in range(1,21)}
-pbombAttackBonus = {i: wProf[i] + wStr[i] + miBonus[i]-2 for i in range(1,21)}
-mutagenstrikeAttackBonus = {i: wProf[i] + wStr[i] + miBonus[i] for i in range(1,21)}
+bombAttackBonus = {i: wProf[i]  + miBonus[i]-1 for i in range(1,21)}
+pbombAttackBonus = {i: wProf[i]  + miBonus[i]-2 for i in range(1,21)}
+mutagenstrikeAttackBonus = {i: wProf[i]  + miBonus[i] for i in range(1,21)}
 
-fighterAttackBonus = {i: fProf[i] + mStr[i] + wiBonus[i] for i in range(1,21)}
+fighterAttackBonus = {i: fProf[i]  + wiBonus[i] for i in range(1,21)}
 
-cantripAttackBonus = {i: sProf[i] + mStr[i] for i in range(1,21)}
+cantripAttackBonus = {i: sProf[i]  for i in range(1,21)}
 spellDC = {i: 10 + cantripAttackBonus[i] for i in range(1,21)}
+warpriestDC = {i: 10 + wsProf[i] for i in range(1,21)}
 
 basewolf = {i: i+5 for i in range(1,21)}
 maturewolf = {i: i+6 for i in range(1,21)}
@@ -252,34 +488,6 @@ for i in cwSpec:
     if i >= 13:
         cwSpec[i] = int((cProf[i]-i)/2)
         
-eRune = {i: 0 for i in range(1,21)}
-for i in eRune:
-    if i >= 8:
-        eRune[i] += 3.5
-    if i>=15:
-        eRune[i] += 3.5
-        
-propulsive10 = {i: 0 for i in range(1,21)}
-for i in range(1,21):
-    if i >= 10:
-        propulsive10[i] += 1
-    if i >= 20:
-        propulsive10[i] += 1   
-        
-propulsive12 = {i: 0 for i in range(1,21)}
-for i in range(1,21):
-    if i >= 5:
-        propulsive12[i] += 1
-    if i >= 15:
-        propulsive12[i] += 1        
-propulsive14 = {i: 1 for i in range(1,21)}
-for i in range(1,21):
-    if i >= 10:
-        propulsive12[i] += 1
-propulsive16 = {i: 1 for i in range(1,21)}
-for i in range(1,21):
-    if i >= 5:
-        propulsive12[i] += 1
         
 bombSplashDamage = {i: 1 for i in range(1,21)}
 for i in range(1,21):
@@ -314,23 +522,23 @@ for i in range(10,21):
         
 acidFlaskDamage = {i: 1 for i in range(1,21)}
 
-acidFlaskPersDamage = {i: 3.5 for i in range(1,21)}
+acidFlaskPersDamage = {i: [d6] for i in range(1,21)}
 for i in range(1,21):
     if i >= 3:
-        acidFlaskPersDamage[i] = 7
+        acidFlaskPersDamage[i] += [d6]
     if i >= 11:
-        acidFlaskPersDamage[i] = 10.5
+        acidFlaskPersDamage[i] += [d6]
     if i >= 17:
-        acidFlaskPersDamage[i] = 14
+        acidFlaskPersDamage[i] += [d6]
 
-alchemistsFireDamage = {i: 4.5 for i in range(1,21)}
+alchemistsFireDamage = {i: [d8] for i in range(1,21)}
 for i in range(1,21):
     if i >= 3:
-        alchemistsFireDamage[i] = 9
+        alchemistsFireDamage[i] += [d8]
     if i >= 11:
-        alchemistsFireDamage[i] = 13.5
+        alchemistsFireDamage[i] += [d8]
     if i >= 17:
-        alchemistsFireDamage[i] = 18
+        alchemistsFireDamage[i] += [d8]
 
 alchemistsFirePersDamage = {i: 1 for i in range(1,21)}
 for i in range(1,21):
@@ -341,46 +549,46 @@ for i in range(1,21):
     if i >= 17:
         alchemistsFirePersDamage[i] = 4
 
-blfvDamage = {i: 3.5 for i in range(1,21)}
+blfvDamage = {i: [d6] for i in range(1,21)}
 for i in range(1,21):
     if i >= 3:
-        blfvDamage[i] = 7
+        blfvDamage[i] += [d6]
     if i >= 11:
-        blfvDamage[i] = 10.5
+        blfvDamage[i] += [d6]
     if i >= 17:
-        blfvDamage[i] = 14
+        blfvDamage[i] += [d6]
         
-thunderStoneDamage = {i: 2.5 for i in range(1,21)}
+thunderStoneDamage = {i: [d4] for i in range(1,21)}
 for i in range(1,21):
     if i >= 3:
-        thunderStoneDamage[i] = 5
+        thunderStoneDamage[i] += [d4]
     if i >= 11:
-        thunderStoneDamage[i] = 7.5
+        thunderStoneDamage[i] += [d6]
     if i >= 17:
-        thunderStoneDamage[i] = 10
+        thunderStoneDamage[i] += [d6]
        
 # perpetual infusions
 pacidFlaskDamage = {i: 0 for i in range(1,21)}
 for i in range(7,21):
     pacidFlaskDamage[i] = 1
 
-pacidFlaskPersDamage = {i: 0 for i in range(1,21)}
+pacidFlaskPersDamage = {i: [] for i in range(1,21)}
 for i in range(1,21):
     if i >= 7:
-        pacidFlaskPersDamage[i] = 3.5
+        pacidFlaskPersDamage[i] += [d6]
     if i >= 11:
-        pacidFlaskPersDamage[i] = 7
+        pacidFlaskPersDamage[i] += [d6]
     if i >= 17:
-        pacidFlaskPersDamage[i] = 10.5
+        pacidFlaskPersDamage[i] += [d6]
 
-palchemistsFireDamage = {i: 0 for i in range(1,21)}
+palchemistsFireDamage = {i: [] for i in range(1,21)}
 for i in range(1,21):
     if i >= 7:
-        palchemistsFireDamage[i] = 4.5
+        palchemistsFireDamage[i] += [d8]
     if i >= 11:
-        palchemistsFireDamage[i] = 9
+        palchemistsFireDamage[i] += [d8]
     if i >= 17:
-        palchemistsFireDamage[i] = 13.5
+        palchemistsFireDamage[i] += [d8]
 
 palchemistsFirePersDamage = {i: 0 for i in range(1,21)}
 for i in range(1,21):
@@ -391,52 +599,70 @@ for i in range(1,21):
     if i >= 17:
         palchemistsFirePersDamage[i] = 3
 
-pblfvDamage = {i: 0 for i in range(1,21)}
+pblfvDamage = {i: [] for i in range(1,21)}
 for i in range(1,21):
     if i >= 7:
-        pblfvDamage[i] = 3.5
+        pblfvDamage[i] += [d6]
     if i >= 11:
-        pblfvDamage[i] = 7
+        pblfvDamage[i] += [d6]
     if i >= 17:
-        pblfvDamage[i] = 10.5
+        pblfvDamage[i] += [d6]
         
-pthunderStoneDamage = {i: 0 for i in range(1,21)}
+pthunderStoneDamage = {i: [] for i in range(1,21)}
 for i in range(1,21):
     if i >= 7:
-        pthunderStoneDamage[i] = 2.5
+        pthunderStoneDamage[i] += [d4]
     if i >= 11:
-        pthunderStoneDamage[i] = 5
+        pthunderStoneDamage[i] += [d4]
     if i >= 17:
-        pthunderStoneDamage[i] = 7.5
+        pthunderStoneDamage[i] += [d4]
         
-bestialClawDamage = {i: wDice[i]*2.5 for i in range(1,21)}
-for i in bestialClawDamage:
+bestialClawDamageDice = {i: wDice[i]*[d4] for i in range(1,21)}
+for i in bestialClawDamageDice:
     if i >= 3:
-        bestialClawDamage[i] = wDice[i]*3.5
+        bestialClawDamageDice[i] = wDice[i]*[d6]
     if i >= 11:
-        bestialClawDamage[i] = wDice[i]*4.5
+        bestialClawDamageDice[i] = wDice[i]*[d8]
     if i >= 17:
-        bestialClawDamage[i] = wDice[i]*4.5 + 2
+        bestialClawDamageDice[i] = wDice[i]*[d8]
         
-bestialJawDamage = {i: wDice[i]*3.5 for i in range(1,21)}
-for i in bestialJawDamage:
+bestialJawDamageDice = {i: wDice[i]*[d6] for i in range(1,21)}
+for i in bestialJawDamageDice:
     if i >= 3:
-        bestialJawDamage[i] = wDice[i]*4.5
+        bestialJawDamageDice[i] = wDice[i]*[d8]
     if i >= 11:
-        bestialJawDamage[i] = wDice[i]*5.5
+        bestialJawDamageDice[i] = wDice[i]*[d10]
     if i >= 17:
-        bestialJawDamage[i] = wDice[i]*5.5 + 2
+        bestialJawDamageDice[i] = wDice[i]*[d10]
+        
+feralClawDamageDice = {i: wDice[i]*[d6] for i in range(1,21)}
+for i in feralClawDamageDice:
+    if i >= 3:
+        feralClawDamageDice[i] = wDice[i]*[d8]
+    if i >= 11:
+        feralClawDamageDice[i] = wDice[i]*[d10]
+    if i >= 17:
+        feralClawDamageDice[i] = wDice[i]*[d10]
+        
+feralJawDamageDice = {i: wDice[i]*[d8] for i in range(1,21)}
+for i in feralJawDamageDice:
+    if i >= 3:
+        feralJawDamageDice[i] = wDice[i]*[d10]
+    if i >= 11:
+        feralJawDamageDice[i] = wDice[i]*[d12]
+    if i >= 17:
+        feralJawDamageDice[i] = wDice[i]*[d12]
         
         
-animalJawDamage = {i: wDice[i]*5.5 for i in range(1,21)}
-for i in animalJawDamage:
+animalJawDamageDice = {i: wDice[i]*[d10] for i in range(1,21)}
+for i in animalJawDamageDice:
     if i >= 7:
-        animalJawDamage[i] = wDice[i]*6.5
+        animalJawDamageDice[i] = wDice[i]*[d12]
         
-animalClawDamage = {i: wDice[i]*3.5 for i in range(1,21)}
-for i in animalClawDamage:
+animalClawDamageDice = {i: wDice[i]*[d6] for i in range(1,21)}
+for i in animalClawDamageDice:
     if i >= 7:
-        animalClawDamage[i] = wDice[i]*4.5
+        animalClawDamageDice[i] = wDice[i]*[d8]
         
 animalragedamage = {i: 2 for i in range(1,21)}
 for i in animalragedamage:
@@ -467,11 +693,11 @@ for i in giantragedamage:
         giantragedamage[i] = 18
 
 spiritragedamage = {i: 3 for i in range(1,21)}
-for i in furyragedamage:
+for i in spiritragedamage:
     if i >= 7:
-        furyragedamage[i] = 7
+        spiritragedamage[i] = 7
     if i >= 15:
-        furyragedamage[i] = 13
+        spiritragedamage[i] = 13
         
 smiteevildamage = {i: 0 for i in range(1,21)}
 for i in smiteevildamage:
@@ -480,38 +706,38 @@ for i in smiteevildamage:
     if i >= 13:
         smiteevildamage[i] = 6
         
-sneakattackdamage = {i: 3.5 for i in range(1,21)}
+sneakattackdamage = {i: [d6] for i in range(1,21)}
 for i in sneakattackdamage:
     if i >= 5:
-        sneakattackdamage[i] = 7
+        sneakattackdamage[i] += [d6]
     if i >= 11:
-        sneakattackdamage[i] = 10.5
+        sneakattackdamage[i] += [d6]
     if i >= 17:
-        sneakattackdamage[i] = 14
+        sneakattackdamage[i] += [d6]
         
-rangerprecedgedamage1 = {i: 4.5 for i in range(1,21)}
+rangerprecedgedamage1 = {i: [d8] for i in range(1,21)}
 for i in rangerprecedgedamage1:
     if i >= 11:
-        rangerprecedgedamage1[i] = 9
+        rangerprecedgedamage1[i] += [d8]
     if i >= 19:
-        rangerprecedgedamage1[i] = 13.5
+        rangerprecedgedamage1[i] += [d8]
         
-rangerprecedgedamage2 = {i: 0 for i in range(1,21)}
+rangerprecedgedamage2 = {i: [] for i in range(1,21)}
 for i in rangerprecedgedamage2:
     if i >= 17:
-        rangerprecedgedamage2[i] = 4.5  
+        rangerprecedgedamage2[i] += [d8] 
     if i >= 19:
-        rangerprecedgedamage2[i] = 9  
+        rangerprecedgedamage2[i] += [d8]  
         
-rangerprecedgedamage3 = {i: 0 for i in range(1,21)}
+rangerprecedgedamage3 = {i: [] for i in range(1,21)}
 for i in rangerprecedgedamage3:
     if i >= 19:
-        rangerprecedgedamage3[i] = 4.5  
+        rangerprecedgedamage3[i] += [d8] 
         
-rangerbearsupportdamage = {i: 4.5 for i in range(1,21)}
+rangerbearsupportdamage = {i: [d8] for i in range(1,21)}
 for i in rangerbearsupportdamage:
     if i >= 10:
-        rangerbearsupportdamage[i] = 9
+        rangerbearsupportdamage[i] += [d8]
         
 druidwolfdamage = {i: 6.5 for i in range(1,21)}
 for i in druidwolfdamage:
@@ -548,113 +774,175 @@ for i in rangerbeardamage:
         rangerbeardamage[i] = 18
     if i >= 16:
         rangerbeardamage[i] = 26.5 
+      
+# ability score bonuses by level
+as10 = {i: 0 for i in range(1,21)}
+as12 = {i: 1 for i in range(1,21)}
+as14 = {i: 2 for i in range(1,21)}
+as16 = {i: 3 for i in range(1,21)}
+as18 = {i: 4 for i in range(1,21)}
+as10p = {i: 0 for i in range(1,21)}
+as12p = {i: 1 for i in range(1,21)}
+as14p = {i: 2 for i in range(1,21)}
+as16p = {i: 3 for i in range(1,21)}
+as14pp = {i: 2 for i in range(1,21)}
+as16pp = {i: 3 for i in range(1,21)}
+as18pp = {i: 4 for i in range(1,21)}
+as14ppa = {i: 2 for i in range(1,21)}
+as16ppa = {i: 3 for i in range(1,21)}
+as18ppa = {i: 4 for i in range(1,21)}
+for i in range(1,21):
+    if i >= 5:
+        as10p[i] += 1
+        as12p[i] += 1
+        as14p[i] += 1
+        as16p[i] += 1
+        as14pp[i] += 1
+        as16pp[i] += 1
+        as14ppa[i] += 1
+        as16ppa[i] += 1
+    if i >= 10:
+        as10p[i] += 1
+        as12p[i] += 1
+        as14p[i] += 1
+        as14pp[i] += 1
+        as18pp[i] += 1
+        as14ppa[i] += 1
+        as18ppa[i] += 1
+    if i >= 15:
+        as10p[i] += 1
+        as12p[i] += 1
+        as16pp[i] += 1
+        as16ppa[i] += 1 
+    if i >= 20:
+        as10p[i] += 1
+        as14pp[i] += 1
+        as18pp[i] += 1
+        as14ppa[i] += 1
+        as18ppa[i] += 1
+    if i >= 17:
+        as14ppa[i] += 1
+        as16ppa[i] += 1
+        as18ppa[i] += 1
+abilityScoreConverter = {'10 No Boost': as10,
+                       '12 No Boost': as12,
+                       '14 No Boost': as14,
+                       '16 No Boost': as16,
+                       '18 No Boost': as18,
+                       '10 to  18': as10p,
+                       '12 to 18': as12p,
+                       '14 to 18': as14p,
+                       '16 to 18': as16p,
+                       '14 to 20 No Apex': as14pp,
+                       '16 to 20 No Apex': as16pp,
+                       '18 to 22 No Apex': as18pp,
+                       '14 to 20 Apex': as14ppa,
+                       '16 to 20 Apex': as16ppa,
+                       '18 to 22 Apex': as18ppa}
         
-d6Damage = [3.5 * wDice[i] for i in wDice]
-d8Damage = [4.5 * wDice[i] for i in wDice]
-d10Damage = [5.5 * wDice[i] for i in wDice]
-d12Damage = [6.5 * wDice[i] for i in wDice]
 
-damageDiceConverter = {"1d4": [2.5,0],
-                       "1d6": [3.5,0],
-                       "1d8": [4.5,0],
-                       "1d10": [5.5,0],
-                       "1d12": [6.5,0],
-                       "1d4+1": [2.5,1],
-                       "1d6+1": [3.5,1],
-                       "1d8+1": [4.5,1],
-                       "1d10+1": [5.5,1],
-                       "1d12+1": [6.5,1],
-                       "1d4+2": [2.5,2],
-                       "1d6+2": [3.5,2],
-                       "1d8+2": [4.5,2],
-                       "1d10+2": [5.5,2],
-                       "1d12+2": [6.5,2]}
+damageDiceConverter = {"1d4": [d4,0],
+                       "1d6": [d6,0],
+                       "1d8": [d8,0],
+                       "1d10": [d10,0],
+                       "1d12": [d12,0],
+                       "1d4+1": [d4,1],
+                       "1d6+1": [d6,1],
+                       "1d8+1": [d8,1],
+                       "1d10+1": [d10,1],
+                       "1d12+1": [d12,1],
+                       "1d4+2": [d4,2],
+                       "1d6+2": [d6,2],
+                       "1d8+2": [d8,2],
+                       "1d10+2": [d10,2],
+                       "1d12+2": [d12,2]}
 
 noneDamage = {i: 0 for i in range(1,21)}
-deadlyd6Damage = {i: max(3.5,(wDice[i]-1)*3.5) for i in range(1,21)}
-deadlyd8Damage = {i: max(4.5,(wDice[i]-1)*4.5) for i in range(1,21)}
-deadlyd10Damage = {i: max(5.5,(wDice[i]-1)*5.5) for i in range(1,21)}
-deadlyd12Damage = {i: max(6.5,(wDice[i]-1)*6.5) for i in range(1,21)}
-fatald8Damage = {i: 4.5 + wDice[i]*4 for i in range(1,21)}
-fatald10Damage = {i: 5.5 + wDice[i]*4 for i in range(1,21)}
-fatald12Damage = {i: 6.5 + wDice[i]*2 for i in range(1,21)}
+deadlyd6DamageDice = {i: [d6]*max(1,(wDice[i]-1)) for i in range(1,21)}
+deadlyd8DamageDice = {i: [d8]*max(1,(wDice[i]-1)) for i in range(1,21)}
+deadlyd10DamageDice = {i: [d10]*max(1,(wDice[i]-1)) for i in range(1,21)}
+deadlyd12DamageDice = {i: [d12]*max(1,(wDice[i]-1)) for i in range(1,21)}
 
-criticalDiceConverter = {"none": [False, noneDamage],
-                 "deadly d6": [False, deadlyd6Damage],
-                 "deadly d8": [False, deadlyd8Damage],
-                 "deadly d10": [False, deadlyd10Damage],
-                 "deadly d12": [False, deadlyd12Damage],
-                 "fatal d8": [True, 4.5],
-                 "fatal d10": [True, 5.5],
-                 "fatal d12": [True, 6.5]
+criticalDiceConverter = {"No Crit Damage": [False, None],
+                 "deadly d6": [False, deadlyd6DamageDice],
+                 "deadly d8": [False, deadlyd8DamageDice],
+                 "deadly d10": [False, deadlyd10DamageDice],
+                 "deadly d12": [False, deadlyd12DamageDice],
+                 "fatal d8": [True, d8],
+                 "fatal d10": [True, d10],
+                 "fatal d12": [True, d12]
         }
 
-d12pad = {i: 6.5 for i in range(1,21)}
-for i in d12pad:
-    if i>=10:
-        d12pad[i]+=6.5
-    if i>=18:
-        d12pad[i]+=6.5
-
-d10pad = {i: 5.5 for i in range(1,21)}
-for i in d10pad:
-    if i>=10:
-        d10pad[i]+=5.5
-    if i>=18:
-        d10pad[i]+=5.5
+#d12pad = {i: 6.5 for i in range(1,21)}
+#for i in d12pad:
+#    if i>=10:
+#        d12pad[i]+=6.5
+#    if i>=18:
+#        d12pad[i]+=6.5
+#
+#d10pad = {i: 5.5 for i in range(1,21)}
+#for i in d10pad:
+#    if i>=10:
+#        d10pad[i]+=5.5
+#    if i>=18:
+#        d10pad[i]+=5.5
+#        
+#d12bfd = {i: 0 for i in range(1,21)}
+#for i in d12bfd:
+#    if i>=10:
+#        d12bfd[i]+=6.5
+#    if i>=18:
+#        d12bfd[i]+=6.5
+#        
+#d10bfd = {i: 0 for i in range(1,21)}
+#for i in d10bfd:
+#    if i>=10:
+#        d10bfd[i]+=5.5
+#    if i>=18:
+#        d10bfd[i]+=5.5
         
-d12bfd = {i: 0 for i in range(1,21)}
-for i in d12bfd:
-    if i>=10:
-        d12bfd[i]+=6.5
-    if i>=18:
-        d12bfd[i]+=6.5
-        
-d10bfd = {i: 0 for i in range(1,21)}
-for i in d10bfd:
-    if i>=10:
-        d10bfd[i]+=5.5
-    if i>=18:
-        d10bfd[i]+=5.5
-        
-alchemistDamage = {i: wStr[i] + cwSpec[i] for i in range(1,21)}
+alchemistDamage = {i: cwSpec[i] for i in range(1,21)}
+alchemistBestialDamage = {i: cwSpec[i] for i in range(1,21)}
+for i in alchemistBestialDamage:
+    if i >=17:
+        alchemistBestialDamage[i]+=2
 alchemistRangedDamage = {i: cwSpec[i] for i in range(1,21)}
 
-strCasterDamage = {i: cStr[i] + cwSpec[i] for i in range(1,21)}
+strCasterDamage = {i: cwSpec[i] for i in range(1,21)}
 rangedCasterDamage = {i: cwSpec[i] for i in range(1,21)}
-casterP10Damage = {i: propulsive10[i] + cwSpec[i] for i in range(1,21)}
-casterP12Damage = {i: propulsive12[i] + cwSpec[i] for i in range(1,21)}
-casterP14Damage = {i: propulsive14[i] + cwSpec[i] for i in range(1,21)}
-casterP16Damage = {i: propulsive16[i] + cwSpec[i] for i in range(1,21)}
 
-cantripASDamage = {i: mStr[i] + int((sDice[i]-1)/2)*4.5 for i in range(1,21)}
-cantripASDamage[1] = 4.5
-cantripASDamage[2] = 4.5
-cantripASDamage[3] = 4.5
-cantripASDamage[4] = 4.5
-cantripDDamage = {i: mStr[i] + max(0,int((sDice[i]-1)/2))*3.5 for i in range(1,21)}
-cantripTPDamage = {i: mStr[i] + sDice[i]*3.5 for i in range(1,21)}
-cantripRFDamage = {i: mStr[i] + sDice[i]*2.5 for i in range(1,21)}
-cantripASPDamage = {i: (sDice[i]+1)/2*1 for i in range(1,21)}
-cantripPFPDamage = {i: sDice[i]*2.5 for i in range(1,21)}
+cantripASDamageDice = {i: int((sDice[i]-1)/2)*[d8] for i in range(1,21)}
+cantripASDamageDice[1] = [d8]
+cantripASDamageDice[2] = [d8]
+cantripASDamageDice[3] = [d8]
+cantripASDamageDice[4] = [d8]
+cantripDDamageDice = {i:  max(0,int((sDice[i]-1)/2))*[d6] for i in range(1,21)}
+cantripTPDamageDice = {i: sDice[i]*[d6] for i in range(1,21)}
+cantripRFDamageDice = {i: sDice[i]*[d4] for i in range(1,21)}
+cantripASPDamage = {i: int((sDice[i]+1)/2)*1 for i in range(1,21)}
+cantripPFPDamageDice = {i: sDice[i]*[d4] for i in range(1,21)}
 
-magicMissleDamage = {i: int((sDice[i]+1)/2) * 3.5 for i in range(1,21)}
-spellDamage45 = {i: sDice[i]*4.5 for i in range(1,21)}
-spellDamage55 = {i: sDice[i]*5.5 for i in range(1,21)}
-spellDamage7 = {i: sDice[i]*7 for i in range(1,21)}
-spellDamage8 = {i: sDice[i]*8 for i in range(1,21)}
-spellDamage9 = {i: sDice[i]*9 for i in range(1,21)}
+magicMissleDamage = {i: int((sDice[i]+1)/2) * 1 for i in range(1,21)}
+magicMissleDamageDice = {i: int((sDice[i]+1)/2) * [d4] for i in range(1,21)}
+spellDamaged4 = {i: sDice[i]*[d4] for i in range(1,21)}
+spellDamaged6 = {i: sDice[i]*[d6] for i in range(1,21)}
+spellDamaged8 = {i: sDice[i]*[d8] for i in range(1,21)}
+spellDamaged10 = {i: sDice[i]*[d10] for i in range(1,21)}
+spellDamaged12 = {i: sDice[i]*[d12] for i in range(1,21)}
+spellDamage2d4 = {i: sDice[i]*[d4,d4] for i in range(1,21)}
+spellDamage2d6 = {i: sDice[i]*[d6,d6] for i in range(1,21)}
+spellDamage2d8 = {i: sDice[i]*[d8,d8] for i in range(1,21)}
+spellDamage2d10 = {i: sDice[i]*[d10,d10] for i in range(1,21)}
+spellDamage2d12 = {i: sDice[i]*[d12,d12] for i in range(1,21)}
+spellDamage1 = {i: sDice[i]*1 for i in range(1,21)}
+spellDamage2 = {i: sDice[i]*2 for i in range(1,21)}
 spellDamage10 = {i: sDice[i]*10 for i in range(1,21)}
 spellDamage11 = {i: sDice[i]*11 for i in range(1,21)}
 spellDamage12 = {i: sDice[i]*12 for i in range(1,21)}
 spellDamage13 = {i: sDice[i]*13 for i in range(1,21)}
 
-martialDamage = {i: mStr[i] + mwSpec[i] for i in range(1,21)}
+martialDamage = {i:  mwSpec[i] for i in range(1,21)}
 martialRangedDamage = {i: mwSpec[i] for i in range(1,21)}
-martialP10Damage = {i: propulsive10[i] + mwSpec[i] for i in range(1,21)}
-martialP12Damage = {i: propulsive12[i] + mwSpec[i] for i in range(1,21)}
-martialP14Damage = {i: propulsive14[i] + mwSpec[i] for i in range(1,21)}
-martialP16Damage = {i: propulsive16[i] + mwSpec[i] for i in range(1,21)}
 
 barbariananimaldamage = {i: martialDamage[i] + animalragedamage[i] for i in range(1,21)}
 barbarianagileanimaldamage = {i: martialDamage[i] + int(animalragedamage[i]/2) for i in range(1,21)}
@@ -665,41 +953,44 @@ barbarianspiritdamage = {i: martialDamage[i] + spiritragedamage[i] for i in rang
 
 championsmiteevildamage = {i: martialDamage[i] + smiteevildamage[i] for i in range(1,21)}
 
-warpriestDamage = {i: wStr[i] + cwSpec[i] + 1 for i in range(1,21)}
-warpriestDamage[1] -= 1
+warpriestDamage = {i: cwSpec[i] for i in range(1,21)}
+#warpriestDamage[1] -= 1
 
-warpriestSmiteDamage = {i: warpriestDamage[i] + sDice[i]*4.5 for i in range(1,21)}
+warpriestSmiteDamageDice = {i:  sDice[i]*[d8] for i in range(1,21)}
 
 
 
-fighterDamage = {i: mStr[i]+fwSpec[i] for i in range(1,21)}
+fighterDamage = {i: fwSpec[i] for i in range(1,21)}
 fighterrangedDamage = {i: fwSpec[i] for i in range(1,21)}
-fighterpropulsive12Damage = {i: propulsive12[i]+fwSpec[i] for i in range(1,21)}
-fighterpropulsive14Damage = {i: propulsive14[i]+fwSpec[i] for i in range(1,21)}
-fighterpropulsive16Damage = {i: propulsive16[i]+fwSpec[i] for i in range(1,21)}
-fighterd10paDamage = {i: mStr[i]+fwSpec[i]+d10pad[i] for i in range(1,21)}
-fighterd12paDamage = {i: mStr[i]+fwSpec[i]+d12pad[i] for i in range(1,21)}
-fighterd10bfDamage = {i: mStr[i]+fwSpec[i]+d10bfd[i] for i in range(1,21)}
-fighterd12bfDamage = {i: mStr[i]+fwSpec[i]+d12bfd[i] for i in range(1,21)}
+#fighterd10paDamage = {i: fwSpec[i]+d10pad[i] for i in range(1,21)}
+#fighterd12paDamage = {i: fwSpec[i]+d12pad[i] for i in range(1,21)}
+#fighterd10bfDamage = {i: fwSpec[i]+d10bfd[i] for i in range(1,21)}
+#fighterd12bfDamage = {i: fwSpec[i]+d12bfd[i] for i in range(1,21)}
 
+#
+#d12pad = {i: 6.5 for i in range(1,21)}
+#for i in d12pad:
+#    if i>=10:
+#        d12pad[i]+=6.5
+#    if i>=18:
+#        d12pad[i]+=6.5
 
-d12pad = {i: 6.5 for i in range(1,21)}
-for i in d12pad:
-    if i>=10:
-        d12pad[i]+=6.5
-    if i>=18:
-        d12pad[i]+=6.5
-
-def ffd(level):
-    if level < 10:
-        return 0
-    return mStr[level] + fwSpec[level]
-fighterFailDamage = {i: mStr[i] + fwSpec[i] for i in range(1,21) }
 
 class Result:
-    def __init__(self, damage, pdamage, atk):
-        self.damage = damage
-        self.pdamage = pdamage
+    def __init__(self, atk, damageDice, staticDamage):
+        self.damageDice = damageDice
+        self.staticDamage = staticDamage
+        
+        self.critDamDice = []
+        self.critDam = 0
+        
+        self.persDamDice = []
+        self.persDam = 0
+        self.critPersDamDice = []
+        self.critPersDam = 0
+        
+        self.splashDam = 0
+        self.splashDamDice = []
         
         self.futureAttacksFF = False
         self.nextAttackFF = False
@@ -710,9 +1001,28 @@ class Result:
         self.addsecondhitdamage = 0 
         self.addthirdhitdamage = 0 
         self.addeveryhitdamage = 0
+        self.addfirsthitdamageDice = []
+        self.addsecondhitdamageDice = [] 
+        self.addthirdhitdamageDice = []
+        self.addeveryhitdamageDice = []
+        self.adddamage = 0
+        
+        self.debuffAttack = 0
+        self.debuffTarget = 0
+        
+        self.treatWorse = False
+        self.ignoreNext = False
         
         self.atk = atk
         self.ishit = False
+        self.iscrit = False
+        self.doubleDamage = False
+        self.halveDamage = False
+        self.doublePersOnDouble = True
+        
+        self.okay = False
+        self.good = False
+        self.veryGood = False
         
     def setFutureAttacksFF(self):
         self.futureAttacksFF = True
@@ -724,24 +1034,44 @@ class Result:
         self.nextStrikeBonus = bonus
         
     def setCrit(self):
+        self.veryGood = True
         self.ishit = True
+        self.iscrit = True
+        self.setDoubleDamage()
+        
     def setHit(self):
         self.ishit = True
+        self.good = True
+        
     def setFail(self):
-        pass
+        self.okay = True
+        
     def setCritFail(self):
         pass
+    
     def setCritSuccessSave(self):
         pass
+    
     def setSuccessSave(self):
-        pass
+        self.setHalveDamage()
+        self.okay = True
+        
     def setFailSave(self):
-        pass
+        self.good = True
+
     def setCritFailSave(self):
-        pass
+        self.veryGood = True
+        self.setDoubleDamage()
+        
+    def setDoubleDamage(self):
+        self.doubleDamage = True
+    def setHalveDamage(self):
+        self.halveDamage = True
     
     def isHit(self):
         return self.ishit
+    def isCrit(self):
+        return self.iscrit
         
 class AtkSelection:
 #         4 types: 'Strike', 'SaveAttack', 'Save', 'Effect'
@@ -752,28 +1082,61 @@ class AtkSelection:
             self.damage = damage
             self.additionalDamage = 0
             self.damageBonus = 0
-            self.persDamage = copy.copy(noneDamage)
-            self.splashDamage = None
+            
             self.wDice = copy.copy(wDice) # number of dice
-            self.damageDie = 0 # 3.5
-            self.weaponDamage = None
+            self.damageDie = [1] # 3.5
+            self.weaponDamageDice = None
             self.damageDieBonus = None
-            self.runeDamage = None
+            self.runeDamageDice = {i: [] for i in range(1,21)}
+            self.extraWeaponDice = {i: 0 for i in range(1,21)}
+            
+            self.persDamage = copy.copy(noneDamage)
+            self.persDamageDice = {i: [] for i in range(1,21)}
+            
+            self.splashDamage = None
+            
             self.flatfootedDamage = copy.copy(noneDamage)
+            self.flatfootedDamageDice = {i: [] for i in range(1,21)}
+            
             self.failureDamage = copy.copy(noneDamage)
+            self.failureDamageDice = {i: [] for i in range(1,21)}
             self.certainStrike = False
+            self.brutalFinish = False
+            
             self.critDamage = copy.copy(noneDamage)
+            self.critDamageDice = {i: [] for i in range(1,21)}
             self.critPersDamage = copy.copy(noneDamage)
+            self.critPersDamageDice = {i: [] for i in range(1,21)}
+            
+            self.fatal = False
+            self.fatalDie = None
             
             self.isWeapon = False
+            self.fixedStrike = False
+            self.isSpell = False
+            self.spellLevelModifier = 0
+            self.minSpellLevel = 1
             
             self.critSpecLevel = 21
             self.keenLevel = 21
+            self.backswingLevel = 21
+        
+            self.stickybombLevel = 21
+            
             self.ffonCritLevel = 21
             self.ffonSuccessLevel = 21
             self.ffonFailLevel = 21
             
             self.attackBonusOnFail = 0
+            
+            self.critFailDebuffAttack = 0
+            self.failDebuffAttack = 0
+            self.successDebuffAttack = 0
+            
+            self.critFailDebuffTarget = 0
+            self.failDebuffTarget = 0
+            self.successDebuffTarget = 0
+            
             
             self.minL = 1
             self.maxL = 20
@@ -789,23 +1152,35 @@ class AtkSelection:
         
         def critFailureResult(self, level, db):
             return 0
+        
+        def addAttackBonuses(self, bonuses):
+            for level in self.attack:
+                if level in bonuses:
+                    self.attack[level] += bonuses[level]
+                    
+        def addDamageBonuses(self, bonuses):
+            for level in self.damage:
+                if level in bonuses:
+                    self.damage[level] += bonuses[level]
             
-        def setWeaponDamage(self, weaponDamageDiceName):
-            if self.isWeapon and not self.weaponDamage:
+        def setWeaponDamageDice(self, weaponDamageDiceName):
+            if self.isWeapon and not self.weaponDamageDice:
                 self.damageDie = damageDiceConverter[weaponDamageDiceName][0]
                 self.damageDieBonus = damageDiceConverter[weaponDamageDiceName][1]
-                self.weaponDamage = {i: self.wDice[i]*self.damageDie for i in range(1,21)}
+                self.weaponDamageDice = {i: (self.wDice[i]+self.extraWeaponDice[i])*[self.damageDie] for i in range(1,21)}
                 
             
-        def setCriticalEffects(self, weaponCriticalName):
+        def setCriticalDamageDice(self, weaponCriticalName):
             if self.isWeapon:
                 cd = criticalDiceConverter[weaponCriticalName]
-                if cd[0]:
-                    for i in range(1,21):
-                        self.critDamage[i] += cd[1] + wDice[i]*2*(cd[1] - self.damageDie)
+                if cd[0]: #if fatal
+                    self.fatal = True
+                    self.fatalDie = cd[1]
+#                    for i in range(1,21):
+#                        self.critDamage[i] += cd[1] + wDice[i]*2*(cd[1] - self.damageDie)
                 else:
-                    for i in range(1,21):
-                        self.critDamage[i] += cd[1][i]
+                    if cd[1]:
+                        self.critDamageDice = cd[1]
             
         def setCriticalSpecialization(self, csName):
             if self.isWeapon:
@@ -813,7 +1188,8 @@ class AtkSelection:
                     return
                 elif csName == "knife":
                     for i in range(self.critSpecLevel,21):
-                        self.critPersDamage[i] += 3.5 + wiBonus[i]
+                        self.critPersDamage[i] += wiBonus[i]
+                        self.critPersDamageDice[i] += [d6]
                 elif csName == "hammer":
                     self.ffonCritLevel = min(self.ffonCritLevel,self.critSpecLevel)
                 elif csName == "sword":
@@ -821,47 +1197,102 @@ class AtkSelection:
                 elif csName == "pick":
                     for i in range(self.critSpecLevel,21):
                         self.critDamage[i] += self.wDice[i] * 2
+                        
+        def setWeaponFeatures(self, featureArray):
+            if not self.isWeapon:
+                return
+            for feature in featureArray:
+                if feature[0] == "1d6 Rune":
+                    for i in self.runeDamageDice:
+                        if i >= feature[1]:
+                            self.runeDamageDice[i]+=[d6]
+                elif feature[0] == "1d4 Rune":
+                    for i in self.runeDamageDice:
+                        if i >= feature[1]:
+                            self.runeDamageDice[i]+=[d4]
+                elif feature[0] == "backswing":
+                    self.setBackswing(feature[1])
+                elif feature[0] == "keen":
+                    self.setKeen(feature[1])
+                else:
+                    print("feature is ", feature[0])
+            return
         
-        def setRuneDamage(self, r1, r2, r3, r4):
-            if self.isWeapon:
-                self.runeDamage = {i: 0 for i in range(1,21)}
-                for i in range(1,21):
-                    if i >= r1:
-                        self.runeDamage[i]+=3.5
-                    if i >= r2:
-                        self.runeDamage[i]+=3.5
-                    if i >= r3:
-                        self.runeDamage[i]+=3.5
-                    if i >= r4:
-                        self.runeDamage[i]+=3.5
+        def setSpellLevel(self, slName):
+            if self.isSpell:
+                if slName == 'Max':
+                    self.spellLevelModifier = 0
+                elif slName == '-1':
+                    self.spellLevelModifier = -1
+                elif slName == '-2':
+                    self.spellLevelModifier = -2
+                elif slName == '-3':
+                    self.spellLevelModifier = -3
+                elif slName == '-4':
+                    self.spellLevelModifier = -4
+                elif slName == '-5':
+                    self.spellLevelModifier = -5
             
         def getAttack(self, level):
             if level>=self.minL and level<=self.maxL:
+                if self.isSpell and sDice[level] + self.spellLevelModifier < self.minSpellLevel:
+                    return None
+                if self.isSpell and self.fixedStrike:
+                    level = level + self.spellLevelModifier*2
                 return self.attack[level] + self.attackBonus
             return None
         
         def getDamageBonus(self, level):
             if level>=self.minL and level<=self.maxL:
+                if self.isSpell:
+                    level = level + self.spellLevelModifier*2
                 d = self.damage[level] + self.additionalDamage
                 if self.damageDieBonus:
                     d += self.damageDieBonus*self.wDice[level]
                 return d
             return 0
         
-        def getDamageDice(self, level):
+        def getDamageDice(self, level, crit=False):
             if level>=self.minL and level<=self.maxL:
-                d = 0
-                if self.weaponDamage:
-                    d += self.weaponDamage[level]
-                if self.runeDamage:
-                    d += self.runeDamage[level]
-                return d + self.damageBonus
+                if self.isSpell:
+                    level = level + self.spellLevelModifier*2
+                d = []
+                if self.weaponDamageDice:
+                    for die in self.weaponDamageDice[level]:
+                        if self.fatal and crit==True:
+                            d += [self.fatalDie]
+                        else:
+                            d += [die]
+                if self.runeDamageDice:
+                    for die in self.runeDamageDice[level]:
+                        d += [die]
+                return d 
+            return []
+                
+        def getCriticalBonusDamage(self, level):
+            if self.critDamage:
+                return self.critDamage[level]
             return 0
+        
+        def getCriticalBonusDamageDice(self, level):
+            d = []
+            if self.critDamageDice:
+                for die in self.critDamageDice[level]:
+                    d += [die]
+                
+            if self.fatal:
+                d += [self.fatalDie]
+            return d
         
         def getPersistentDamage(self, level):
             if self.persDamage:
                 return self.persDamage[level]
             return 0
+        
+        def getPersistentDamageDice(self, level):
+            if self.persDamageDice:
+                return self.persDamageDice[level]
+            return []
         
         def getSplashDamage(self, level):
             if self.splashDamage:
@@ -873,26 +1304,44 @@ class AtkSelection:
                 return self.critPersDamage[level]
             return 0
         
+        def getCriticalPersistentDamageDice(self, level):
+            if self.critPersDamageDice:
+                return self.critPersDamageDice[level]
+            return []
+        
         def getFFDamage(self, level):
             if self.flatfootedDamage:
                 return self.flatfootedDamage[level]
             return 0
         
+        def getFFDamageDice(self, level):
+            if self.flatfootedDamageDice:
+                return self.flatfootedDamageDice[level]
+            return []
+        
         def getFailureDamage(self, level):
             if self.failureDamage:
-                if self.failureDamage[level] != 0:
-                    return self.failureDamage[level] + self.damageBonus
+                return self.failureDamage[level]
             return 0
         
-        def getCriticalBonusDamage(self, level):
-            if self.critDamage:
-                return self.critDamage[level]
-            return 0
+        def getFailureDamageDice(self, level):
+            failureDice = []
+            if self.failureDamageDice:
+                failureDice += self.failureDamageDice[level]
+            if self.brutalFinish:
+                failureDice += self.extraWeaponDice[level]*[self.damageDie]
+            return failureDice
+
         
         def getKeen(self, level):
             if level >= self.keenLevel:
                 return True
             return False
+        def getBackswing(self, level):
+            if level >= self.backswingLevel:
+                return True
+            return False
+        
         def ffonCrit(self, level):
             if level >= self.ffonCritLevel:
                 return True
@@ -914,7 +1363,9 @@ class AtkSelection:
             self.additionalDamage = ad
             
         def setKeen(self, level):
-            self.keenLevel = level
+            self.keenLevel = min(level, self.keenLevel)
+        def setBackswing(self, level):
+            self.backswingLevel = min(level, self.backswingLevel)
             
         def setFFonCrit(self, level):
             self.ffonCritLevel = min(level,self.ffonCritLevel)
@@ -934,77 +1385,262 @@ class Strike(AtkSelection):
         self.isWeapon = isWeapon
         
     def critSuccessResult(self, level, context):
-        damage = self.getDamageBonus(level)
-        damage += self.getDamageDice(level)
-        damage += context.getExtraDamage()
-        damage = max(damage,1)
+        staticDamage = self.getDamageBonus(level)
+        staticDamage += self.damageBonus
+        staticDamage += context.getExtraDamage()
+        
+        damageDice = self.getDamageDice(level, crit=True)
+        
         if context.flatfooted:
-            damage += self.getFFDamage(level)
+            staticDamage += self.getFFDamage(level)
+            damageDice += self.getFFDamageDice(level)       
+
         
-        damage = damage * 2
-        
-        damage += self.getSplashDamage(level)
-        damage += self.getCriticalBonusDamage(level)
-        
-        pdamage = self.getCriticalPersistentDamage(level)
-        r = Result(max(0,damage), pdamage, self)
+        r = Result(self, damageDice, staticDamage)
         r.setCrit()
+        
+        r.critDam = self.getCriticalBonusDamage(level)
+        r.critDamDice = self.getCriticalBonusDamageDice(level)
+        
+        r.persDam = self.getPersistentDamage(level)
+        r.persDamDice = self.getPersistentDamageDice(level)
+        r.critPersDam = self.getCriticalPersistentDamage(level)
+        r.critPersDamDice = self.getCriticalPersistentDamageDice(level)
+    
+        r.splashDam = self.getSplashDamage(level)
+        if level >= self.stickybombLevel:
+#            print("adding ",r.persDam,r.splashDam)
+            r.persDam += r.splashDam
+        
         if self.ffonCrit(level):
             r.setFutureAttacksFF()
             
         return r
         
     def successResult(self, level, context):
-        damage = self.getDamageBonus(level)
-        damage += self.getDamageDice(level)
+        staticDamage = self.getDamageBonus(level)
+        staticDamage += self.damageBonus
+        staticDamage += context.getExtraDamage()
+        
+        damageDice = self.getDamageDice(level)
+        
         if context.flatfooted:
-            damage += self.getFFDamage(level)
-        damage += context.getExtraDamage()
-        damage = max(damage,1)
+            staticDamage += self.getFFDamage(level)
+            damageDice += self.getFFDamageDice(level)       
+
         
-            
-        damage += self.getSplashDamage(level)
-        pdamage = self.getPersistentDamage(level)
-        
-        
-        r = Result(max(0,damage), pdamage, self)
+        r = Result(self, damageDice, staticDamage)
         r.setHit()
+        
+        r.persDam = self.getPersistentDamage(level)
+        r.persDamDice = self.getPersistentDamageDice(level)
+    
+        r.splashDam = self.getSplashDamage(level)
+        if level >= self.stickybombLevel:
+#            print("adding ",r.persDam,r.splashDam)
+            r.persDam += r.splashDam
+            
         if self.ffonSuccess(level):
             r.setFutureAttacksFF()
             
         return r
         
     def failureResult(self, level, context):
-        damage = 0
-        
-        
-        
+        staticDamage = self.getFailureDamage(level)
         if self.certainStrike:
-            damage += self.getFailureDamage(level)
-            if damage == 0:
-                damage = self.damageBonus
-            damage += self.getDamageBonus(level)
-        else:
-             damage += self.getFailureDamage(level)
-        if damage != 0:
-            damage += context.getDamageBonus()
-            damage = max(damage,1)
-            # todo add context damge bonus, not extra dice
-            
-            
-        r = Result(max(0,damage), 0, self)
+            staticDamage += self.getDamageBonus(level)
+            if context.flatfooted:
+                staticDamage += self.getFFDamage(level)
+            staticDamage += self.damageBonus
+                
+        damageDice = self.getFailureDamageDice(level)
+        
+        if damageDice != [] or staticDamage != 0:
+            staticDamage += context.getDamageBonus()    
+            # only apply weakness/resistance for brutal finish
+        
+
+        r = Result(self, damageDice, staticDamage)
         r.setFail()
-        r.setNextStrikeBonus(self.attackBonusOnFail)
+        
+        if(self.getBackswing(level)):
+            r.setNextStrikeBonus(self.attackBonusOnFail+1)
+        else:
+            r.setNextStrikeBonus(self.attackBonusOnFail)
+ 
+        r.splashDam = self.getSplashDamage(level)
+        
         if self.ffonFail(level):
             r.setFutureAttacksFF()
             
         return r
         
     def critFailureResult(self, level, context):
-        r = Result(0,0, self)
+        r = Result(self, [], 0)
         r.setCritFail()
         return r
+
+class MeleeStrike(Strike):
+    def __init__(self, attack, damage, csLevel=21):
+        super().__init__(attack, damage, csLevel=csLevel)
+        self.prim = True
+        self.sec = True
+    def setPrimaryAS(self, score):
+        scoreValues = abilityScoreConverter[score]
+        self.addAttackBonuses(scoreValues)
+        return True
+    def setSecondaryAS(self, score):
+        scoreValues = abilityScoreConverter[score]
+        self.addDamageBonuses(scoreValues)
+        return True
+        
+class RangedStrike(Strike):
+    def __init__(self, attack, damage, csLevel=21):
+        super().__init__(attack, damage, csLevel=csLevel)
+        self.prim = True
+        self.sec = False
+        
+    def setPrimaryAS(self, score):
+        scoreValues = abilityScoreConverter[score]
+        self.addAttackBonuses(scoreValues)
+        return True
+    def setSecondaryAS(self, score):
+        return False
+        
+class PropulsiveStrike(Strike):
+    def __init__(self, attack, damage, csLevel=21):
+        super().__init__(attack, damage, csLevel=csLevel)
+        self.prim = True
+        self.sec = True
+        
+    def setPrimaryAS(self, score):
+        scoreValues = abilityScoreConverter[score]
+        self.addAttackBonuses(scoreValues)
+        return True
+    def setSecondaryAS(self, score):
+        scoreValues = abilityScoreConverter[score]
+        damage = {i: int(scoreValues[i]/2) for i in scoreValues}
+        self.addDamageBonuses(damage)
+        return True
+
+#class FinesseThrownStrike(Strike):
+#    def __init__(self, attack, damage):
+#        super().__init__(attack, damage)
+        
+class BombStrike(Strike):
+    def __init__(self, attack, damage):
+        super().__init__(attack, damage, isWeapon=False)
+        self.prim = True
+        self.sec = False
+        
+    def setPrimaryAS(self, score):
+        scoreValues = abilityScoreConverter[score]
+        self.addAttackBonuses(scoreValues)
+        return True
+    def setSecondaryAS(self, score):
+        return False
+        
+class CantripStrike(Strike):
+    def __init__(self, attack, damage):
+        super().__init__(attack, damage, isWeapon=False)
+        self.prim = True
+        self.sec = False
+        
+    def setPrimaryAS(self, score):
+        scoreValues = abilityScoreConverter[score]
+        self.addAttackBonuses(scoreValues)
+        self.addDamageBonuses(scoreValues) 
+        #acid splash should be different
+        return True
+    def setSecondaryAS(self, score):
+        return False
+        
+        
+class SpecialStrike(Strike):
+    def __init__(self, attack, damage):
+        super().__init__(attack, damage, isWeapon=False)
+        
+class FixedStrike(Strike):
+    # don't use ability score
+    def __init__(self, attack, damage):
+        super().__init__(attack, damage, isWeapon=False) 
+        self.fixedStrike = True
+        self.prim = False
+        self.sec = False
+        
+    def setPrimaryAS(self, score):
+        return False
+    def setSecondaryAS(self, score):
+        return False
     
+class TransformStrike(Strike):
+    # have a min to hit bonus
+    def __init__(self, attack, damage):
+        super().__init__(attack, damage, isWeapon=False)
+        self.minAttack = None
+        self.isSpell = True
+        self.weaponDamageDice = {i: [] for i in range(1,21)}
+        self.prim = True
+        self.sec = False
+        
+    def setPrimaryAS(self, score):
+        scoreValues = abilityScoreConverter[score]
+        self.addAttackBonuses(scoreValues)
+        return True
+    def setSecondaryAS(self, score):
+        return False
+    
+    def getAttack(self, level):
+        oldA = super().getAttack(level)
+        newA = 0
+        if not oldA is None:
+            if self.isSpell:
+                    level = level + self.spellLevelModifier*2
+            if self.minAttack and level in self.minAttack:
+                newA = self.minAttack[level]+self.attackBonus
+                return max(oldA,newA)
+        return None
+    
+class SpellStrike(RangedStrike):
+    def __init__(self, attack, damage):
+        super().__init__(attack, damage)
+        self.isSpell = True
+        self.isWeapon = False
+        
+    def critSuccessResult(self, level, context):
+        r = super().critSuccessResult(level, context)
+        r.doublePersOnDouble = False
+        return r
+    
+class SpellStrikeFilter(RangedStrike):
+    def __init__(self, attack, damage):
+        super().__init__(attack, damage)
+        self.isWeapon = False
+        
+    def critSuccessResult(self, level, context):
+        r = Result(self, [], 0)
+        r.setCrit()
+        r.treatWorse = True
+        return r
+    
+    def successResult(self, level, context):
+        r = Result(self, [], 0)
+        r.setHit()
+        return r
+        
+    def failureResult(self, level, context):
+        r = Result(self, [], 0)
+        r.setFail()
+        r.ignoreNext = True
+        return r
+        
+    def critFailureResult(self, level, context):
+        r = Result(self, [], 0)
+        r.setCritFail()
+        r.ignoreNext = True
+        return r
+        
+        
 class SaveAttack(AtkSelection):
     def __init__(self, attack, damage):
         super().__init__(attack, damage)
@@ -1014,44 +1650,214 @@ class SaveAttack(AtkSelection):
 class Save(AtkSelection):
     def __init__(self, dc, damage):
         super().__init__(dc, damage)
-
+        self.prim = True
+        self.sec = False
+        self.isSpell = True
+        
+    def setPrimaryAS(self, score):
+        scoreValues = abilityScoreConverter[score]
+        self.addAttackBonuses(scoreValues)
+        return True
+    def setSecondaryAS(self, score):
+        return False
         
     def getDC(self, level):
         return self.getAttack(level)
     
     def critSuccessResult(self, level, context):
-        
-        r = Result(0, 0, self)
+
+        r = Result(self, [], 0)
         r.setCritSuccessSave()
         return r
         
     def successResult(self, level, context):
-        damage = self.getDamageBonus(level)
-        damage += context.getDamageBonus()
-        damage = damage / 2
+        staticDamage = self.getDamageBonus(level)
+        staticDamage += context.getExtraDamage()
+        staticDamage += self.damageBonus
         
-        r = Result(max(0,damage), 0, self)
+        # errorrsdfdafsdfsda
+        damageDice = self.getDamageDice(level)
+
+        r = Result(self, damageDice, staticDamage)
         r.setSuccessSave()
+        r.debuffAttack = self.successDebuffAttack
+        r.debuffTarget = self.successDebuffTarget
+        
         return r
         
     def failureResult(self, level, context):
-        damage = self.getDamageBonus(level)
-        damage += context.getDamageBonus()
-            
-        r = Result(max(0,damage), 0, self)
-        r.setFailSave()
+        staticDamage = self.getDamageBonus(level)
+        staticDamage += context.getExtraDamage()
+        staticDamage += self.damageBonus
         
-            
+        damageDice = self.getDamageDice(level)
+
+        r = Result(self, damageDice, staticDamage)
+        r.setFailSave()
+        r.debuffAttack = self.failDebuffAttack
+        r.debuffTarget = self.failDebuffTarget
+        
+        r.persDam = self.getPersistentDamage(level)
+        r.persDamDice = self.getPersistentDamageDice(level)
+        
         return r
         
     def critFailureResult(self, level, context):
-        damage = self.getDamageBonus(level)
-        damage += context.getDamageBonus()
-        damage = damage * 2
+        staticDamage = self.getDamageBonus(level)
+        staticDamage += context.getExtraDamage()
+        staticDamage += self.damageBonus
         
-        r = Result(max(0,damage), 0, self)
+        damageDice = self.getDamageDice(level)
+
+        r = Result(self, damageDice, staticDamage)
         r.setCritFailSave()
+        r.debuffAttack = self.critFailDebuffAttack
+        r.debuffTarget = self.critFailDebuffTarget
+        
+        r.persDam = self.getPersistentDamage(level)
+        r.persDamDice = self.getPersistentDamageDice(level)
+        
         return r
+    
+class CantripSave(Save):
+    def __init__(self, dc, damage):
+        super().__init__(dc, damage)
+        self.prim = True
+        self.sec = False
+        self.isSpell = False
+        
+    def setPrimaryAS(self, score):
+        scoreValues = abilityScoreConverter[score]
+        self.addAttackBonuses(scoreValues)
+        self.addDamageBonuses(scoreValues) 
+        return True
+    def setSecondaryAS(self, score):
+        return False
+    
+class PhantomPainSave(Save):
+    def __init__(self, dc, damage):
+        super().__init__(dc, damage)
+    
+    def critSuccessResult(self, level, context):
+
+        r = Result(self, [], 0)
+        r.setCritSuccessSave()
+        return r
+        
+    def successResult(self, level, context):
+        staticDamage = self.getDamageBonus(level)
+        staticDamage += context.getExtraDamage()
+        staticDamage += self.damageBonus
+        
+        # errorrsdfdafsdfsda
+        damageDice = self.getDamageDice(level)
+
+        r = Result(self, damageDice, staticDamage)
+        r.setSuccessSave()
+        r.halveDamage = False
+        return r
+        
+    def failureResult(self, level, context):
+        staticDamage = self.getDamageBonus(level)
+        staticDamage += context.getExtraDamage()
+        staticDamage += self.damageBonus
+        
+        damageDice = self.getDamageDice(level)
+        
+        r = Result(self, damageDice, staticDamage)
+        r.persDamDice = self.getPersistentDamageDice(level)
+        r.setFailSave()
+        r.debuffAttack = self.failDebuffAttack
+        r.debuffTarget = self.failDebuffTarget
+        
+        return r
+        
+    def critFailureResult(self, level, context):
+        staticDamage = self.getDamageBonus(level)
+        staticDamage += context.getExtraDamage()
+        staticDamage += self.damageBonus
+        
+        damageDice = self.getDamageDice(level)
+
+        r = Result(self, damageDice, staticDamage)
+        r.persDamDice = self.getPersistentDamageDice(level)
+        r.setCritFailSave()
+        r.doubleDamage = False
+        r.debuffAttack = self.critFailDebuffAttack
+        r.debuffTarget = self.critFailDebuffTarget
+       
+        return r
+    
+class PKSave(Save):
+    def __init__(self, dc, damage):
+        super().__init__(dc, damage)
+    
+    def critSuccessResult(self, level, context):
+
+        r = Result(self, [], 0)
+        r.setCritSuccessSave()
+        return r
+        
+    def successResult(self, level, context):
+        staticDamage = self.getDamageBonus(level)
+        staticDamage += context.getExtraDamage()
+        staticDamage += self.damageBonus
+        
+        # errorrsdfdafsdfsda
+        damageDice = self.getFailureDamageDice(level)
+
+        r = Result(self, damageDice, staticDamage)
+        r.setSuccessSave()
+        r.halveDamage = False
+        r.debuffAttack = self.successDebuffAttack
+        r.debuffTarget = self.successDebuffTarget
+        return r
+        
+    def failureResult(self, level, context):
+        staticDamage = self.getDamageBonus(level)
+        staticDamage += context.getExtraDamage()
+        staticDamage += self.damageBonus
+        
+        damageDice = self.getDamageDice(level)
+        
+        r = Result(self, damageDice, staticDamage)
+        r.setFailSave()
+        r.debuffAttack = self.failDebuffAttack
+        r.debuffTarget = self.failDebuffTarget
+        return r
+        
+    def critFailureResult(self, level, context):
+        staticDamage = self.getDamageBonus(level)
+        staticDamage += context.getExtraDamage()
+        staticDamage += self.damageBonus
+        
+        damageDice = self.getCriticalBonusDamageDice(level)
+
+        r = Result(self, damageDice, staticDamage)
+        r.persDamDice = self.getPersistentDamageDice(level)
+        r.setCritFailSave()
+        r.doubleDamage = False
+        r.debuffAttack = self.critFailDebuffAttack
+        r.debuffTarget = self.critFailDebuffTarget
+        return r
+    
+class AttackSave(AtkSelection):
+    def __init__(self, dc, damage):
+        super().__init__(dc, damage)
+        self.prim = True
+        self.sec = False
+        self.isSpell = True
+        
+    def setPrimaryAS(self, score):
+        scoreValues = abilityScoreConverter[score]
+        self.addAttackBonuses(scoreValues)
+        return True
+    def setSecondaryAS(self, score):
+        return False
+    
+    def getDC(self, level):
+        return self.getAttack(level)+10
+    
     
 class Effect(AtkSelection):
     def __init__(self, damage):
@@ -1065,10 +1871,30 @@ class Effect(AtkSelection):
         self.addthirdhitdamage = None
         self.addeveryhitdamage = None
         
+        self.addfirsthitdamageDice = None
+        self.addsecondhitdamageDice = None 
+        self.addthirdhitdamageDice = None
+        self.addeveryhitdamageDice = None
+        
+        self.addDamage = None
+        
+        self.prim = False
+        self.sec = False
+        
+    def setPrimaryAS(self, score):
+        return False
+    def setSecondaryAS(self, score):
+        return False
+        
     def effectResult(self, level, context):
-        damage = self.getDamageBonus(level)
-        damage += context.getExtraDamage()
-        r = Result(damage,0, self)
+        staticDamage = self.getDamageBonus(level)
+        staticDamage += context.getDamageBonus()
+        staticDamage += self.damageBonus
+        
+        damageDice = self.getDamageDice(level)
+
+        r = Result(self,damageDice,staticDamage)
+        
         if self.flatfoot:
             r.futureAttacksFF = True
         elif self.flatfootNextStrike:
@@ -1084,7 +1910,20 @@ class Effect(AtkSelection):
             r.addthirdhitdamage = self.addthirdhitdamage[level]
         if self.addeveryhitdamage:
             r.addeveryhitdamage = self.addeveryhitdamage[level]
+            
+        if self.addfirsthitdamageDice:
+            r.addfirsthitdamageDice = self.addfirsthitdamageDice[level]
+        if self.addsecondhitdamageDice:
+            r.addsecondhitdamageDice = self.addsecondhitdamageDice[level]
+        if self.addthirdhitdamageDice:
+            r.addthirdhitdamageDice = self.addthirdhitdamageDice[level]
+        if self.addeveryhitdamageDice:
+            r.addeveryhitdamageDice = self.addeveryhitdamageDice[level]
                     
+        if self.addDamage:
+            print("adding ",self.addDamage[level])
+            r.adddamage = self.addDamage[level]
+            
         return r
     
         
@@ -1096,17 +1935,17 @@ class CombinedAttack:
         # what if attackList has a combined attack?
         #also update create Traces
         
-    def choose(self, d, pd, newd, newpd):
+    def choose(self, d, pd, newd, newpd, h, c, nh, nc):
         totaldamage = d + pd*CombinedAttack.PDWeight
         newtotal = newd + newpd**CombinedAttack.PDWeight
         if self.function(totaldamage,newtotal) == totaldamage:
-            return d, pd
+            return d, pd, h, c
         elif self.function(totaldamage,newtotal) == newtotal:
-            return newd, newpd
+            return newd, newpd, nh, nc
         elif self.function(totaldamage,newtotal) == totaldamage + newtotal:
-            return d+newd, pd+newpd
+            return d+newd, pd+newpd, h+nh, c+nc
         elif self.function(totaldamage,newtotal) == totaldamage - newtotal:
-            return d-newd, pd-newpd
+            return d-newd, pd-newpd, h-nh, c-nc
         else:
             print(d, pd, newd, newpd)
         
@@ -1138,124 +1977,184 @@ class CombinedAttack:
         return validAttackList
         
     
-alchemistStrike = Strike(warpriestAttackBonus, alchemistDamage)
-alchemistRangedStrike = Strike(warpriestAttackBonus, alchemistRangedDamage)
+alchemistStrike = MeleeStrike(warpriestAttackBonus, alchemistDamage)
+alchemistRangedStrike = RangedStrike(warpriestAttackBonus, alchemistRangedDamage)
 
-alchemistacids = Strike(bombAttackBonus, alchemistRangedDamage)
+alchemistacids = BombStrike(bombAttackBonus, alchemistRangedDamage)
 alchemistacids.isWeapon = False
 alchemistacids.weaponDamage = acidFlaskDamage
-alchemistacids.persDamage = acidFlaskPersDamage
-alchemistacids.critPersDamage = {i: acidFlaskPersDamage[i]*2 for i in range(1,21)}
+alchemistacids.persDamageDice = acidFlaskPersDamage
+#alchemistacids.critPersDamage = {i: acidFlaskPersDamage[i]*2 for i in range(1,21)}
 alchemistacids.splashDamage = bombSplashDamage
 
-alchemistbacids = Strike(bombAttackBonus, alchemistRangedDamage)
+alchemistbacids = BombStrike(bombAttackBonus, alchemistRangedDamage)
 alchemistbacids.isWeapon = False
 alchemistbacids.weaponDamage = acidFlaskDamage
-alchemistbacids.persDamage = acidFlaskPersDamage
-alchemistbacids.critPersDamage = {i: acidFlaskPersDamage[i]*2 for i in range(1,21)}
+alchemistbacids.persDamageDice = acidFlaskPersDamage
+#alchemistbacids.critPersDamage = {i: acidFlaskPersDamage[i]*2 for i in range(1,21)}
 alchemistbacids.splashDamage = bomberSplashDamage
 
-alchemistpacids = Strike(pbombAttackBonus, alchemistRangedDamage)
+alchemistbsacids = BombStrike(bombAttackBonus, alchemistRangedDamage)
+alchemistbsacids.isWeapon = False
+alchemistbsacids.weaponDamage = acidFlaskDamage
+alchemistbsacids.persDamageDice = acidFlaskPersDamage
+#alchemistbsacids.critPersDamage = {i: acidFlaskPersDamage[i]*2 for i in range(1,21)}
+alchemistbsacids.splashDamage = bomberSplashDamage
+alchemistbsacids.stickybombLevel = 8
+
+alchemistpacids = BombStrike(pbombAttackBonus, alchemistRangedDamage)
 alchemistpacids.isWeapon = False
 alchemistpacids.weaponDamage = pacidFlaskDamage
-alchemistpacids.persDamage = pacidFlaskPersDamage
-alchemistpacids.critPersDamage = {i: pacidFlaskPersDamage[i]*2 for i in range(1,21)}
+alchemistpacids.persDamageDice = pacidFlaskPersDamage
+#alchemistpacids.critPersDamage = {i: pacidFlaskPersDamage[i]*2 for i in range(1,21)}
 alchemistpacids.splashDamage = pbombSplashDamage
 
-alchemistbpacids = Strike(pbombAttackBonus, alchemistRangedDamage)
+alchemistbpacids = BombStrike(pbombAttackBonus, alchemistRangedDamage)
 alchemistbpacids.isWeapon = False
 alchemistbpacids.weaponDamage = pacidFlaskDamage
-alchemistbpacids.persDamage = pacidFlaskPersDamage
-alchemistbpacids.critPersDamage = {i: pacidFlaskPersDamage[i]*2 for i in range(1,21)}
+alchemistbpacids.persDamageDice = pacidFlaskPersDamage
+#alchemistbpacids.critPersDamage = {i: pacidFlaskPersDamage[i]*2 for i in range(1,21)}
 alchemistbpacids.splashDamage = pbomberSplashDamage
 
-alchemistfires = Strike(bombAttackBonus, alchemistRangedDamage)
+alchemistbpsacids = BombStrike(pbombAttackBonus, alchemistRangedDamage)
+alchemistbpsacids.isWeapon = False
+alchemistbpsacids.weaponDamage = pacidFlaskDamage
+alchemistbpsacids.persDamageDice = pacidFlaskPersDamage
+#alchemistbpsacids.critPersDamage = {i: pacidFlaskPersDamage[i]*2 for i in range(1,21)}
+alchemistbpsacids.splashDamage = pbomberSplashDamage
+alchemistbpsacids.stickybombLevel = 8
+
+alchemistfires = BombStrike(bombAttackBonus, alchemistRangedDamage)
 alchemistfires.isWeapon = False
-alchemistfires.weaponDamage = alchemistsFireDamage
+alchemistfires.weaponDamageDice = alchemistsFireDamage
 alchemistfires.persDamage = alchemistsFirePersDamage
-alchemistfires.critPersDamage = {i: alchemistsFirePersDamage[i]*2 for i in range(1,21)}
+#alchemistfires.critPersDamage = {i: alchemistsFirePersDamage[i]*2 for i in range(1,21)}
 alchemistfires.splashDamage = bombSplashDamage
 
-alchemistbfires = Strike(bombAttackBonus, alchemistRangedDamage)
+alchemistbfires = BombStrike(bombAttackBonus, alchemistRangedDamage)
 alchemistbfires.isWeapon = False
-alchemistbfires.weaponDamage = alchemistsFireDamage
+alchemistbfires.weaponDamageDice = alchemistsFireDamage
 alchemistbfires.persDamage = alchemistsFirePersDamage
-alchemistbfires.critPersDamage = {i: alchemistsFirePersDamage[i]*2 for i in range(1,21)}
+#alchemistbfires.critPersDamage = {i: alchemistsFirePersDamage[i]*2 for i in range(1,21)}
 alchemistbfires.splashDamage = bomberSplashDamage
 
-alchemistpfires = Strike(pbombAttackBonus, alchemistRangedDamage)
+alchemistbsfires = BombStrike(bombAttackBonus, alchemistRangedDamage)
+alchemistbsfires.isWeapon = False
+alchemistbsfires.weaponDamageDice = alchemistsFireDamage
+alchemistbsfires.persDamage = alchemistsFirePersDamage
+#alchemistbsfires.critPersDamage = {i: alchemistsFirePersDamage[i]*2 for i in range(1,21)}
+alchemistbsfires.splashDamage = bomberSplashDamage
+alchemistbsfires.stickybombLevel = 8
+
+alchemistpfires = BombStrike(pbombAttackBonus, alchemistRangedDamage)
 alchemistpfires.isWeapon = False
-alchemistpfires.weaponDamage = palchemistsFireDamage
+alchemistpfires.weaponDamageDice = palchemistsFireDamage
 alchemistpfires.persDamage = palchemistsFirePersDamage
-alchemistpfires.critPersDamage = {i: palchemistsFirePersDamage[i]*2 for i in range(1,21)}
+#alchemistpfires.critPersDamage = {i: palchemistsFirePersDamage[i]*2 for i in range(1,21)}
 alchemistpfires.splashDamage = pbombSplashDamage
 
-alchemistbpfires = Strike(pbombAttackBonus, alchemistRangedDamage)
+alchemistbpfires = BombStrike(pbombAttackBonus, alchemistRangedDamage)
 alchemistbpfires.isWeapon = False
-alchemistbpfires.weaponDamage = palchemistsFireDamage
+alchemistbpfires.weaponDamageDice = palchemistsFireDamage
 alchemistbpfires.persDamage = palchemistsFirePersDamage
-alchemistbpfires.critPersDamage = {i: palchemistsFirePersDamage[i]*2 for i in range(1,21)}
+#alchemistbpfires.critPersDamage = {i: palchemistsFirePersDamage[i]*2 for i in range(1,21)}
 alchemistbpfires.splashDamage = pbomberSplashDamage
 
-alchemistfrosts = Strike(bombAttackBonus, alchemistRangedDamage)
+alchemistbpsfires = BombStrike(pbombAttackBonus, alchemistRangedDamage)
+alchemistbpsfires.isWeapon = False
+alchemistbpsfires.weaponDamageDice = palchemistsFireDamage
+alchemistbpsfires.persDamage = palchemistsFirePersDamage
+#alchemistbpfires.critPersDamage = {i: palchemistsFirePersDamage[i]*2 for i in range(1,21)}
+alchemistbpsfires.splashDamage = pbomberSplashDamage
+alchemistbpsfires.stickybombLevel = 8
+
+alchemistfrosts = BombStrike(bombAttackBonus, alchemistRangedDamage)
 alchemistfrosts.isWeapon = False
-alchemistfrosts.weaponDamage = blfvDamage
+alchemistfrosts.weaponDamageDice = blfvDamage
 alchemistfrosts.splashDamage = bombSplashDamage
 
-alchemistbfrosts = Strike(bombAttackBonus, alchemistRangedDamage)
+alchemistbfrosts = BombStrike(bombAttackBonus, alchemistRangedDamage)
 alchemistbfrosts.isWeapon = False
-alchemistbfrosts.weaponDamage = blfvDamage
+alchemistbfrosts.weaponDamageDice = blfvDamage
 alchemistbfrosts.splashDamage = bomberSplashDamage
 
-alchemistpfrosts = Strike(pbombAttackBonus, alchemistRangedDamage)
+alchemistbsfrosts = BombStrike(bombAttackBonus, alchemistRangedDamage)
+alchemistbsfrosts.isWeapon = False
+alchemistbsfrosts.weaponDamageDice = blfvDamage
+alchemistbsfrosts.splashDamage = bomberSplashDamage
+alchemistbsfrosts.stickybombLevel = 8
+
+alchemistpfrosts = BombStrike(pbombAttackBonus, alchemistRangedDamage)
 alchemistpfrosts.isWeapon = False
-alchemistpfrosts.weaponDamage = pblfvDamage
+alchemistpfrosts.weaponDamageDice = pblfvDamage
 alchemistpfrosts.splashDamage = pbombSplashDamage
 
-alchemistbpfrosts = Strike(pbombAttackBonus, alchemistRangedDamage)
+alchemistbpfrosts = BombStrike(pbombAttackBonus, alchemistRangedDamage)
 alchemistbpfrosts.isWeapon = False
-alchemistbpfrosts.weaponDamage = pblfvDamage
+alchemistbpfrosts.weaponDamageDiceDice = pblfvDamage
 alchemistbpfrosts.splashDamage = pbomberSplashDamage
 
-alchemistlightnings = Strike(bombAttackBonus, alchemistRangedDamage)
+alchemistbpsfrosts = BombStrike(pbombAttackBonus, alchemistRangedDamage)
+alchemistbpsfrosts.isWeapon = False
+alchemistbpsfrosts.weaponDamageDiceDice = pblfvDamage
+alchemistbpsfrosts.splashDamage = pbomberSplashDamage
+alchemistbpsfrosts.stickybombLevel = 8
+
+alchemistlightnings = BombStrike(bombAttackBonus, alchemistRangedDamage)
 alchemistlightnings.isWeapon = False
 alchemistlightnings.setFFonCrit(1)
 alchemistlightnings.setFFonSuccess(1)
-alchemistlightnings.weaponDamage = blfvDamage
+alchemistlightnings.weaponDamageDice = blfvDamage
 alchemistlightnings.splashDamage = bombSplashDamage
 
-alchemistblightnings = Strike(bombAttackBonus, alchemistRangedDamage)
+alchemistblightnings = BombStrike(bombAttackBonus, alchemistRangedDamage)
 alchemistblightnings.isWeapon = False
 alchemistblightnings.setFFonCrit(1)
 alchemistblightnings.setFFonSuccess(1)
-alchemistblightnings.weaponDamage = blfvDamage
+alchemistblightnings.weaponDamageDice = blfvDamage
 alchemistblightnings.splashDamage = bomberSplashDamage
 
-alchemistplightnings = Strike(pbombAttackBonus, alchemistRangedDamage)
+alchemistbslightnings = BombStrike(bombAttackBonus, alchemistRangedDamage)
+alchemistbslightnings.isWeapon = False
+alchemistbslightnings.setFFonCrit(1)
+alchemistbslightnings.setFFonSuccess(1)
+alchemistbslightnings.weaponDamageDice = blfvDamage
+alchemistbslightnings.splashDamage = bomberSplashDamage
+alchemistbslightnings.stickybombLevel = 8
+
+alchemistplightnings = BombStrike(pbombAttackBonus, alchemistRangedDamage)
 alchemistplightnings.isWeapon = False
 alchemistplightnings.setFFonCrit(1)
 alchemistplightnings.setFFonSuccess(1)
-alchemistplightnings.weaponDamage = pblfvDamage
+alchemistplightnings.weaponDamageDice = pblfvDamage
 alchemistplightnings.splashDamage = pbombSplashDamage
 
-alchemistbplightnings = Strike(pbombAttackBonus, alchemistRangedDamage)
+alchemistbplightnings = BombStrike(pbombAttackBonus, alchemistRangedDamage)
 alchemistbplightnings.isWeapon = False
 alchemistbplightnings.setFFonCrit(1)
 alchemistbplightnings.setFFonSuccess(1)
-alchemistbplightnings.weaponDamage = pblfvDamage
+alchemistbplightnings.weaponDamageDice = pblfvDamage
 alchemistbplightnings.splashDamage = pbomberSplashDamage
 
-alchemistbestialClawStrike = Strike(mutagenstrikeAttackBonus, alchemistDamage)
-alchemistbestialClawStrike.weaponDamage = bestialClawDamage
+alchemistbpslightnings = BombStrike(pbombAttackBonus, alchemistRangedDamage)
+alchemistbpslightnings.isWeapon = False
+alchemistbpslightnings.setFFonCrit(1)
+alchemistbpslightnings.setFFonSuccess(1)
+alchemistbpslightnings.weaponDamageDice = pblfvDamage
+alchemistbpslightnings.splashDamage = pbomberSplashDamage
+alchemistbpslightnings.stickybombLevel = 8
 
-alchemistbestialJawStrike = Strike(mutagenstrikeAttackBonus, alchemistDamage)
-alchemistbestialJawStrike.weaponDamage = bestialJawDamage
+alchemistbestialClawStrike = MeleeStrike(mutagenstrikeAttackBonus, alchemistBestialDamage)
+alchemistbestialClawStrike.weaponDamageDice = bestialClawDamageDice
 
-alchemistferalClawStrike = Strike(mutagenstrikeAttackBonus, alchemistDamage)
-alchemistferalClawStrike.weaponDamage = {i: bestialClawDamage[i] + wDice[i] for i in range(1,21)}
+alchemistbestialJawStrike = MeleeStrike(mutagenstrikeAttackBonus, alchemistBestialDamage)
+alchemistbestialJawStrike.weaponDamageDice = bestialJawDamageDice
 
-alchemistferalJawStrike = Strike(mutagenstrikeAttackBonus, alchemistDamage)
-alchemistferalJawStrike.weaponDamage = {i: bestialJawDamage[i] + wDice[i] for i in range(1,21)}
+alchemistferalClawStrike = MeleeStrike(mutagenstrikeAttackBonus, alchemistBestialDamage)
+alchemistferalClawStrike.weaponDamageDice = feralClawDamageDice
+
+alchemistferalJawStrike = MeleeStrike(mutagenstrikeAttackBonus, alchemistBestialDamage)
+alchemistferalJawStrike.weaponDamageDice = feralJawDamageDice
 
 alchemistAttackSwitcher = {'Alchemist Melee Strike': [alchemistStrike],
                     'Alchemist Ranged Strike': [alchemistRangedStrike],
@@ -1265,37 +2164,45 @@ alchemistAttackSwitcher = {'Alchemist Melee Strike': [alchemistStrike],
                     'Alchemist Feral Jaw': [alchemistferalJawStrike],
                     'Alchemist Acid Flask': [alchemistacids],
                     'Alchemist Bomber Acid': [alchemistbacids],
+                    'Alchemist Sticky Acid': [alchemistbsacids],
                     'Alchemist Perpetual Acid': [alchemistpacids],
                     'Alchemist Bomber Perpetual Acid': [alchemistbpacids],
+                    'Alchemist Sticky Perpetual Acid': [alchemistbpsacids],
                     'Alchemist Fire': [alchemistfires],
                     'Alchemist Bomber Fire': [alchemistbfires],
+                    'Alchemist Sticky Fire': [alchemistbsfires],
                     'Alchemist Perpetual Fire': [alchemistpfires],
                     'Alchemist Bomber Perpetual Fire': [alchemistbpfires],
+                    'Alchemist Sticky Perpetual Fire': [alchemistbpsfires],
                     'Alchemist Bottled Lightning': [alchemistlightnings],
                     'Alchemist Bomber Lightning': [alchemistblightnings],
+                    'Alchemist Sticky Lightning': [alchemistbslightnings],
                     'Alchemist Perpetual Lightning': [alchemistplightnings],
                     'Alchemist Bomber Perpetual Lightning': [alchemistbplightnings],
+                    'Alchemist Sticky Perpetual Lightning': [alchemistbpslightnings],
                     'Alchemist Frost Vial': [alchemistfrosts],
                     'Alchemist Bomber Frost': [alchemistbfrosts],
+                    'Alchemist Sticky Frost': [alchemistbsfrosts],
                     'Alchemist Perpetual Frost': [alchemistpfrosts],
-                    'Alchemist Bomber Perpetual Frost': [alchemistbpfrosts]}
+                    'Alchemist Bomber Perpetual Frost': [alchemistbpfrosts],
+                    'Alchemist Sticky Perpetual Frost': [alchemistbpsfrosts]}
 
 # Barbarian
 # rage, instinct, devastator
 
 
-barbariananimaljaws = Strike(martialAttackBonus, barbariananimaldamage, csLevel=5)
-barbariananimaljaws.weaponDamage = animalJawDamage
-barbariananimalclaws = Strike(martialAttackBonus, barbarianagileanimaldamage, csLevel=5)
-barbariananimalclaws.weaponDamage = animalClawDamage
+barbariananimaljaws = MeleeStrike(martialAttackBonus, barbariananimaldamage, csLevel=5)
+barbariananimaljaws.weaponDamageDice = animalJawDamageDice
+barbariananimalclaws = MeleeStrike(martialAttackBonus, barbarianagileanimaldamage, csLevel=5)
+barbariananimalclaws.weaponDamageDice = animalClawDamageDice
 
-barbariandragonstrike = Strike(martialAttackBonus, barbariandragondamage, csLevel=5)
+barbariandragonstrike = MeleeStrike(martialAttackBonus, barbariandragondamage, csLevel=5)
 
-barbarianfurystrike = Strike(martialAttackBonus, barbarianfurydamage, csLevel=5)
+barbarianfurystrike = MeleeStrike(martialAttackBonus, barbarianfurydamage, csLevel=5)
 
-barbariangiantstrike = Strike(martialAttackBonus, barbariangiantdamage, csLevel=5)
+barbariangiantstrike = MeleeStrike(martialAttackBonus, barbariangiantdamage, csLevel=5)
 
-barbarianspiritstrike = Strike(martialAttackBonus, barbarianspiritdamage, csLevel=5)
+barbarianspiritstrike = MeleeStrike(martialAttackBonus, barbarianspiritdamage, csLevel=5)
 
 barbarianAttackSwitcher = {'Barbarian Animal Claw': [barbariananimalclaws],
                     'Barbarian Animal Jaw': [barbariananimaljaws],
@@ -1305,69 +2212,144 @@ barbarianAttackSwitcher = {'Barbarian Animal Claw': [barbariananimalclaws],
                     'Barbarian Spirit Strike': [barbarianspiritstrike]}
 
 
-casterstrike = Strike(casterAttackBonus, strCasterDamage, csLevel=11)
-casterrangedstrike = Strike(casterAttackBonus, rangedCasterDamage, csLevel=11)
-casterpropulsive10 = Strike(casterAttackBonus, casterP10Damage, csLevel=11)
-casterpropulsive12 = Strike(casterAttackBonus, casterP12Damage, csLevel=11)
-casterpropulsive14 = Strike(casterAttackBonus, casterP14Damage, csLevel=11)
-casterpropulsive16 = Strike(casterAttackBonus, casterP16Damage, csLevel=11)
+casterstrike = MeleeStrike(casterAttackBonus, strCasterDamage, csLevel=11)
+casterrangedstrike = RangedStrike(casterAttackBonus, rangedCasterDamage, csLevel=11)
+casterpropulsive = PropulsiveStrike(casterAttackBonus, rangedCasterDamage, csLevel=11)
 
-martialstrike = Strike(martialAttackBonus, martialDamage, csLevel=5)
-martialrangedstrike = Strike(martialAttackBonus, martialRangedDamage, csLevel=5)
-martialp10 = Strike(martialAttackBonus, martialP10Damage, csLevel=5)
-martialp12 = Strike(martialAttackBonus, martialP12Damage, csLevel=5)
-martialp14 = Strike(martialAttackBonus, martialP14Damage, csLevel=5)
-martialp16 = Strike(martialAttackBonus, martialP16Damage, csLevel=5)
+martialstrike = MeleeStrike(martialAttackBonus, martialDamage, csLevel=5)
+martialrangedstrike = RangedStrike(martialAttackBonus, martialRangedDamage, csLevel=5)
+martialpropulsive = PropulsiveStrike(martialAttackBonus, martialRangedDamage, csLevel=5)
 
-championsmiteevil = Strike(martialAttackBonus, championsmiteevildamage, csLevel=3)
+championsmiteevil = MeleeStrike(martialAttackBonus, championsmiteevildamage, csLevel=3)
 
-warprieststrike = Strike(warpriestAttackBonus, warpriestDamage, csLevel=7)
-warpriestsmite = Strike(warpriestAttackBonus, warpriestSmiteDamage, csLevel=7)
+warprieststrike = MeleeStrike(warpriestAttackBonus, warpriestDamage, csLevel=7)
+#warpriestsmite = MeleeStrike(warpriestAttackBonus, warpriestSmiteDamage, csLevel=7)
+warpriestsmite = MeleeStrike(warpriestAttackBonus, warpriestDamage, csLevel=7)
+warpriestsmite.runeDamageDice = warpriestSmiteDamageDice
 
-roguestrike = Strike(martialAttackBonus, martialDamage, csLevel=5)
-roguestrike.flatfootedDamage = sneakattackdamage
+roguestrike = MeleeStrike(martialAttackBonus, martialDamage, csLevel=5)
+roguestrike.flatfootedDamageDice = sneakattackdamage
 
 rangerprecedge = Effect(noneDamage)
-rangerprecedge.addfirsthitdamage = rangerprecedgedamage1
-rangerprecedge.addsecondhitdamage = rangerprecedgedamage2
-rangerprecedge.addthirdhitdamage = rangerprecedgedamage3
+rangerprecedge.addfirsthitdamageDice = rangerprecedgedamage1
+rangerprecedge.addsecondhitdamageDice = rangerprecedgedamage2
+rangerprecedge.addthirdhitdamageDice = rangerprecedgedamage3
 
 rangerbearsupport = Effect(noneDamage)
-rangerbearsupport.addeveryhitdamage = rangerbearsupportdamage
+rangerbearsupport.addeveryhitdamageDice = rangerbearsupportdamage
 
 bespellweapon = Effect(noneDamage)
-bespellweapon.addeveryhitdamage = {i: 3.5 for i in range(1,21)}
+bespellweapon.addeveryhitdamageDice = {i: [d6] for i in range(1,21)}
+
+druidanimalform = TransformStrike(wildshapeAttackBonus, animalFormDamage)
+druidanimalform.minAttack = animalFormAttack
+druidanimalformR = TransformStrike(wildshapeAttackBonus, animalFormDamage)
+druidanimalformR.minAttack = animalFormAttack
+druidanimalformR.isWeapon = True
+
+druidinsectform = TransformStrike(wildshapeAttackBonus, insectFormDamage)
+druidinsectform.minAttack = insectFormAttack
+druidinsectformR = TransformStrike(wildshapeAttackBonus, insectFormDamage)
+druidinsectformR.minAttack = insectFormAttack
+druidinsectformR.isWeapon = True
+
+druiddinoform = TransformStrike(wildshapeAttackBonus, dinoFormDamage)
+druiddinoform.minAttack = dinoFormAttack
+druiddinoformR = TransformStrike(wildshapeAttackBonus, dinoFormDamage)
+druiddinoformR.minAttack = dinoFormAttack
+druiddinoformR.isWeapon = True
+
+druidaerialform = TransformStrike(wildshapeAttackBonus, aerialFormDamage)
+druidaerialform.minAttack = aerialFormAttack
+druidaerialformR = TransformStrike(wildshapeAttackBonus, aerialFormDamage)
+druidaerialformR.minAttack = aerialFormAttack
+druidaerialformR.isWeapon = True
+
+druidelemform = TransformStrike(wildshapeAttackBonus, elemFormDamage)
+druidelemform.minAttack = elemFormAttack
+druidelemformR = TransformStrike(wildshapeAttackBonus, elemFormDamage)
+druidelemformR.minAttack = elemFormAttack
+druidelemformR.isWeapon = True
+
+druidplantform = TransformStrike(wildshapeAttackBonus, plantFormDamage)
+druidplantform.minAttack = plantFormAttack
+druidplantformR = TransformStrike(wildshapeAttackBonus, plantFormDamage)
+druidplantformR.minAttack = plantFormAttack
+druidplantformR.isWeapon = True
+
+druiddragonform = TransformStrike(wildshapeAttackBonus, dragonFormDamage)
+druiddragonform.minAttack = dragonFormAttack
+druiddragonformR = TransformStrike(wildshapeAttackBonus, dragonFormDamage)
+druiddragonformR.minAttack = dragonFormAttack
+druiddragonformR.isWeapon = True
+
+druidmonform = TransformStrike(wildshapeAttackBonus, monFormDamage)
+druidmonform.minAttack = monFormAttack
+druidmonformR = TransformStrike(wildshapeAttackBonus, monFormDamage)
+druidmonformR.minAttack = monFormAttack
+druidmonformR.isWeapon = True
+
+druidnatform = TransformStrike(wildshapeAttackBonus, natFormDamage)
+druidnatform.minAttack = natFormAttack
+druidnatformR = TransformStrike(wildshapeAttackBonus, natFormDamage)
+druidnatformR.minAttack = natFormAttack
+druidnatformR.isWeapon = True
 
 otherAttackSwitcher = {'Caster Strike': [casterstrike],
                        'Caster Ranged Strike': [casterrangedstrike],
-                       'Caster Propulsive 10': [casterpropulsive10],
-                       'Caster Propulsive 12': [casterpropulsive12],
-                       'Caster Propulsive 14': [casterpropulsive14],
-                       'Caster Propulsive 16': [casterpropulsive16],
+                       'Caster Propulsive': [casterpropulsive],
                        'Martial Strike': [martialstrike],
                        'Martial Ranged Strike': [martialrangedstrike],
-                       'Martial Propulsive 10': [martialp10],
-                       'Martial Propulsive 12': [martialp12],
-                       'Martial Propulsive 14': [martialp14],
-                       'Martial Propulsive 16': [martialp16],
+                       'Martial Propulsive': [martialpropulsive],
                        'Champion Smite Evil': [championsmiteevil],
                        'Warpriest Strike': [warprieststrike],
                        'Warpriest Smite': [warpriestsmite],
                        'Rogue Strike': [roguestrike],
                        'Ranger Precision Edge': [rangerprecedge],
                        'Ranger Bear Support': [rangerbearsupport],
-                       'Bespell Weapon': [bespellweapon]
+                       'Bespell Weapon': [bespellweapon],
+                       'Wildshape Animal': [druidanimalform],
+                'Wildshape Insect': [druidinsectform],
+                'Wildshape Dino': [druiddinoform],
+                'Wildshape Aerial': [druidaerialform],
+                'Wildshape Elemental': [druidelemform],
+                'Wildshape Plant': [druidplantform],
+                'Wildshape Dragon': [druiddragonform],
+                'Wildshape Monster': [druidmonform],
+                'Wildshape Incarnate': [druidnatform],
+                'Wildshape AnimalR': [druidanimalformR],
+                'Wildshape InsectR': [druidinsectformR],
+                'Wildshape DinoR': [druiddinoformR],
+                'Wildshape AerialR': [druidaerialformR],
+                'Wildshape ElementalR': [druidelemformR],
+                'Wildshape PlantR': [druidplantformR],
+                'Wildshape DragonR': [druiddragonformR],
+                'Wildshape MonsterR': [druidmonformR],
+                'Wildshape IncarnateR': [druidnatformR]
                        }
 
-cantripAS = Strike(cantripAttackBonus, cantripASDamage, isWeapon=False)
+cantripAS = CantripStrike(cantripAttackBonus, noneDamage)
+cantripAS.weaponDamageDice = cantripASDamageDice
 cantripAS.critPersDamage = cantripASPDamage
-cantripEA = Save(spellDC, cantripRFDamage)
-cantripD = Save(spellDC, cantripDDamage)
-cantripDL = Strike(cantripAttackBonus, cantripRFDamage, isWeapon=False)
-cantripPF = Strike(cantripAttackBonus, cantripRFDamage, isWeapon=False)
-cantripPF.critPersDamage = cantripPFPDamage
-cantripTP = Strike(cantripAttackBonus, cantripTPDamage, isWeapon=False)
-cantripRF = Strike(cantripAttackBonus, cantripRFDamage, isWeapon=False)
+
+cantripEA = CantripSave(spellDC, noneDamage)
+cantripEA.weaponDamageDice = cantripRFDamageDice
+
+cantripD = CantripSave(spellDC, noneDamage)
+cantripD.weaponDamageDice = cantripDDamageDice
+
+cantripDL = CantripStrike(cantripAttackBonus, noneDamage)
+cantripDL.weaponDamageDice = cantripRFDamageDice
+
+cantripPF = CantripStrike(cantripAttackBonus, noneDamage)
+cantripPF.weaponDamageDice = cantripRFDamageDice
+cantripPF.critPersDamageDice = cantripPFPDamageDice
+
+cantripTP = CantripStrike(cantripAttackBonus, noneDamage)
+cantripTP.weaponDamageDice = cantripTPDamageDice
+
+cantripRF = CantripStrike(cantripAttackBonus, noneDamage)
+cantripRF.weaponDamageDice = cantripRFDamageDice
 
 cantripAttackSwitcher = {'Acid Splash': [cantripAS],
                   'Electric Arc': [cantripEA],
@@ -1380,60 +2362,56 @@ cantripAttackSwitcher = {'Acid Splash': [cantripAS],
 # fighter, double slice, exacting strike, power attack, snagging strike
 # combat grab
         
-fighterstrike = Strike(fighterAttackBonus,fighterDamage, csLevel=5)
+fighterstrike = MeleeStrike(fighterAttackBonus,fighterDamage, csLevel=5)
 
-fighterexactingstrike = Strike(fighterAttackBonus, fighterDamage, csLevel=5)
+fighterexactingstrike = MeleeStrike(fighterAttackBonus, fighterDamage, csLevel=5)
 fighterexactingstrike.attackBonusOnFail = 5
 
-fightersnaggingstrike = Strike(fighterAttackBonus,fighterDamage, csLevel=5)
+fightersnaggingstrike = MeleeStrike(fighterAttackBonus,fighterDamage, csLevel=5)
 fightersnaggingstrike.setFFonCrit(1)
 fightersnaggingstrike.setFFonSuccess(1)
 
-fightercertainstrike = Strike(fighterAttackBonus,fighterDamage, csLevel=5)
+fightercertainstrike = MeleeStrike(fighterAttackBonus,fighterDamage, csLevel=5)
 fightercertainstrike.certainStrike = True
 
-fighterpowerattack = Strike(fighterAttackBonus,fighterDamage, csLevel=5)
-fighterpowerattack.wDice[i] += 1
+fighterpowerattack = MeleeStrike(fighterAttackBonus,fighterDamage, csLevel=5)
 for i in range(1,21):
+    fighterpowerattack.extraWeaponDice[i] += 1
     if i >= 10:
-        fighterpowerattack.wDice[i] += 1
+        fighterpowerattack.extraWeaponDice[i] += 1
     if i >= 18:
-        fighterpowerattack.wDice[i] += 1
-fighterd10powerattack = Strike(fighterAttackBonus,fighterd10paDamage, csLevel=5)
-fighterd12powerattack = Strike(fighterAttackBonus,fighterd12paDamage, csLevel=5)
+        fighterpowerattack.extraWeaponDice[i] += 1
+#fighterd10powerattack = MeleeStrike(fighterAttackBonus,fighterd10paDamage, csLevel=5)
+#fighterd12powerattack = MeleeStrike(fighterAttackBonus,fighterd12paDamage, csLevel=5)
 
-fighterbrutishshove = Strike(fighterAttackBonus,fighterDamage, csLevel=5)
+fighterbrutishshove = MeleeStrike(fighterAttackBonus,fighterDamage, csLevel=5)
 fighterbrutishshove.setFFonCrit(1)
 fighterbrutishshove.setFFonSuccess(1)
 fighterbrutishshove.setFFonFail(1)
 
-fighterknockdown = Strike(fighterAttackBonus,fighterDamage, csLevel=5)
+fighterknockdown = MeleeStrike(fighterAttackBonus,fighterDamage, csLevel=5)
 fighterknockdown.setFFonCrit(1)
 fighterknockdown.setFFonSuccess(1)
 
-fighterd10brutalfinish = Strike(fighterAttackBonus,fighterd10bfDamage, csLevel=5)
-fighterd10brutalfinish.failureDamage = d10bfd
-fighterd12brutalfinish = Strike(fighterAttackBonus,fighterd12bfDamage, csLevel=5)
-fighterd12brutalfinish.failureDamage = d12bfd
+fighterdbrutalfinish = MeleeStrike(fighterAttackBonus,fighterDamage, csLevel=5)
+fighterdbrutalfinish.brutalFinish = True
+for i in range(1,21):
+    if i >= 12:
+        fighterdbrutalfinish.extraWeaponDice[i] += 1
+    if i >= 18:
+        fighterdbrutalfinish.extraWeaponDice[i] += 1
+#fighterd12brutalfinish = MeleeStrike(fighterAttackBonus,fighterDamage, csLevel=5)
+#fighterd12brutalfinish.failureDamage = d12bfd
 
-fighterrangedstrike = Strike(fighterAttackBonus, fighterrangedDamage, csLevel=5)
-fighterpropulsive12 = Strike(fighterAttackBonus, fighterpropulsive12Damage, csLevel=5)
-fighterpropulsive14 = Strike(fighterAttackBonus, fighterpropulsive14Damage, csLevel=5)
-fighterpropulsive16 = Strike(fighterAttackBonus, fighterpropulsive16Damage, csLevel=5)
+fighterrangedstrike = RangedStrike(fighterAttackBonus, fighterrangedDamage, csLevel=5)
 
-fighterpropulsive12cs = Strike(fighterAttackBonus, fighterpropulsive12Damage, csLevel=5)
-fighterpropulsive12cs.certainStrike = True
-fighterpropulsive14cs = Strike(fighterAttackBonus, fighterpropulsive14Damage, csLevel=5)
-fighterpropulsive14cs.certainStrike = True
-fighterpropulsive16cs = Strike(fighterAttackBonus, fighterpropulsive16Damage, csLevel=5)
-fighterpropulsive16cs.certainStrike = True
+fighterpropulsive = PropulsiveStrike(fighterAttackBonus, fighterrangedDamage, csLevel=5)
 
-fighterpropulsive12es = Strike(fighterAttackBonus, fighterpropulsive12Damage, csLevel=5)
-fighterpropulsive12es.attackBonusOnFail = 5
-fighterpropulsive14es = Strike(fighterAttackBonus, fighterpropulsive14Damage, csLevel=5)
-fighterpropulsive14es.attackBonusOnFail = 5
-fighterpropulsive16es = Strike(fighterAttackBonus, fighterpropulsive16Damage, csLevel=5)
-fighterpropulsive16es.attackBonusOnFail = 5
+fighterpropulsivecs = PropulsiveStrike(fighterAttackBonus, fighterrangedDamage, csLevel=5)
+fighterpropulsivecs.certainStrike = True
+
+fighterpropulsivees = PropulsiveStrike(fighterAttackBonus, fighterrangedDamage, csLevel=5)
+fighterpropulsivees.attackBonusOnFail = 5
 
 fighterAttackSwitcher = {'Fighter Melee Strike': 
                   [fighterstrike], 
@@ -1443,53 +2421,40 @@ fighterAttackSwitcher = {'Fighter Melee Strike':
                   [fightersnaggingstrike], 
                   'Fighter Certain Strike': 
                   [fightercertainstrike],
-                  'Fighter d10 Power Attack': 
-                  [fighterd10powerattack], 
-                  'Fighter d12 Power Attack': 
-                  [fighterd12powerattack], 
+                  'Fighter Power Attack': 
+                  [fighterpowerattack],  
                   'Fighter Brutish Shove': 
                   [fighterbrutishshove], 
                   'Fighter Knockdown': 
                   [fighterknockdown], 
-                  'Fighter d10 Brutal Finish': 
-                  [fighterd10brutalfinish], 
-                  'Fighter d12 Brutal Finish': 
-                  [fighterd12brutalfinish],
+                  'Fighter Brutal Finish': 
+                  [fighterdbrutalfinish], 
                   'Fighter Ranged Strike':
                   [fighterrangedstrike],
-                  'Fighter propulsive 12':
-                  [fighterpropulsive12],
-                  'Fighter propulsive 14':
-                  [fighterpropulsive14],
-                  'Fighter propulsive 16':
-                  [fighterpropulsive16],
-                  'Fighter propulsive 12 es':
-                  [fighterpropulsive12es],
-                  'Fighter propulsive 14 es':
-                  [fighterpropulsive14es],
-                  'Fighter propulsive 16 es':
-                  [fighterpropulsive16es],
-                  'Fighter propulsive 12 cs':
-                  [fighterpropulsive12cs],
-                  'Fighter propulsive 14 cs':
-                  [fighterpropulsive14cs],
-                  'Fighter propulsive 16 cs':
-                  [fighterpropulsive16cs]
+                  'Fighter Propulsive':
+                  [fighterpropulsive],
+                  'Fighter Propulsive es':
+                  [fighterpropulsivees],
+                  'Fighter Propulsive cs':
+                  [fighterpropulsivecs]
                   }
     
     
-druidwolf = Strike(druidwolfattack, druidwolfdamage, isWeapon=False)
-rangerwolf = Strike(rangerwolfattack, rangerwolfdamage, isWeapon=False)
-druidbear = Strike(druidbearattack, druidbeardamage, isWeapon=False)
-rangerbear = Strike(rangerbearattack, rangerbeardamage, isWeapon=False)
+druidwolf = FixedStrike(druidwolfattack, druidwolfdamage)
+rangerwolf = FixedStrike(rangerwolfattack, rangerwolfdamage)
+druidbear = FixedStrike(druidbearattack, druidbeardamage)
+rangerbear = FixedStrike(rangerbearattack, rangerbeardamage)
   
 animalcompanionAttackSwitcher = {'Druid Bear': [druidbear],
                           'Druid Wolf': [druidwolf],
                           'Ranger Bear': [rangerbear],
                           'Ranger Wolf': [rangerwolf]}
 
-summonanimal = Strike(sumAniAttack, sumAniDamage, isWeapon=False)
-summondragon = Strike(sumDraAttack, sumDraDamage, isWeapon=False)
+summonanimal = FixedStrike(sumAniAttack, sumAniDamage)
+summonanimal.isSpell = True
+summondragon = FixedStrike(sumDraAttack, sumDraDamage)
+summondragon.isSpell = True
+summondragon.minSpellLevel = 5
 summondragon.setLevels(9,20)
 
 summonAttackSwitcher = {'Summon Animal': [summonanimal],
@@ -1504,22 +2469,22 @@ damageHigh = creatureData['Damage']['High']
 damageModerate = creatureData['Damage']['Moderate']
 damageLow = creatureData['Damage']['Low']
 
-monsterEH = Strike(attackExtreme,damageHigh,isWeapon=False)
-monsterEM = Strike(attackExtreme,damageModerate,isWeapon=False)
+monsterEH = FixedStrike(attackExtreme,damageHigh)
+monsterEM = FixedStrike(attackExtreme,damageModerate)
 
-monsterHE = Strike(attackHigh,damageExtreme,isWeapon=False)
-monsterHH = Strike(attackHigh,damageHigh,isWeapon=False)
-monsterHM = Strike(attackHigh,damageModerate,isWeapon=False)
-monsterHL = Strike(attackHigh,damageLow,isWeapon=False)
+monsterHE = FixedStrike(attackHigh,damageExtreme)
+monsterHH = FixedStrike(attackHigh,damageHigh)
+monsterHM = FixedStrike(attackHigh,damageModerate)
+monsterHL = FixedStrike(attackHigh,damageLow)
 
-monsterME = Strike(attackModerate,damageExtreme,isWeapon=False)
-monsterMH = Strike(attackModerate,damageHigh,isWeapon=False)
-monsterMM = Strike(attackModerate,damageModerate,isWeapon=False)
-monsterML = Strike(attackModerate,damageLow,isWeapon=False)
+monsterME = FixedStrike(attackModerate,damageExtreme)
+monsterMH = FixedStrike(attackModerate,damageHigh)
+monsterMM = FixedStrike(attackModerate,damageModerate)
+monsterML = FixedStrike(attackModerate,damageLow)
 
-monsterLH = Strike(attackLow,damageHigh,isWeapon=False)
-monsterLM = Strike(attackLow,damageModerate,isWeapon=False)
-monsterLL = Strike(attackLow,damageLow,isWeapon=False)
+monsterLH = FixedStrike(attackLow,damageHigh)
+monsterLM = FixedStrike(attackLow,damageModerate)
+monsterLL = FixedStrike(attackLow,damageLow)
     
 monsterAttackSwitcher = {'Monster Extreme Attack High Damage': [monsterEH],
                   'Monster Extreme Attack Moderate Damage': [monsterEM],
@@ -1548,22 +2513,162 @@ effectAttackSwitcher = {'Flat Foot Target': [flatfoot],
 
 
 magicmissle = Effect(magicMissleDamage)
+magicmissle.weaponDamageDice = magicMissleDamageDice
+magicmissle.isSpell = True
+
 truestrike = Effect(noneDamage)
 truestrike.trueStrike = True
 
-basic45 = Save(spellDC, spellDamage45)
-basic55 = Save(spellDC, spellDamage55)
-basic7 = Save(spellDC, spellDamage7)
-basic8 = Save(spellDC, spellDamage8)
-basic9 = Save(spellDC, spellDamage9)
+basic45 = Save(spellDC, noneDamage)
+basic45.weaponDamageDice = spellDamaged8
+
+basic55 = Save(spellDC, noneDamage)
+basic55.weaponDamageDice = spellDamaged10
+
+basic7 = Save(spellDC, noneDamage)
+basic7.weaponDamageDice = spellDamage2d6
+
+basic8 = Save(spellDC, spellDamage1)
+basic8.weaponDamageDice = spellDamage2d6
+
+basic9 = Save(spellDC, spellDamage2)
+basic9.weaponDamageDice = spellDamage2d6
+
+
+acidarror = SpellStrike(cantripAttackBonus, noneDamage)
+acidarror.minSpellLevel = 2
+acidarror.weaponDamageDice = {i: [d8] + int(sDice[i]/2)*[d8,d8] for i in range(3,21)}
+acidarror.persDamageDice = {i: int(sDice[i]/2)*[d6] for i in range(3,21)}
+
+lightningbolt = Save(spellDC, noneDamage)
+lightningbolt.minSpellLevel = 3
+lightningbolt.weaponDamageDice = {i: [d12] + spellDamaged12[i] for i in range(5,21)}
+
+chainlightning = Save(spellDC, noneDamage)
+chainlightning.minSpellLevel = 6
+chainlightning.weaponDamageDice = {i: [d12,d12] + spellDamaged12[i] for i in range(11,21)}
+
+phantompain = PhantomPainSave(spellDC, noneDamage)
+phantompain.weaponDamageDice = spellDamage2d4
+phantompain.persDamageDice = spellDamaged4
+phantompain.failDebuffTarget = 1
+phantompain.critFailDebuffTarget = 2
+
+grimtendrils = Save(spellDC, noneDamage)
+grimtendrils.weaponDamageDice = spellDamage2d4
+grimtendrils.persDamage = spellDamage1
+
+wallfire = Effect(noneDamage)
+wallfire.isSpell = True
+wallfire.minSpellLevel = 4
+wallfire.weaponDamageDice = spellDamaged6
+
+
+phantasmalkiller = PKSave(spellDC, noneDamage)
+phantasmalkiller.minSpellLevel = 4
+phantasmalkiller.failureDamageDice = {i: [d6,d6,d6,d6] for i in range(1,21)}
+phantasmalkiller.weaponDamageDice = spellDamage2d6
+phantasmalkiller.critDamageDice = {i: sDice[i]*3*[d6] for i in range(1,21)}
+phantasmalkiller.successDebuffTarget = 1
+phantasmalkiller.failDebuffTarget = 2
+phantasmalkiller.critFailDebuffTarget = 4
+
+phantasmalcalamity = Save(spellDC, noneDamage)
+phantasmalcalamity.minSpellLevel = 6
+phantasmalcalamity.weaponDamageDice = {i: spellDamage2d6[i-2] + [d6] for i in range(11,21)}
+
+spiritblast = Save(spellDC, noneDamage)
+spiritblast.minSpellLevel = 6
+spiritblast.weaponDamageDice = {i: spellDamage2d6[i] + 4*[d6] for i in range(11,21)}
+
+weird = Save(spellDC, noneDamage)
+weird.minSpellLevel = 9
+weird.weaponDamageDice = {i: 16*[d6] for i in range(17,21)}
+weird.successDebuffTarget = 1
+weird.failDebuffTarget = 2
+weird.critFailDebuffTarget = 2
+
+visionsdanger = Save(spellDC, noneDamage)
+visionsdanger.minSpellLevel = 7
+visionsdanger.weaponDamageDice = {i: [d8] + spellDamaged8[i] for i in range(13,21)}
+
+warpriestHarm = Save(warpriestDC, noneDamage)
+warpriestHarm.weaponDamageDice = spellDamaged8
+warpriestHarm.isSpell = True
+warpriestHarm10 = Save(warpriestDC, noneDamage)
+warpriestHarm10.weaponDamageDice = spellDamaged10
+warpriestHarm10.isSpell = True
+
+dangeroussorcerery = Effect(noneDamage)
+dangeroussorcerery.addDamage = spellDamage1
+
+debuffAttack123 = Save(spellDC, noneDamage)
+debuffAttack123.isSpell = False
+debuffAttack123.successDebuffAttack = 1
+debuffAttack123.failDebuffAttack = 2
+debuffAttack123.critFailDebuffAttack = 3
+
+debuffAttack124 = Save(spellDC, noneDamage)
+debuffAttack124.isSpell = False
+debuffAttack124.successDebuffAttack = 1
+debuffAttack124.failDebuffAttack = 2
+debuffAttack124.critFailDebuffAttack = 4
+
+debuffAttack122 = Save(spellDC, noneDamage)
+debuffAttack122.isSpell = False
+debuffAttack122.successDebuffAttack = 1
+debuffAttack122.failDebuffAttack = 2
+debuffAttack122.critFailDebuffAttack = 2
+
+debuffAttack012 = Save(spellDC, noneDamage)
+debuffAttack012.isSpell = False
+debuffAttack012.successDebuffAttack = 0
+debuffAttack012.failDebuffAttack = 1
+debuffAttack012.critFailDebuffAttack = 2
+
+debuffTarget123 = Save(spellDC, noneDamage)
+debuffTarget123.isSpell = False
+debuffTarget123.successDebuffTarget = 1
+debuffTarget123.failDebuffTarget = 2
+debuffTarget123.critFailDebuffTarget = 3
+
+debuffTarget012 = Save(spellDC, noneDamage)
+debuffTarget012.isSpell = False
+debuffTarget012.successDebuffTarget = 0
+debuffTarget012.failDebuffTarget = 1
+debuffTarget012.critFailDebuffTarget = 2
+
+disintigrateAttack = SpellStrikeFilter(cantripAttackBonus,noneDamage)
+disintigrateSave = Save(spellDC, noneDamage)
+disintigrateSave.minSpellLevel = 6
+disintigrateSave.weaponDamageDice = spellDamage2d12
 
 spellAttackSwitcher = {'Basic Save 1d8': [basic45],
                        'Basic Save 1d10': [basic55],
                        'Basic Save 2d6': [basic7],
                 'Basic Save 2d6+1': [basic8],
-                'Basic Save 2d8': [basic9],
+                'Basic Save 2d6+2': [basic9],
                 'Magic Missle': [magicmissle],
-                'True Strike': [truestrike]}
+                'True Strike': [truestrike],
+                'Warpriest Harm':[warpriestHarm],
+                'Warpriest d10 Harm':[warpriestHarm10],
+                'Dangerous Sorcery': [dangeroussorcerery],
+                'Phantom Pain': [phantompain],
+                'Grim Tendrils': [grimtendrils],
+                'Acid Arrow': [acidarror],
+                'Lightning Bolt': [lightningbolt],
+                'Phantasmal Killer': [phantasmalkiller],
+                'Pantasmal Calamity': [phantasmalcalamity],
+                'Spirit Blast': [spiritblast],
+                'Weird': [weird],
+                'Visions of Danger': [visionsdanger],
+                'Wall of Fire': [wallfire],
+                'Fear: Debuff Attacker(123)': [debuffAttack123],
+                'Fear: Debuff Target(123)': [debuffTarget123],
+                'Debuff Attacker(012)': [debuffAttack012],
+                'Debuff Target(012)': [debuffTarget012],
+                'Disintigrate Attack': [disintigrateAttack],
+                'Disintigrate Save': [disintigrateSave]}
 
 attackSwitcher = {**alchemistAttackSwitcher,
                   **barbarianAttackSwitcher,

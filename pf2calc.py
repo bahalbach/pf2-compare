@@ -1,7 +1,7 @@
 import copy
 from pf2calcMonsterStats import creatureData
-from pf2calcAttacks import Strike, SaveAttack, Save, Effect, CombinedAttack, attackSwitcher
-
+from pf2calcAttacks import Strike, SaveAttack, Save, AttackSave, Effect, CombinedAttack, attackSwitcher
+from distribution import Distribution
 
 
 
@@ -150,30 +150,49 @@ class Selector:
     def changeTargetSaves(name):
         Selector.selectedTarget.setSaves(creatureData['Saves'][name])
      
+    def shouldAddPrimary(key):
+        attack = attackSwitcher[key][0]
+        return attack.prim
+    
+    def shouldAddSecondary(key):
+        attack = attackSwitcher[key][0]
+        return attack.sec
+    
     def shouldAddWeaponDamage(key):
         attack = attackSwitcher[key][0]
-        return attack.isWeapon and not attack.weaponDamage
+        return attack.isWeapon and not attack.weaponDamageDice
+    
+    def shouldAddSpellLevel(key):
+        attack = attackSwitcher[key][0]
+        return attack.isSpell
     
     def isWeapon(key):
         attack = attackSwitcher[key][0]
         return attack.isWeapon
     
-    def addSelection(key, value, wdd, wc, cs, r1, r2, r3, r4, ab, ad, db, minl, maxl):
+    def addSelection(key, value, primaryAS, secondaryAS, mapValue, attackBonus, 
+                     damageBonus, additionalDamage, spellLevelMod, weaponDamage, 
+                     weaponCritDamage, weaponCritSpec, weaponFeatures, 
+                     minLevel, maxLevel):
         attack = attackSwitcher[value][0]
         newAttack = copy.deepcopy(attack)
         
-        newAttack.setWeaponDamage(wdd)
-        newAttack.setCriticalEffects(wc)
-        newAttack.setCriticalSpecialization(cs)
+        newAttack.setPrimaryAS(primaryAS)
+        newAttack.setSecondaryAS(secondaryAS)
+        #newAttack.setMAP(mapValue)
+
+        newAttack.setWeaponDamageDice(weaponDamage)
+        newAttack.setCriticalDamageDice(weaponCritDamage)
+        newAttack.setCriticalSpecialization(weaponCritSpec)
         
+        newAttack.setWeaponFeatures(weaponFeatures)
         
-        newAttack.setRuneDamage(r1,r2,r3,r4)
+        newAttack.modifyAB(attackBonus)
+        newAttack.modifyAD(additionalDamage)
+        newAttack.modifyDB(damageBonus)
         
-        newAttack.modifyAB(ab)
-        newAttack.modifyAD(ad)
-        newAttack.modifyDB(db)
-        
-        newAttack.setLevels(minl, maxl)
+        newAttack.setSpellLevel(spellLevelMod)
+        newAttack.setLevels(minLevel, maxLevel)
         
         Selector.selections[key] = [newAttack]
         Selector.keyList.append(key)
@@ -263,21 +282,33 @@ class Context:
             self.flatfooted = oldContext.origffstatus
             self.trueStrike = oldContext.trueStrike
             self.origffstatus = oldContext.origffstatus
+            self.treatWorse = False
+            self.ignoreNext = False
             self.attackBonus = oldContext.attackBonus
+            self.debuffTarget = oldContext.debuffTarget
+            self.debuffAttack = oldContext.debuffAttack
             self.damageBonus = oldContext.damageBonus
             self.chance = oldContext.chance * chance
-            self.totalDamage = oldContext.totalDamage
-            self.totalPDamage = oldContext.totalPDamage
+            self.hits = oldContext.hits
+            self.crits = oldContext.crits
+            
+            self.damageDistribution = copy.deepcopy(oldContext.damageDistribution)
+            self.persDistribution = copy.deepcopy(oldContext.persDistribution)
             
             self.thisStrikeBonus = 0
             self.thisDamageBonus = 0
         
-            self.onFirstHitDamage = oldContext.onFirstHitDamage
-            self.onSecondHitDamage = oldContext.onSecondHitDamage
-            self.onThirdHitDamage = oldContext.onThirdHitDamage
-            self.onEveryHitDamage = oldContext.onEveryHitDamage
+            self.onFirstHitDamageDice = oldContext.onFirstHitDamageDice
+            self.onSecondHitDamageDice = oldContext.onSecondHitDamageDice
+            self.onThirdHitDamageDice = oldContext.onThirdHitDamageDice
+            self.onEveryHitDamageDice = oldContext.onEveryHitDamageDice
             
             if result:
+                if result.good:
+                    self.hits += 1
+                if result.veryGood:
+                    self.crits += 1
+                    
                 if result.futureAttacksFF:
                     self.origffstatus = True
                     self.flatfooted = True
@@ -289,46 +320,102 @@ class Context:
                 if result.trueStrike:
                     self.trueStrike = True 
                
+                if result.treatWorse:
+                    self.treatWorse = True
+                    
+                if result.ignoreNext:
+                    print("t1")
+                    self.ignoreNext = True
+                    
                 self.thisStrikeBonus = max(oldContext.thisStrikeBonus, result.nextStrikeBonus)
                 
                     
-                if result.addfirsthitdamage != 0:
-                    self.onFirstHitDamage += result.addfirsthitdamage
-                if result.addsecondhitdamage != 0:
-                    self.onSecondHitDamage += result.addsecondhitdamage
-                if result.addthirdhitdamage != 0:
-                    self.onThirdHitDamage += result.addthirdhitdamage
-                if result.addeveryhitdamage != 0:
-                    self.onEveryHitDamage += result.addeveryhitdamage
+                if result.addfirsthitdamageDice != 0:
+                    self.onFirstHitDamageDice += result.addfirsthitdamageDice
+                if result.addsecondhitdamageDice != 0:
+                    self.onSecondHitDamageDice += result.addsecondhitdamageDice
+                if result.addthirdhitdamageDice != 0:
+                    self.onThirdHitDamageDice += result.addthirdhitdamageDice
+                if result.addeveryhitdamageDice != 0:
+                    self.onEveryHitDamageDice += result.addeveryhitdamageDice
                     
+                self.thisDamageBonus = result.adddamage
                 
-                if type(result.atk) is Strike and result.isHit():
-                    self.totalDamage += self.onFirstHitDamage + self.onEveryHitDamage
-                    self.onFirstHitDamage = self.onSecondHitDamage
-                    self.onSecondHitDamage = self.onThirdHitDamage
-                    self.onThirdHitDamage = 0
+                if result.debuffAttack > self.debuffAttack:
+                    self.debuffAttack = result.debuffAttack
                 
-                self.totalDamage += result.damage
-                self.totalPDamage += result.pdamage
+                if result.debuffTarget > self.debuffTarget:
+                    self.debuffTarget = result.debuffTarget
+                
+                if isinstance(result.atk, Strike) and result.isHit():
+                    #self.totalDamage += self.onFirstHitDamage + self.onEveryHitDamage
+                    result.damageDice += self.onFirstHitDamageDice + self.onEveryHitDamageDice
+                    
+                    self.onFirstHitDamageDice = self.onSecondHitDamageDice
+                    self.onSecondHitDamageDice = self.onThirdHitDamageDice
+                    self.onThirdHitDamageDice = []
+                
+            
+                #apply attacks damage to distribution
+                # doubled, halved, or normal
+                damageDist = Distribution(result.damageDice,result.staticDamage)
+                persDist = Distribution(result.persDamDice,result.persDam)
+                
+                
+                #double for crit
+                if result.doubleDamage:
+                    damageDist.double()
+                    if result.doublePersOnDouble:
+                        persDist.double()
+                        
+                if result.isCrit():
+                    damageDist.add(result.critDamDice,result.critDam)
+                    persDist.add(result.critPersDamDice,result.critPersDam)
+                    
+                # halve damage
+                if result.halveDamage:
+                    damageDist.halve()
+                    # ignoring damage...
+                
+                # add splash damage
+                damageDist.add(result.splashDamDice, result.splashDam)
+                
+                self.damageDistribution.combine(damageDist)
+                self.persDistribution.combine(persDist)
+                
+                # modified by how much we care about pers damage
+                #pdWeight = int(CombinedAttack.PDWeight)
+                #persDist.multiply(pdWeight)
+               
                 return
             
             return 
         self.flatfooted = False
         self.origffstatus = False
         self.trueStrike = False
+        self.treatWorse = False
+        self.ignoreNext = False
         self.attackBonus = 0
+        self.debuffAttack = 0
+        self.debuffTarget = 0
         self.damageBonus = 0
         self.chance = chance
         self.totalDamage = 0
         self.totalPDamage = 0
+        self.hits = 0
+        self.crits = 0
+ 
+        self.damageDistribution = Distribution()
+        self.persDistribution = Distribution()
+        
         
         self.thisStrikeBonus = 0
         self.thisDamageBonus = 0
         
-        self.onFirstHitDamage = 0
-        self.onSecondHitDamage = 0
-        self.onThirdHitDamage = 0
-        self.onEveryHitDamage = 0
+        self.onFirstHitDamageDice = []
+        self.onSecondHitDamageDice = []
+        self.onThirdHitDamageDice = []
+        self.onEveryHitDamageDice = []
         return
     
     def setFlatfooted(self):
@@ -347,16 +434,19 @@ class Context:
     def getStrikeBonus(self):
         bonus = self.attackBonus + self.thisStrikeBonus
         self.thisStrikeBonus = 0
-        return bonus
+        return bonus - self.debuffAttack
     
     def getSaveAttackBonus(self):
-        return self.attackBonus
+        return self.attackBonus - self.debuffAttack
     
     def getDCBonus(self):
-        return self.attackBonus
+        return self.attackBonus - self.debuffAttack
     
     def getSaveBonus(self):
-        return 0
+        return 0 - self.debuffTarget
+    
+    def getACBonus(self):
+        return 0 - self.debuffTarget
     
     def getEffectBonus(self):
         return 0
@@ -372,27 +462,29 @@ class Context:
         self.trueStrike = False
         return tss
     
+    def averageDamage(self):
+#        print("ave dam is ",self.damageDistribution.average())
+#        print("dam dist is ")
+        return self.damageDistribution.average()
     
-def graphTrace(routine, target, level, levelDiff, attackBonus, damageBonus, weakness, flatfootedStatus):
-    y = 0
-    py = 0
+    def averagePDamage(self):
+        return self.persDistribution.average()
     
-    if type(routine) is CombinedAttack:
-        # what if it contains more combined attacks?
-        for atk in routine.validFor(level):
-            newy, newpy = graphTrace(atk, target, level, levelDiff, attackBonus, damageBonus, weakness, flatfootedStatus)
-            if y == 0:
-                y = newy
-                py = newpy
-            else:
-                y, py = routine.choose(y, py, newy, newpy)
-        return y, py
-        
+    def numberHits(self):
+        return self.hits
+    
+    def numberCrits(self):
+        return self.crits
+    
+    def getDamageDist(self):
+        return self.damageDistribution.generate()
+    
+def generateContextList(routine, target, level, levelDiff, attackBonus, damageBonus, weakness, flatfootedStatus):
     oContext = Context(None, 1, None)
     oContext.setAttackBonus(attackBonus)
     oContext.setDamageBonus(damageBonus)
-    normalContext = Context(oContext, 1-flatfootedStatus,None)
-    ffContext = Context(oContext, flatfootedStatus, None)
+    normalContext = Context(oContext, 1-flatfootedStatus/100,None)
+    ffContext = Context(oContext, flatfootedStatus/100, None)
     ffContext.setFlatfooted()
     contextList = [normalContext, ffContext]
     
@@ -400,32 +492,47 @@ def graphTrace(routine, target, level, levelDiff, attackBonus, damageBonus, weak
         newContextList = []
         for context in contextList:
             # calculate the effects for this attack
+            if context.chance == 0:
+                continue 
+                
             keenStatus = False
             trueStrike = False
-            if(type(atk) is Strike):
+            if(isinstance(atk, Strike)):
                 totalBonus = atk.getAttack(level)
                 totalBonus += context.getStrikeBonus()
                 keenStatus = atk.getKeen(level)
                 trueStrike = context.hasTrueStrike()
                 
-                totalDC = target.getAC(level+levelDiff)
+                totalDC = target.getAC(level+levelDiff) + context.getACBonus()
             
                 if context.flatfooted:
                     totalDC -= 2
-            elif(type(atk) is SaveAttack):
+            elif(isinstance(atk,SaveAttack)):
                 totalBonus = atk.getAttack(level)
                 totalBonus += context.getSaveAttackBonus()
                 keenStatus = atk.getKeen(level)
+                
                 trueStrike = context.hasTrueStrike()
             
-                totalDC = target.getSaveDC(level+levelDiff)
-            elif(type(atk) is Save):
+                totalDC = target.getSaveDC(level+levelDiff) + context.getSaveBonus()
+            elif(isinstance(atk, Save)):
                 totalBonus = target.getSaves(level+levelDiff)
-                totalBonus += context.getSaveBonus()
+                totalBonus += context.getSaveBonus() 
                 
                 totalDC = atk.getDC(level)
                 totalDC += context.getDCBonus()
-            elif(type(atk) is Effect):
+#            elif(isinstance(atk, AttackSave)):
+#                totalBonus = atk.getAttack(level)
+#                totalBonus += context.getStrikeBonus()
+#                keenStatus = atk.getKeen(level)
+#                trueStrike = context.hasTrueStrike()
+#                
+#                totalDC = target.getAC(level+levelDiff) + context.getACBonus()
+#                if context.flatfooted:
+#                    totalDC -= 2
+#                    
+#                
+            elif(isinstance(atk, Effect)):
                 r = atk.effectResult(level, context)
                 eContext = Context(context, 1, r)
                 newContextList.append(eContext)
@@ -451,48 +558,121 @@ def graphTrace(routine, target, level, levelDiff, attackBonus, damageBonus, weak
                 failurePercent = failureChance(totalBonus-totalDC)
                 critFailurePercent = critFailureChance(totalBonus-totalDC)
                 
+            if context.treatWorse:
+                critFailurePercent = critFailurePercent + failurePercent
+                failurePercent = successPercent
+                successPercent = critSuccessPercent
+                critSuccessPercent = 0
                 
-            critSuccessResult = atk.critSuccessResult(level, context)
-            csContext = Context(context, critSuccessPercent/100, critSuccessResult)
-            newContextList.append(csContext)
+            if context.ignoreNext:
+                print("t2")
+                ignoreContext = Context(context, 100, None)
+                newContextList.append(ignoreContext)
+            else:
+                critSuccessResult = atk.critSuccessResult(level, context)
+                csContext = Context(context, critSuccessPercent/100, critSuccessResult)
+                newContextList.append(csContext)
+            
+                
+                successResult = atk.successResult(level, context)
+                sContext = Context(context, successPercent/100, successResult)
+                newContextList.append(sContext)
+                
+            
+                failureResult = atk.failureResult(level, context)
+                fContext = Context(context, failurePercent/100, failureResult)
+                newContextList.append(fContext)
             
             
-            successResult = atk.successResult(level, context)
-            sContext = Context(context, successPercent/100, successResult)
-            newContextList.append(sContext)
-            
-            
-            failureResult = atk.failureResult(level, context)
-            fContext = Context(context, failurePercent/100, failureResult)
-            newContextList.append(fContext)
-            
-            
-            critFailureResult = atk.critFailureResult(level, context)
-            cfContext = Context(context, critFailurePercent/100, critFailureResult)
-            newContextList.append(cfContext)      
+                critFailureResult = atk.critFailureResult(level, context)
+                cfContext = Context(context, critFailurePercent/100, critFailureResult)
+                newContextList.append(cfContext)      
             
         # replace contextList with the list of newly created contexts
         contextList = newContextList
         
-    for context in contextList:
-        y += context.totalDamage * context.chance
-        py += context.totalPDamage * context.chance
+    return contextList
     
-    return y, py
+    
+def graphTrace(routine, target, level, levelDiff, attackBonus, damageBonus, weakness, flatfootedStatus):
+    y = 0
+    py = 0
+    hits = 0
+    crits = 0
+    
+    if type(routine) is CombinedAttack:
+        # what if it contains more combined attacks?
+        for atk in routine.validFor(level):
+            newy, newpy, nh, nc = graphTrace(atk, target, level, levelDiff, attackBonus, damageBonus, weakness, flatfootedStatus)
+            if y == 0:
+                y = newy
+                py = newpy
+                hits = nh
+                crits = nc
+            else:
+                y, py, hits, crits = routine.choose(y, py, newy, newpy, hits, crits, nh, nc)
+        return y, py, hits, crits
+        
+    contextList = generateContextList(routine, target, level, levelDiff, attackBonus, damageBonus, weakness, flatfootedStatus)
+        
+    for context in contextList:
+#        print("level is ", level)
+#        print("chance is ", context.chance)
+        y += context.averageDamage() * context.chance
+        py += context.averagePDamage() * context.chance
+        hits += context.numberHits() * context.chance
+        crits += context.numberCrits() * context.chance
+        
+    return y, py, hits, crits
 
                     
+def graphChanceDamage(routine, target, level, levelDiff, attackBonus, damageBonus, weakness, flatfootedStatus):
+    # returns an xList of damages and a yList of chances
+    damageList = []
+    chanceList = []
+    
+    if type(routine) is CombinedAttack:
+        # what if it contains more combined attacks?
+        print("not implimented")
+        raise Exception("Can't handle Combinded Attacks")
+    
+    contextList = generateContextList(routine, target, level, levelDiff, attackBonus, damageBonus, weakness, flatfootedStatus)
+        
+    damageChanceDict = {}
+    for context in contextList:
+        # get chance and damage
+        for damage, chance in context.getDamageDist():
+            damage = int(damage)
+            if damage in damageChanceDict:
+                damageChanceDict[damage] += chance * context.chance
+            else:
+                damageChanceDict[damage] = chance * context.chance
+    
+    maxDamage = max(damageChanceDict.keys())
+    for damage in range(maxDamage+1):
+        chance = 0
+        if damage in damageChanceDict:
+            chance = damageChanceDict[damage]
+        damageList.append(damage)
+        chanceList.append(chance)
+    
+    return damageList, chanceList
 	
 def createTraces(levelDiff, flatfootedStatus, attackBonus, damageBonus, weakness):
 #     print("c t")
     xLists = []
     yLists = []
     pyLists = []
+    hitsLists = []
+    critsLists = []
     target = Selector.selectedTarget
     for k in Selector.keyList: #for each attack routine selection
         s = Selector.selections[k]
         xList = []
         yList = []
         pyList = []
+        hitsList = []
+        critsList = []
         for i in range(1,21):
             toAdd = True
             if(type(s) is CombinedAttack):
@@ -500,38 +680,46 @@ def createTraces(levelDiff, flatfootedStatus, attackBonus, damageBonus, weakness
                     xList.append(i)
             else:
                 for st in s:  
-                    if not(st.getAttack(i) and target.contains(i+levelDiff)):
+                    if not(st.getAttack(i) is not None and target.contains(i+levelDiff)):
                         toAdd = False
                 if toAdd:
-                    xList.append(i)  
+                    xList.append(i) 
         for i in range(1,21): 
             if i in xList:
-                # reset damage and things like flat footed status
-                
-                
-                y, py = graphTrace(s, target, i, levelDiff, attackBonus, damageBonus, weakness, flatfootedStatus)
+                # reset damage and things like flat footed status             
+                y, py, hits, crits = graphTrace(s, target, i, levelDiff, attackBonus, damageBonus, weakness, flatfootedStatus)
+     
                 yList.append(y)
                 pyList.append(py)
+                hitsList.append(hits)
+                critsList.append(crits)
         xLists.append(xList)
         yLists.append(yList)
         pyLists.append(pyList)
+        hitsLists.append(hitsList)
+        critsLists.append(critsList)
+        
     
-    return xLists, yLists, pyLists, Selector.keyList
+    return xLists, yLists, pyLists, hitsLists, critsLists, Selector.keyList
 
 def createLevelTraces(levelDiff, flatfootedStatus, attackBonus, damageBonus, weakness, level):
     xLists = []
     yLists = []
     pyLists = []
+    hitsLists = []
+    critsLists = []
     target = Selector.selectedTarget
     
     if not target.contains(level+levelDiff):
-        return xLists, yLists, pyLists, Selector.keyList
+        return xLists, yLists, pyLists, hitsLists, critsLists, Selector.keyList
     
     for k in Selector.keyList: #for each attack routine selection
         s = Selector.selections[k]
         xList = []
         yList = []
         pyList = []
+        hitsList = []
+        critsList = []
         
         # is this strike routine valid for this level?
         toAdd = True
@@ -545,13 +733,51 @@ def createLevelTraces(levelDiff, flatfootedStatus, attackBonus, damageBonus, wea
         
         if toAdd:
             for i in range(-8,9):
-                xList.append(target.getAC(level+levelDiff)-i)
-                y, py = graphTrace(s, target, level, levelDiff, attackBonus+i, damageBonus, weakness, flatfootedStatus)
+                ac = target.getAC(level+levelDiff)-i
+                save = target.getSaves(level+levelDiff)-i
+                xList.append(ac)
+                y, py, hits, crits = graphTrace(s, target, level, levelDiff, attackBonus+i, damageBonus, weakness, flatfootedStatus)
                 yList.append(y)
                 pyList.append(py)
+                hitsList.append(hits)
+                critsList.append(crits)
         xLists.append(xList)
         yLists.append(yList)
         pyLists.append(pyList)
+        hitsLists.append(hitsList)
+        critsLists.append(critsList)
     
-    return xLists, yLists, pyLists, Selector.keyList
+    return xLists, yLists, pyLists, hitsLists, critsLists, Selector.keyList
         
+def createDamageDistribution(levelDiff, flatfootedStatus, attackBonus, damageBonus, weakness, level):
+    xLists = []
+    yLists = []
+    target = Selector.selectedTarget
+    
+    if not target.contains(level+levelDiff):
+        return xLists, yLists, Selector.keyList
+    
+    for k in Selector.keyList: #for each attack routine selection
+        s = Selector.selections[k]
+        xList = []
+        yList = []
+        
+        # is this strike routine valid for this level?
+        toAdd = True
+        if(type(s) is CombinedAttack):
+            if not s.contains(level):
+                    toAdd = False
+        else:
+            for st in s:  
+                if not(st.getAttack(level) ):
+                    toAdd = False
+        
+        if toAdd:
+            # get the damage, x, and chance, y, for this attack
+            xList, yList = graphChanceDamage(s, target, level, levelDiff, attackBonus, damageBonus, weakness, flatfootedStatus)
+            
+            
+        xLists.append(xList)
+        yLists.append(yList)
+    
+    return xLists, yLists, Selector.keyList
