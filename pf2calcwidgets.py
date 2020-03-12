@@ -119,7 +119,8 @@ levelSelector = widgets.IntSlider(
 
 levelViewSelector = widgets.Dropdown(
         options = ['Expected Damage by AC',
-                   'Damage Distribution'],
+                   'Damage Distribution',
+                   'Cumulative Distribution'],
         value='Expected Damage by AC'
 )
 
@@ -889,7 +890,7 @@ g.update_layout(title_text="Expected damage by level",
 
 def updateEDBLGraph():
     CombinedAttack.PDWeight = persistentDamageWeightBox.value
-    if byLevelView.value and levelViewSelector.value == 'Damage Distribution':
+    if byLevelView.value and (levelViewSelector.value == 'Damage Distribution' or levelViewSelector.value == 'Cumulative Distribution'):
         xLists, yLists, nameList = createDamageDistribution(levelDiff.value,
                                             flatfootedBox.value, 
                                             attackBonus.value,
@@ -901,12 +902,22 @@ def updateEDBLGraph():
         yaxisText="Chance"
         #y axis needs title
         # do all stuff here
+        if levelViewSelector.value == 'Cumulative Distribution':
+            for yList in yLists:
+                totalChance = 1
+#                print(yList)
+                for i, chance in enumerate(yList):
+                    yList[i], totalChance = totalChance, totalChance - yList[i]
         
         with g.batch_update():
             g.data = []
-            for i in range(len(xLists)):
-                g.add_trace(go.Bar(x=xLists[i],y=yLists[i],name=nameList[i]
-                                         ))
+            if levelViewSelector.value == 'Cumulative Distribution':
+                for i in range(len(xLists)):
+                    g.add_trace(go.Scatter(x=xLists[i],y=yLists[i],name=nameList[i]))
+            else:
+                for i in range(len(xLists)):
+                    g.add_trace(go.Bar(x=xLists[i],y=yLists[i],name=nameList[i]))
+                                         
         
             # update legend size
             g.update_layout(height=500+10*len(nameList))
@@ -928,7 +939,7 @@ def updateEDBLGraph():
                                             levelSelector.value)
             titleText="Expected damage for level " + str(levelSelector.value) + " vs Level " + str(levelSelector.value+levelDiff.value) + " Target with " + str(targetACSelector.value) + " AC and " + str(targetSavesSelector.value) + " Saves"
             xaxisText="vs AC"  
-            xaxis2Text="vs Save"
+#            xaxis2Text="vs Save"
     else:
         xLists, yLists, pyLists, hitsLists, critsLists, nameList = createTraces(levelDiff.value, 
                                             flatfootedBox.value, 
