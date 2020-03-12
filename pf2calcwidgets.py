@@ -1089,7 +1089,7 @@ targetSavesSelector.observe(targetSavesChangedResponse, names="value")
 classSelector.observe(classSelectorResponse, names="value")
 
 
-adjustments = widgets.HBox([levelDiff,attackBonus,damageBonus,applyDebuffs])#weakness
+adjustments = widgets.HBox([levelDiff,attackBonus,damageBonus])#weakness, applyDebuffs
 targetRow = widgets.HBox([targetACSelector, targetSavesSelector,flatfootedBox,persistentDamageWeightBox])
 
 levelViewRow = widgets.HBox([percentageView,byLevelView,levelSelector,levelViewSelector])
