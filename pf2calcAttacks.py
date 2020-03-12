@@ -350,6 +350,14 @@ for i in wsProf:
     if i >= 19:
         wsProf[i] += 2
 
+skillProf = {i: i+2 for i in range(1,21)}
+for i in skillProf:
+    if i >= 3:
+        skillProf[i] += 2
+    if i >= 7:
+        skillProf[i] += 2
+    if i >= 15:
+        skillProf[i] += 2
     
 mStr = {i: 4 for i in range(1,21)}
 for i in mStr:
@@ -395,6 +403,15 @@ for i in miBonus:
     if i >= 17: 
         miBonus[i] +=1
         
+siBonus = {i: 0 for i in range(1,21)}
+for i in siBonus:
+    if i >= 3:
+        siBonus[i] += 1
+    if i >= 9:
+        siBonus[i] += 1
+    if i >= 17:
+        siBonus[i] += 1
+        
 wDice = {i: 1 for i in range(1,21)}
 for i in wDice:
     if i >= 4:
@@ -422,6 +439,11 @@ fighterAttackBonus = {i: fProf[i]  + wiBonus[i] for i in range(1,21)}
 cantripAttackBonus = {i: sProf[i]  for i in range(1,21)}
 spellDC = {i: 10 + cantripAttackBonus[i] for i in range(1,21)}
 warpriestDC = {i: 10 + wsProf[i] for i in range(1,21)}
+
+trainedSkillBonus = {i: i+2 for i in range(1,21)}
+maxSkillBonus = {i: skillProf[i] + siBonus[i] for i in range(1,21)}
+rogueMaxSkill = copy.copy(maxSkillBonus)
+rogueMaxSkill[2] += 2
 
 basewolf = {i: i+5 for i in range(1,21)}
 maturewolf = {i: i+6 for i in range(1,21)}
@@ -1043,6 +1065,12 @@ class Result:
         self.ishit = True
         self.good = True
         
+    def setSuccess(self):
+        self.good = True
+        
+    def setCritSuccess(self):
+        self.veryGood = True
+        
     def setFail(self):
         self.okay = True
         
@@ -1644,9 +1672,116 @@ class SpellStrikeFilter(RangedStrike):
 class SaveAttack(AtkSelection):
     def __init__(self, attack, damage):
         super().__init__(attack, damage)
+        self.prim = True
+        self.sec = False
+        
+    def setPrimaryAS(self, score):
+        scoreValues = abilityScoreConverter[score]
+        self.addAttackBonuses(scoreValues)
+        return True
+    def setSecondaryAS(self, score):
+        return False
+    
 
+    def critSuccessResult(self, level, context):
+        r = Result(self, [], 0)
+        r.setCritSuccess()
+        return r
     
+    def successResult(self, level, context):
+        r = Result(self, [], 0)
+        r.setSuccess()
+        return r
+        
+    def failureResult(self, level, context):
+        r = Result(self, [], 0)
+        r.setFail()
+        return r
+        
+    def critFailureResult(self, level, context):
+        r = Result(self, [], 0)
+        r.setCritFail()
+        return r
+
+class Feint(SaveAttack):
+    def __init__(self, attack):
+        super().__init__(attack, noneDamage)
+        
+    def critSuccessResult(self, level, context):
+        r = Result(self, [], 0)
+        r.setCritSuccess()
+        
+        r.futureAttacksFF = True
+        return r
     
+    def successResult(self, level, context):
+        r = Result(self, [], 0)
+        r.setSuccess()
+        
+        r.nextAttackFF = True
+        return r
+        
+class ScoundrelFeint(SaveAttack):
+    def __init__(self, attack):
+        super().__init__(attack, noneDamage)
+    
+    def critSuccessResult(self, level, context):
+        r = Result(self, [], 0)
+        r.setCritSuccess()
+        
+        r.futureAttacksFF = True
+        return r
+    
+    def successResult(self, level, context):
+        r = Result(self, [], 0)
+        r.setSuccess()
+        
+        r.futureAttacksFF = True
+        return r
+    
+class Demoralize(SaveAttack):
+    def __init__(self, attack):
+        super().__init__(attack, noneDamage)
+        
+    def critSuccessResult(self, level, context):
+        r = Result(self, [], 0)
+        r.setCritSuccess()
+        
+        r.debuffTarget = 2
+        return r
+    
+    def successResult(self, level, context):
+        r = Result(self, [], 0)
+        r.setSuccess()
+        
+        r.debuffTarget = 1
+        return r
+
+class ScareToDeath(SaveAttack):
+    def __init__(self, attack):
+        super().__init__(attack, noneDamage)
+        
+    def critSuccessResult(self, level, context):
+        r = Result(self, [], 0)
+        r.setCritSuccess()
+        
+        r.debuffTarget = 3
+        return r
+    
+    def successResult(self, level, context):
+        r = Result(self, [], 0)
+        r.setSuccess()
+        
+        r.debuffTarget = 2
+        return r
+    
+    def failureResult(self, level, context):
+        r = Result(self, [], 0)
+        r.setFail()
+        
+        r.debuffTarget = 1
+        return r
+        
 class Save(AtkSelection):
     def __init__(self, dc, damage):
         super().__init__(dc, damage)
@@ -2670,6 +2805,23 @@ spellAttackSwitcher = {'Basic Save 1d8': [basic45],
                 'Disintigrate Attack': [disintigrateAttack],
                 'Disintigrate Save': [disintigrateSave]}
 
+maxfeint = Feint(maxSkillBonus)
+trainedfeint = Feint(trainedSkillBonus)
+scoundrelfeint = ScoundrelFeint(rogueMaxSkill)
+maxdemoralize = Demoralize(maxSkillBonus)
+traineddemoralize = Demoralize(trainedSkillBonus)
+scaretodeath = ScareToDeath(maxSkillBonus)
+
+skillAttackSwitcher = {
+        'Scoundrel Feint': [scoundrelfeint],
+        'Trained Feint': [trainedfeint],
+        'Max Feint': [maxfeint],
+        'Trained Demoralize': [traineddemoralize],
+        'Max Demoralize': [maxdemoralize],
+        'Scare to Death': [scaretodeath]
+        }
+
+
 attackSwitcher = {**alchemistAttackSwitcher,
                   **barbarianAttackSwitcher,
                   **otherAttackSwitcher,
@@ -2679,4 +2831,5 @@ attackSwitcher = {**alchemistAttackSwitcher,
                   **summonAttackSwitcher,
                   **monsterAttackSwitcher,
                   **effectAttackSwitcher,
-                  **spellAttackSwitcher}
+                  **spellAttackSwitcher,
+                  **skillAttackSwitcher}

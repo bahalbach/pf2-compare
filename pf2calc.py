@@ -1,6 +1,6 @@
 import copy
 from pf2calcMonsterStats import creatureData
-from pf2calcAttacks import Strike, SaveAttack, Save, AttackSave, Effect, CombinedAttack, attackSwitcher
+from pf2calcAttacks import Strike, SaveAttack, Save, Effect, CombinedAttack, attackSwitcher
 from distribution import Distribution
 
 
@@ -324,7 +324,7 @@ class Context:
                     self.treatWorse = True
                     
                 if result.ignoreNext:
-                    print("t1")
+                    
                     self.ignoreNext = True
                     
                 self.thisStrikeBonus = max(oldContext.thisStrikeBonus, result.nextStrikeBonus)
@@ -514,7 +514,7 @@ def generateContextList(routine, target, level, levelDiff, attackBonus, damageBo
                 
                 trueStrike = context.hasTrueStrike()
             
-                totalDC = target.getSaveDC(level+levelDiff) + context.getSaveBonus()
+                totalDC = 10 + target.getSaves(level+levelDiff) + context.getSaveBonus()
             elif(isinstance(atk, Save)):
                 totalBonus = target.getSaves(level+levelDiff)
                 totalBonus += context.getSaveBonus() 
@@ -565,7 +565,6 @@ def generateContextList(routine, target, level, levelDiff, attackBonus, damageBo
                 critSuccessPercent = 0
                 
             if context.ignoreNext:
-                print("t2")
                 ignoreContext = Context(context, 100, None)
                 newContextList.append(ignoreContext)
             else:
@@ -704,6 +703,7 @@ def createTraces(levelDiff, flatfootedStatus, attackBonus, damageBonus, weakness
 
 def createLevelTraces(levelDiff, flatfootedStatus, attackBonus, damageBonus, weakness, level):
     xLists = []
+    xLists2 = []
     yLists = []
     pyLists = []
     hitsLists = []
@@ -716,6 +716,7 @@ def createLevelTraces(levelDiff, flatfootedStatus, attackBonus, damageBonus, wea
     for k in Selector.keyList: #for each attack routine selection
         s = Selector.selections[k]
         xList = []
+        xList2 = []
         yList = []
         pyList = []
         hitsList = []
@@ -736,18 +737,20 @@ def createLevelTraces(levelDiff, flatfootedStatus, attackBonus, damageBonus, wea
                 ac = target.getAC(level+levelDiff)-i
                 save = target.getSaves(level+levelDiff)-i
                 xList.append(ac)
+                xList2.append(save)
                 y, py, hits, crits = graphTrace(s, target, level, levelDiff, attackBonus+i, damageBonus, weakness, flatfootedStatus)
                 yList.append(y)
                 pyList.append(py)
                 hitsList.append(hits)
                 critsList.append(crits)
         xLists.append(xList)
+        xLists2.append(xList2)
         yLists.append(yList)
         pyLists.append(pyList)
         hitsLists.append(hitsList)
         critsLists.append(critsList)
     
-    return xLists, yLists, pyLists, hitsLists, critsLists, Selector.keyList
+    return xLists, xLists2, yLists, pyLists, hitsLists, critsLists, Selector.keyList
         
 def createDamageDistribution(levelDiff, flatfootedStatus, attackBonus, damageBonus, weakness, level):
     xLists = []

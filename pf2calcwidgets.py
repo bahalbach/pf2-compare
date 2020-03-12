@@ -420,6 +420,7 @@ classSelector = widgets.Dropdown(
                  "Animal Companion",
                  "Cantrips",
                  "Spells",
+                 "Skills",
                  "Caster Strikes",
                  "Martial Strikes",
                  "Monster",
@@ -526,7 +527,8 @@ rangerOptions = ['Ranger Precision Edge',
                         'Martial Ranged Strike',
                         'Martial Propulsive']
 rogueOptions = ['Rogue Strike',
-                'Flat Foot Next Strike']
+                'Flat Foot Next Strike',
+                'Scoundrel Feint']
 sorcererOptions = ['Caster Strike',
                    'Bespell Weapon']
 wizardOptions = ['Caster Strike',
@@ -577,6 +579,11 @@ spellOptions = ['Dangerous Sorcery',
                 'Disintigrate Save',
                 'Summon Animal',
                 'Summon Dragon']
+skillOptions = ['Trained Feint',
+                'Max Feint',
+                'Trained Demoralize',
+                'Max Demoralize',
+                'Scare to Death']
 
 selectionSwitcher = {"Alchemist": alchemistOptions, 
                      "Barbarian": barbarianOptions,
@@ -596,7 +603,8 @@ selectionSwitcher = {"Alchemist": alchemistOptions,
                      "Animal Companion": animalcompanionOptions,
                      "Monster": monsterOptions,
                      "Effects": effectOptions,
-                     "Spells": spellOptions}
+                     "Spells": spellOptions,
+                     "Skills": skillOptions}
 
 
 selector = widgets.SelectMultiple(
@@ -912,14 +920,15 @@ def updateEDBLGraph():
     
     if byLevelView.value:
         if levelViewSelector.value == 'Expected Damage by AC':
-            xLists, yLists, pyLists, hitsLists, critsLists, nameList = createLevelTraces(levelDiff.value, 
+            xLists, xLists2, yLists, pyLists, hitsLists, critsLists, nameList = createLevelTraces(levelDiff.value, 
                                             flatfootedBox.value, 
                                             attackBonus.value,
                                             damageBonus.value,
                                             weakness.value,
                                             levelSelector.value)
             titleText="Expected damage for level " + str(levelSelector.value) + " vs Level " + str(levelSelector.value+levelDiff.value) + " Target with " + str(targetACSelector.value) + " AC and " + str(targetSavesSelector.value) + " Saves"
-            xaxisText="vs AC"    
+            xaxisText="vs AC"  
+            xaxis2Text="vs Save"
     else:
         xLists, yLists, pyLists, hitsLists, critsLists, nameList = createTraces(levelDiff.value, 
                                             flatfootedBox.value, 
@@ -1024,11 +1033,17 @@ def updateEDBLGraph():
         
         # update legend size
         g.update_layout(height=500+10*len(nameList))
-        
-        g.update_layout(title_text=titleText,
-                        xaxis_title_text=xaxisText,
-                        yaxis_title_text=wantedView)
-        
+        if byLevelView.value:
+            g.update_layout(title_text=titleText,
+                            xaxis_title_text=xaxisText,
+#                            xaxis2_title_text =  xaxis2Text, 
+#                            xaxis2_overlaying= 'x', 
+                            yaxis_title_text=wantedView)
+        else:
+            g.update_layout(title_text=titleText,
+                            xaxis_title_text=xaxisText,
+                            yaxis_title_text=wantedView)
+            
         # should update the axis so the data fits
 #        if percentageView.value == 'Percent of First Selection':
 #            g.layout.yaxis.range = [0,200]
